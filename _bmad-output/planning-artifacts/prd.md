@@ -19,10 +19,12 @@ stepsCompleted:
   - step-e-03-edit
 status: complete
 completedAt: 2026-02-27
-lastEdited: 2026-02-28
+lastEdited: '2026-02-28'
 editHistory:
   - date: 2026-02-28
     changes: 'Addressed all validation findings: phase annotations on FR53-56/FR58/FR60, added Fraud Prevention section, 3 new Success Criteria, MVP Hypothesis Validation table, rewrote NFR-O1-O4, fixed 8 SMART-flagged FRs, added 4 new FRs, fixed measurability on 4 FRs and 7 NFRs, aligned Amir journey with MVP scope, added multi-contributor scenario, NFR context enrichment, staking/vesting mention, fundraising KPI'
+  - date: 2026-02-28
+    changes: 'Added Publication Platform as core MVP pillar: 14 new FRs (FR66-FR79), 3 new NFRs (NFR-C1-C3), 2 new User Journeys (Clara/Author, Marcus/Editor), H4 hypothesis, Publication as 8th MVP capability, 6th innovation area, updated Executive Summary, Success Criteria (3 user metrics, 2 business targets, 4 KPIs), competitive landscape, RBAC, SEO strategy, fraud prevention (2 new vectors), risk mitigations (3 new risks), Phase 2/3 enhancements'
 inputDocuments:
   - _bmad-output/planning-artifacts/product-brief-Edin-2026-02-27.md
   - docs/edin_platform_description.md
@@ -48,13 +50,15 @@ classification:
 
 ## Executive Summary
 
-Edin is a curated contributor platform that organizes, evaluates, and rewards collaborative development within the Rose decentralized finance ecosystem. Built by the IOUR Foundation (Belgian non-profit), Edin addresses a structural failure in open-source economics: contributors produce enormous value but receive no objective evaluation and no sustained compensation. Existing platforms rely on subjective peer voting and single-task bounties — rewarding activity over impact, code over all other disciplines, and short-term engagement over long-term commitment.
+Edin is a curated contributor platform that organizes, evaluates, rewards, and publishes collaborative development within the Rose decentralized finance ecosystem. Built by the IOUR Foundation (Belgian non-profit), Edin addresses a structural failure in open-source economics: contributors produce enormous value but receive no objective evaluation, no sustained compensation, and no channel to share their insights with a broader audience. Existing platforms rely on subjective peer voting and single-task bounties — rewarding activity over impact, code over all other disciplines, and short-term engagement over long-term commitment.
 
 Edin proposes a new economic model for human contribution. The platform connects to contributors' existing tools (GitHub, Google Workspace, Slack), ingests their output through an integration layer, and applies an AI-powered Evaluation Engine that objectively assesses quality across four domains: Technology, Fintech, Impact, and Governance. Evaluated contributions feed into a multi-scale reward system distributing blockchain-based tokens across seven temporal horizons — from hourly micro-rewards to yearly commitment recognition — using scaling-law mathematics derived from Rose's own financial research (ORTFM). A curated admission model ensures community quality through selectivity rather than open access.
 
-The founding team is composed of visionary, ethically-driven individuals who aim to reshape finance for humanity. As AI automates routine development work, Edin creates structured space for uniquely human capabilities — mentoring, governance design, creative problem-solving, and leadership — and ensures these contributions are valued equally alongside technical output. The platform serves both as Rose's execution multiplier and as a prototype for a new social contract: one where human contribution is objectively measured, fairly compensated, and permanently recorded.
+At the heart of Edin's community growth strategy is the Publication Platform — a modern think tank and community-driven publication where contributors share insightful content on decentralized finance, governance, impact, and technology. Every piece of content has an Author. Every piece also has an Editor — a curator and guide who shapes the author's work to publication standard. The Editor receives 20% of the reward allocated to the author, creating a structured incentive for mentorship and editorial excellence. The Publication Platform is not an add-on; it is core to Edin's strategy — the visible, public-facing expression of the community's intellectual depth, designed to rival the quality and authority of established publications like The Economist, but built by a decentralized community of domain experts.
 
-The recommended strategy is to validate the methodology with a founding community of 20-30 Rose contributors, then offer the evaluation and reward methodology to other ecosystems as a service — creating an independent sustainability path.
+The founding team is composed of visionary, ethically-driven individuals who aim to reshape finance for humanity. As AI automates routine development work, Edin creates structured space for uniquely human capabilities — mentoring, governance design, creative problem-solving, and leadership — and ensures these contributions are valued equally alongside technical output. The platform serves both as Rose's execution multiplier and as a prototype for a new social contract: one where human contribution is objectively measured, fairly compensated, permanently recorded, and published to influence the broader discourse.
+
+The recommended strategy is to validate the methodology with a founding community of 20-30 Rose contributors, launch the Publication Platform as the visible catalyst for community growth, then offer the evaluation and reward methodology to other ecosystems as a service — creating an independent sustainability path.
 
 ### What Makes This Special
 
@@ -67,6 +71,8 @@ The recommended strategy is to validate the methodology with a founding communit
 **Curated community as network effect.** Open access is the industry default. Edin's admission-based model creates a selectivity flywheel: high-quality members attract high-quality applicants, raising the signal value of membership.
 
 **Multi-domain equality by design.** Four structural pillars ensure that financial engineers, governance designers, and impact analysts have the same visibility, contribution pathways, and reward mechanisms as developers. Non-code contributions are architecturally first-class citizens.
+
+**Publication Platform as community growth engine.** No contributor platform has an integrated publication layer. Edin's Publication Platform transforms contributors into published authors, with a curated Editor role that creates a mentorship-reward flywheel: Editors earn 20% of the author's reward for shaping content to publication standard. This produces a publicly visible, SEO-rich body of expert content that attracts new contributors, demonstrates community depth to investors, and positions Edin as a modern think tank — not just a contributor tool.
 
 **Human empowerment in an AI world.** As AI handles routine tasks, Edin explicitly creates space for the uniquely human capabilities that matter most. This narrative is entirely uncontested in the Web3 contributor space.
 
@@ -104,6 +110,9 @@ The recommended strategy is to validate the methodology with a founding communit
 | Non-automatable contribution ratio | >25% of evaluated contributions are in mentoring, governance design, creative problem-solving, or leadership categories | Validates that uniquely human capabilities are being contributed and valued (Human Empowerment thesis) |
 | Reward motivation effectiveness (Phase 2+) | >50% of retained contributors cite the reward model as a top-3 engagement factor in quarterly survey | Compounding rewards drive retention, not just comprehension |
 | Admission selectivity signal | Track acceptance rate and quality differential between admitted and non-admitted applicants | Curated community thesis validated — selectivity creates signal value |
+| Publication engagement rate | >30% of active contributors publish or edit at least 1 article per quarter | Publication Platform is a living community expression, not a dormant feature |
+| Editor participation rate | >20% of active contributors serve as Editor on at least 1 article per quarter | Editorial mentorship flywheel is functioning — contributors want to curate, not just create |
+| Publication readership growth | Month-over-month growth in unique article readers from outside the contributor community | Publication attracts external audience and potential contributors |
 
 ### Business Success
 
@@ -114,6 +123,8 @@ The recommended strategy is to validate the methodology with a founding communit
 - Regulatory opinion obtained on MiCA token classification
 - L2 infrastructure partner selected with viable cost model (<5% of reward value in gas costs)
 - Web portal MVP launched with contributor profiles and contribution tracking
+- Publication Platform live with at least 10 published articles across 2+ domains
+- At least 3 contributors actively serving as Editors
 
 **Phase 2 — Intelligence (Q3-Q4 2026):**
 
@@ -122,6 +133,8 @@ The recommended strategy is to validate the methodology with a founding communit
 - Token rewards distributed on-chain across 3+ temporal scales
 - Evaluation engine deployed as a modular API service
 - At least 3 external projects expressing interest in the evaluation methodology
+- Publication Platform producing 10+ articles/month with measurable external readership
+- Editor reward distribution operational and perceived as fair by >70% of participants
 
 **Phase 3 — Scale (2027+):**
 
@@ -164,6 +177,8 @@ The recommended strategy is to validate the methodology with a founding communit
 | Contribution frequency | >2 meaningful contributions/week per active contributor | Weekly |
 | Cross-domain engagement | >30% of contributors engage beyond their primary domain | Monthly |
 | Referral rate | >20% of new contributors from organic referrals | Monthly |
+| Publication submission rate | >3 article submissions/week by end of Phase 1 | Weekly |
+| Editorial turnaround | <7 days from submission to publication decision | Weekly |
 
 **Lagging Indicators (confirm strategic success):**
 
@@ -175,6 +190,8 @@ The recommended strategy is to validate the methodology with a founding communit
 | Rose development velocity | Measurable increase in merged PRs, shipped features | Monthly |
 | Token distribution health | <5% of reward value consumed by transaction costs | Monthly |
 | Fundraising traction | Seed round closed (Phase 1); subsequent funding conversations active (Phase 2) | Quarterly |
+| Publication external reach | Unique external readers per published article | Monthly |
+| Author-to-Editor conversion | % of contributors who transition from Author to Editor role | Quarterly |
 
 ## User Journeys
 
@@ -248,6 +265,26 @@ The recommended strategy is to validate the methodology with a founding communit
 
 **Resolution:** Henrik's investment memo highlights three differentiators: (1) a working contributor community with measurable output, not a whitepaper promise; (2) an AI evaluation methodology that provides objective quality signals; (3) a mathematically grounded reward model with a genuine intellectual moat. He recommends proceeding to term sheet.
 
+### Journey 8: Clara — The Author Who Finds Her Voice
+
+**Opening Scene:** Clara is a fintech researcher with seven years of experience in payment systems and financial inclusion. She's been contributing to the Rose ecosystem through Edin for two months — mostly technical analyses submitted through GitHub. Her work is solid and well-evaluated, but she keeps having larger ideas she wants to share: insights that connect Rose's scaling laws to broader trends in decentralized finance, observations about what financial inclusion really requires at the infrastructure level. She writes long posts on LinkedIn that get modest engagement. She's never been published in a serious outlet. The barrier feels too high — she doesn't know editors, she doesn't have an academic affiliation, and the established publications in her field are gatekept by institutional networks she's not part of.
+
+**Rising Action:** She notices the Publication Platform on Edin's portal. Articles from other contributors are displayed prominently — thoughtful, well-crafted pieces on governance design, scaling-law economics, and impact measurement. They read like something from The Economist, but written by the people actually building the technology. She reads the submission guidelines: any contributor can propose an article. Every submission is assigned an Editor — an experienced contributor who helps shape the piece to publication standard. The Editor earns 20% of the author's content reward. This catches her attention: the editorial relationship is structured, incentivized, and mutual. It's not a favor — it's a rewarded role.
+
+**Climax:** Clara submits her first article draft: "Why Scaling Laws Will Reshape Financial Inclusion Infrastructure." It's rough — strong analysis but unfocused structure. Within 48 hours, she's matched with an Editor: Marcus, a governance specialist who's been in Edin for four months and has edited three previous articles. Marcus doesn't rewrite her work — he asks sharp questions, suggests structural reorganization, and pushes her to sharpen her thesis. Over three rounds of editorial feedback, the piece transforms from a blog post into a publication-quality essay. When it goes live on the Publication Platform, it sits alongside articles from contributors across all four domains — technology, fintech, impact, governance. The AI Evaluation Engine scores the content. Clara's article is shared externally by two investors who found it through search. A developer she's never met submits an application to Edin citing her article as the reason he wants to join.
+
+**Resolution:** By month four, Clara has published three articles. Her second piece was co-authored with a technology contributor — a cross-domain collaboration that emerged from a working group discussion. She's now serving as Editor on another contributor's article about impact measurement methodology. The 20% editorial reward makes the time investment worthwhile, but what keeps her editing is the satisfaction of shaping someone else's thinking. Her publication profile is becoming her professional calling card — more substantive than LinkedIn posts, more accessible than academic journals. When a conference organizer contacts her for a speaking invitation, they reference her Edin articles. She tells a colleague: "I finally have a place where my ideas are taken seriously, shaped with care, and read by people who matter."
+
+### Journey 9: Marcus — The Editor Who Shapes the Discourse
+
+**Opening Scene:** Marcus is a governance specialist and one of Edin's founding contributors. After three months in the community, he's established himself through governance proposals and working group leadership. He knows the ecosystem deeply. He also knows that the community's best ideas often stay trapped in technical documents and GitHub discussions — brilliant insights that never reach a broader audience because contributors don't have the time, structure, or editorial support to turn their expertise into readable content.
+
+**Rising Action:** When the Publication Platform launches, Marcus sees an opportunity. He volunteers as an Editor — not for the 20% reward (though it's a meaningful incentive), but because he believes the community's intellectual depth deserves visibility. He completes the editorial onboarding: guidelines on Edin's publication standards, the editorial workflow, and the principles of constructive feedback. His first assignment is Clara's article on scaling laws and financial inclusion. He reads the draft and sees what he expected: strong domain expertise wrapped in unfocused structure. He begins his editorial work.
+
+**Climax:** Over three editorial rounds with Clara, Marcus develops his editorial practice. He learns to ask questions that unlock clarity without imposing his own perspective. He pushes Clara to connect her technical analysis to real-world implications. When the article publishes, it's measurably better than the draft — and Marcus's editorial contribution is visible on the article page. His Editor profile shows his editorial history: articles shaped, domains covered, author satisfaction ratings. When a new contributor submits a governance article that touches on MiCA regulation — Marcus's specialty — the system matches him as Editor. The article becomes a reference document cited in an external regulatory consultation.
+
+**Resolution:** By month six, Marcus has edited seven articles across three domains. His editorial work has become a second contribution stream — 20% of each author's content reward flows to him, and his governance weight reflects both his governance proposals and his editorial contributions. He's mentoring two newer Editors through the buddy system. The Publication Platform's editorial quality is becoming a community differentiator: external readers comment that Edin's articles are unusually well-crafted for a community publication. Marcus says: "Editing is the most impactful thing I do here. I help people say what they actually mean — and the platform makes that work visible and valued."
+
 ### Journey Requirements Summary
 
 | Journey | Key Capabilities Revealed |
@@ -259,6 +296,8 @@ The recommended strategy is to validate the methodology with a founding communit
 | **Daniel (Applicant)** | Application workflow with micro-task, admission review pipeline, 72-Hour Ignition onboarding, buddy assignment, first-task matching, multi-contributor attribution confirmation |
 | **Marie (Admin)** | Admin dashboard, admission queue management, contribution menu curation, health metrics monitoring, feedback assignment tracking |
 | **Henrik (Investor)** | Public project showcase (no auth), contributor roster with profiles, real-time activity metrics, AI evaluation quality signals |
+| **Clara (Author)** | Article submission workflow, Editor assignment, editorial feedback rounds, publication lifecycle tracking, content evaluation, publication metrics, cross-domain co-authorship |
+| **Marcus (Editor)** | Editor onboarding, editorial workflow, editorial feedback tools, Editor profile and history, editorial reward (20% of author's content reward), Editor-Author matching |
 
 **Cross-Journey Capability Map:**
 
@@ -267,7 +306,8 @@ The recommended strategy is to validate the methodology with a founding communit
 - **AI Evaluation Engine:** Code quality analysis (Lena, Daniel), documentation evaluation (Amir), evaluation transparency (Lena, Henrik)
 - **Peer Feedback System:** Feedback rubric (Daniel, Sofia), review assignment (Marie), feedback visibility (all contributors)
 - **Governance Layer:** Admission process (Daniel, Marie), proposal workflow (Yuki, Sofia), working group management (Marie), role management (all)
-- **Reward System:** Scaling-law display (Lena, Amir), reward dashboard (all contributors), compounding visualization (Henrik)
+- **Publication Platform:** Article creation/submission (Clara, all contributors), Editor assignment and matching (Marcus), editorial feedback workflow (Clara, Marcus), public reading experience (Henrik, visitors), content evaluation (AI Engine), publication metrics (Clara, Marcus, Marie), Author/Editor reward split (Clara, Marcus)
+- **Reward System:** Scaling-law display (Lena, Amir), reward dashboard (all contributors), compounding visualization (Henrik), Author/Editor 80/20 reward split (Clara, Marcus)
 
 ## Domain-Specific Requirements
 
@@ -357,6 +397,9 @@ The recommended strategy is to validate the methodology with a founding communit
 | GitHub API rate limiting disrupts ingestion | Missed contributions, incomplete evaluations | Webhook-first architecture (push, not poll), caching layer, graceful degradation with retry queue |
 | EU AI Act classifies Evaluation Engine as high-risk | Significant compliance burden and timeline impact | Architect for high-risk from the start: documentation, human oversight, conformity assessment readiness |
 | Contributor data breach | Regulatory penalties, reputation destruction | Encryption at rest and in transit, minimal data collection, access controls, incident response plan |
+| Publication quality degrades | Reputational damage; undermines "modern Economist" positioning | Editorial standards with Editor accountability, AI content quality evaluation, admin editorial oversight, community reporting mechanism |
+| Editor shortage | Articles stuck in editorial queue; submission pipeline bottleneck | Editor incentive (20% reward), Editor onboarding and training, admin ability to reassign or serve as Editor, editorial turnaround SLA monitoring |
+| Publication content liability | Legal risk from published opinions on financial topics | Editorial guidelines on disclaimers, content review for regulatory-sensitive claims, MiCA-aware publication standards for financial content |
 
 ### Fraud Prevention & Abuse Mitigation
 
@@ -370,7 +413,10 @@ As a fintech platform distributing blockchain-based token rewards, Edin must add
 | Reward system abuse | Exploiting multi-temporal reward distribution mechanics (e.g., contribution timing to maximize compounding) | Reward anomaly detection: unusual accumulation patterns, distribution spikes, temporal gaming indicators. Rate limiting on reward claims. Reward formula transparency reduces attack surface (known rules are auditable) |
 | Peer feedback collusion | Contributors coordinating to inflate each other's evaluations or feedback scores | Pattern analysis for reciprocal feedback inflation, network graph analysis for coordinated feedback clusters, randomized reviewer assignment to break collusion patterns, feedback weight normalization |
 
-**Phase approach:** Phase 1 relies on curated admission + AI evaluation + randomized peer feedback assignment as natural defenses. Phase 2 (token distribution) requires active monitoring dashboards for all five fraud vectors, automated anomaly flagging, and admin intervention workflows. Phase 3 adds decentralized fraud detection through multi-model consensus scoring.
+| Editorial reward abuse | Editors approving low-quality content to accumulate 20% rewards without genuine editorial contribution | Editorial quality assessment: AI evaluation of content improvement between draft and published version, author satisfaction ratings on editorial quality, admin review of Editor approval patterns with low editorial contribution signals |
+| Content plagiarism | Submitted articles containing plagiarized or AI-generated content without attribution | Plagiarism detection in publication pipeline, AI-generated content detection, mandatory originality declaration by authors, editorial verification as second line of defense |
+
+**Phase approach:** Phase 1 relies on curated admission + AI evaluation + randomized peer feedback assignment + editorial quality assessment as natural defenses. Phase 2 (token distribution) requires active monitoring dashboards for all seven fraud vectors, automated anomaly flagging, and admin intervention workflows. Phase 3 adds decentralized fraud detection through multi-model consensus scoring.
 
 ## Innovation & Novel Patterns
 
@@ -392,7 +438,11 @@ Existing platforms treat non-code contributions as second-class citizens — the
 
 The entire Web3 and open-source ecosystem trends toward open access. Edin deliberately inverts this with a curated admission model that creates a selectivity flywheel: high-quality members attract high-quality applicants, which justifies selectivity, which raises the signal value of membership. This is not elitism — it's a network effect strategy where quality control creates the conditions for fair evaluation and meaningful rewards. The admission micro-task (a domain-specific contribution) is itself an innovation: applicants demonstrate competence through work, not credentials.
 
-**5. Human Empowerment Narrative in AI Era (Uncontested Positioning)**
+**5. Community-Driven Publication as Growth Engine (First-of-Kind)**
+
+No contributor platform integrates a full publication layer with structured editorial roles and reward-sharing economics. Edin's Publication Platform transforms contributor expertise into publicly visible, expert-quality content — creating a modern think tank model where Authors produce insight and Editors curate it, with a 80/20 reward split that makes editorial mentorship an economically rational activity. This is structurally novel: the publication is not a marketing blog run by a content team — it's a decentralized editorial operation where the community produces, curates, and publishes its own intellectual output. The content attracts external readers, demonstrates community depth to investors, generates SEO-rich material that drives organic contributor discovery, and positions Edin as the authoritative voice of a new kind of economic thinking.
+
+**6. Human Empowerment Narrative in AI Era (Uncontested Positioning)**
 
 As AI agents handle increasing amounts of routine development, Edin positions itself as the platform that creates structured space for uniquely human capabilities: mentoring, governance design, creative problem-solving, leadership. This narrative — human empowerment through fair economics in an AI-automated world — is entirely uncontested in the Web3 contributor space. It's not just a differentiator; it's a thesis about the future of work.
 
@@ -405,8 +455,10 @@ As AI agents handle increasing amounts of routine development, Edin positions it
 | **SourceCred** | Algorithmic graph-based scoring | No multi-domain support, no blockchain rewards, limited adoption |
 | **Colony** | Task-based evaluation with reputation | No AI evaluation, no scaling-law compounding, structurally complex |
 | **GitHub Sponsors / Open Collective** | Donation-based funding | No evaluation whatsoever, irregular, dependent on individual donors |
+| **Mirror / Paragraph** | Web3 publishing platforms | No contributor evaluation, no editorial reward-sharing, no integration with contribution economics |
+| **The Economist / established publications** | Traditional editorial publication | Institutional gatekeeping, no community ownership, no contributor reward economics, no decentralized editorial model |
 
-The strategic white space — AI-objective evaluation + multi-temporal scaling-law rewards + curated community — is entirely unoccupied. No competitor combines more than one of these three innovations.
+The strategic white space — AI-objective evaluation + multi-temporal scaling-law rewards + curated community + community-driven publication with editorial reward-sharing — is entirely unoccupied. No competitor combines more than one of these four innovations.
 
 *Validation approach and risk mitigation for each innovation area are detailed in the Project Scoping & Phased Development section under MVP Hypothesis Validation and Risk Mitigation Strategy.*
 
@@ -414,7 +466,7 @@ The strategic white space — AI-objective evaluation + multi-temporal scaling-l
 
 ### Project-Type Overview
 
-Edin is a web application with three distinct interface contexts: a **public-facing portal** (project showcase, contributor roster, metrics — accessible without authentication), a **contributor dashboard** (authenticated experience for profiles, contribution tracking, evaluations, rewards, governance), and an **admin dashboard** (platform operations, admission management, health metrics). The platform is integration-first — it does not replace work tools but connects to them — so the web portal is the primary interface for visibility, community interaction, and platform intelligence, not for content creation.
+Edin is a web application with four distinct interface contexts: a **public-facing portal** (project showcase, contributor roster, metrics, published articles — accessible without authentication), a **Publication Platform** (article creation, editorial workflow, published article reading experience — publicly readable, contributor-authenticated for creation and editing), a **contributor dashboard** (authenticated experience for profiles, contribution tracking, evaluations, rewards, governance), and an **admin dashboard** (platform operations, admission management, editorial oversight, health metrics). The platform is integration-first — it does not replace work tools but connects to them — so the web portal is the primary interface for visibility, community interaction, publication, and platform intelligence.
 
 ### Technical Architecture Considerations
 
@@ -431,16 +483,18 @@ Edin is a web application with three distinct interface contexts: a **public-fac
 
 **SEO Strategy:**
 
-- SEO matters for the public-facing portal: project showcase, contributor roster, domain manifestos, and the Founding Circle page should be indexable and optimized for discovery by potential contributors and investors.
-- Authenticated pages (contributor dashboard, admin dashboard) do not require SEO.
-- Key SEO targets: "open-source contributor platform," "decentralized contributor rewards," "AI evaluation contributions," project-specific terms.
+- SEO matters for the public-facing portal: project showcase, contributor roster, domain manifestos, the Founding Circle page, and all published articles should be indexable and optimized for discovery by potential contributors, investors, and readers.
+- Published articles are the primary SEO growth engine — each article is a long-form, expert-quality content piece targeting domain-specific search terms in decentralized finance, governance, impact measurement, and technology.
+- Authenticated pages (contributor dashboard, admin dashboard, article drafting/editorial workflow) do not require SEO.
+- Key SEO targets: "open-source contributor platform," "decentralized contributor rewards," "AI evaluation contributions," "decentralized finance insights," "DeFi governance," "financial inclusion technology," project-specific terms, and article-specific long-tail keywords.
 
 **Real-Time Requirements:**
 
 - **Activity Feed / Contribution Wall:** Near-real-time updates as contributions are ingested and evaluated. WebSocket or Server-Sent Events (SSE) for live feed updates.
 - **Evaluation notifications:** Contributors should receive timely notifications when their contributions are evaluated or when peer feedback is available.
 - **Admin health metrics:** Dashboard should update without manual refresh — polling at minimum, real-time preferred.
-- **Not required for real-time:** Application workflow, profile editing, governance proposals (these can be standard request-response).
+- **Publication notifications:** Authors should be notified when editorial feedback is available or when their article is published. Editors should be notified when new articles are assigned for editorial review.
+- **Not required for real-time:** Application workflow, profile editing, governance proposals, article drafting (these can be standard request-response).
 
 **Accessibility:**
 
@@ -466,7 +520,8 @@ Edin is a web application with three distinct interface contexts: a **public-fac
 |---|---|
 | Public (unauthenticated) | Project showcase, contributor roster, domain manifestos, public metrics |
 | Applicant | Application workflow, micro-task submission |
-| Contributor | Dashboard, profile, contribution history, evaluations, peer feedback, working group channels, governance participation |
+| Contributor / Author | Dashboard, profile, contribution history, evaluations, peer feedback, working group channels, governance participation, article submission and drafting |
+| Editor | All contributor access + editorial workflow, editorial feedback on assigned articles, Editor profile with editorial history |
 | Founding Contributor | All contributor access + founding privileges (governance weight bonus, early access to new features) |
 | Working Group Lead | Contributor access + working group management, contribution menu curation for their domain |
 | Admin | Full platform access: admission queue, health metrics, contribution menu management, feedback assignment, system configuration |
@@ -499,9 +554,9 @@ Edin is a web application with three distinct interface contexts: a **public-fac
 
 ### MVP Strategy & Philosophy
 
-**MVP Approach:** Platform validation MVP — prove the core thesis that a curated community with AI-powered evaluation can attract and retain high-quality multi-domain contributors.
+**MVP Approach:** Platform validation MVP — prove the core thesis that a curated community with AI-powered evaluation and a community-driven publication platform can attract and retain high-quality multi-domain contributors while producing publicly visible intellectual output.
 
-**MVP Philosophy:** Ship the minimum that makes founding contributors say "this is worth my time" and investors say "this community is real." The MVP is not the product — it's the experiment. Every feature included must directly serve one of the three core hypotheses (H1: contributors join and stay, H2: AI evaluates fairly, H3: reward model is comprehensible and motivating).
+**MVP Philosophy:** Ship the minimum that makes founding contributors say "this is worth my time," investors say "this community is real," and external readers say "these people have something to teach me." The MVP is not the product — it's the experiment. Every feature included must directly serve one of the four core hypotheses (H1: contributors join and stay, H2: AI evaluates fairly, H3: reward model is comprehensible and motivating, H4: publication platform attracts contributors and external audience).
 
 **MVP Hypothesis Validation Framework:**
 
@@ -510,6 +565,7 @@ Edin is a web application with three distinct interface contexts: a **public-fac
 | H1: Contributors join and stay | >15 active contributors at 60 days; >50% 30-day retention | <15 active contributors after 60 days | STOP. Reassess mission-based attraction strategy. Evaluate whether value proposition resonates with target personas |
 | H2: AI evaluates fairly | >70% agreement between AI evaluation and human expert assessment | <60% agreement with human experts | STOP AI-based rewards. Fall back to peer evaluation as primary mechanism. Iterate on model training |
 | H3: Reward model is comprehensible and motivating | >80% of contributors can explain the scaling-law model; >50% cite rewards as top-3 engagement factor | <60% comprehension after explanation materials | Simplify. Start with 3 temporal scales instead of 7. Reduce model complexity until comprehension exceeds threshold |
+| H4: Publication platform attracts contributors and external audience | >30% of contributors publish or edit at least 1 article per quarter; month-over-month growth in external readership | <10% contributor participation in publication after 3 months; zero external readership growth | Simplify editorial workflow. Reduce editorial friction. Consider curated content themes to guide authors. If publication doesn't attract, deprioritize and focus on core contribution evaluation |
 
 **Resource Requirements:**
 
@@ -531,6 +587,8 @@ Edin is a web application with three distinct interface contexts: a **public-fac
 | Daniel (Applicant) | Full | Complete 72-Hour Ignition onboarding flow |
 | Marie (Admin) | Full | Admin dashboard for community operations |
 | Henrik (Investor) | Full | Public showcase with contributor roster and metrics |
+| Clara (Author) | Full | Article submission, Editor assignment, editorial workflow, publication |
+| Marcus (Editor) | Full | Editor onboarding, editorial feedback, Editor profile, editorial reward |
 
 **Must-Have Capabilities (Phase 1):**
 
@@ -540,7 +598,8 @@ Edin is a web application with three distinct interface contexts: a **public-fac
 4. **Peer Feedback System** — Lightweight rubric, assignment mechanism, dashboard visibility
 5. **Community Structure** — Four-pillar working groups, contribution menu, buddy system
 6. **Admission & Onboarding** — Contribution-based application, 72-Hour Ignition, Founding Contributor designation
-7. **Authentication & Authorization** — GitHub OAuth, RBAC (6 roles as defined)
+7. **Authentication & Authorization** — GitHub OAuth, RBAC (8 roles as defined, including Author and Editor)
+8. **Publication Platform** — Article creation, Editor assignment, editorial workflow, public reading experience, Author/Editor reward split (80/20)
 
 **Explicitly Deferred from MVP:**
 
@@ -571,6 +630,9 @@ Edin is a web application with three distinct interface contexts: a **public-fac
 - Governance proposal workflow with structured discussion and ratification
 - Advanced contributor analytics and skill trajectory visualization
 - Automated feedback assignment optimization
+- Publication Platform advanced analytics: readership demographics, article impact scoring, author trajectory
+- Publication content recommendation engine for external readers
+- Cross-domain co-authorship workflow enhancements
 
 **Phase 3 — Scale (2027+):**
 
@@ -582,6 +644,9 @@ Edin is a web application with three distinct interface contexts: a **public-fac
 - Open connector architecture (community-built integrations)
 - Decentralized Evaluation Network (multi-model consensus scoring)
 - Cross-ecosystem reputation standard
+- Publication syndication to external platforms and aggregators
+- Publication revenue model (subscriptions, sponsorships, licensing)
+- Guest author program for non-contributor domain experts
 
 ### Risk Mitigation Strategy
 
@@ -600,6 +665,7 @@ Edin is a web application with three distinct interface contexts: a **public-fac
 | Founding contributors don't join (H1 fails) | Existential — no community, no platform | Personal outreach by founding team; lead with 3-5 respected names; domain-specific manifestos that speak each persona's language |
 | Non-developer contributors don't feel equal | Multi-domain equality thesis fails | Ensure peer feedback covers all domains equally in MVP; visible non-code contributions on Activity Feed from day one |
 | Scaling-law reward model incomprehensible | H3 fails; contributors don't understand or trust rewards | Visual reward trajectory dashboard; simplified explanation materials; start presenting model early, iterate on communication |
+| Contributors don't publish (H4 fails) | Publication Platform unused; no external visibility | Curated content themes to guide authors; reduce editorial friction; seed with founding team articles; Editor incentive (20% reward) lowers editorial barrier |
 
 **Resource Risks:**
 
@@ -719,6 +785,23 @@ This validates H1 (can we attract and retain contributors?) without H2 (AI evalu
 - FR59: Contributors can view an explanation of the scaling-law reward methodology with visual representations validated against the >80% comprehension target (per Success Criteria reward comprehension rate). Visitors (unauthenticated) can access the reward methodology explanation on public pages
 - FR60: The system can track contribution scores across multiple temporal horizons (session, daily, weekly, monthly, quarterly, yearly) (Phase 1: single-horizon tracking; Phase 2+: multi-temporal horizons)
 
+### Publication Platform
+
+- FR66: Contributors can create and submit article drafts through a structured authoring interface with rich text editing, domain tagging, and abstract/summary fields
+- FR67: The system can assign an Editor to each submitted article based on domain expertise match and Editor availability, with admin override capability
+- FR68: Editors can review assigned articles and provide structured editorial feedback including inline comments, revision requests, and approval/rejection decisions
+- FR69: Authors can view editorial feedback on their drafts and submit revised versions, with version history preserved
+- FR70: The system can track article lifecycle through defined states: draft → submitted → editorial review → revision requested → approved → published → archived
+- FR71: The system can allocate 20% of the author's content reward to the assigned Editor upon article publication, with the split visible to both Author and Editor on their dashboards
+- FR72: Visitors can browse and read published articles on the public portal without authentication, organized by domain, author, and publication date
+- FR73: Published articles can display author profile, Editor profile, domain tags, publication date, and AI evaluation score
+- FR74: Contributors can claim available Editor roles for articles in domains matching their expertise, subject to minimum contribution history and governance weight thresholds defined by admins
+- FR75: The AI Evaluation Engine can evaluate published article quality using the same evaluation framework as other contributions, scoring for analytical depth, originality, clarity, and domain relevance
+- FR76: Authors and Editors can view publication metrics for their articles including view count, external referral sources, and reader engagement indicators
+- FR77: Admins can manage editorial standards, publication guidelines, and Editor eligibility criteria
+- FR78: Admins can moderate published content (unpublish, flag for review, request corrections) with audit trail
+- FR79: The system can detect and flag potential plagiarism and undisclosed AI-generated content in article submissions before editorial review
+
 ### Compliance & Data Protection
 
 - FR61: The system can present data processing agreements to contributors during onboarding for explicit consent
@@ -804,3 +887,11 @@ This validates H1 (can we attract and retain contributors?) without H2 (AI evalu
 | NFR-O2 | Production issues can be diagnosed efficiently so contributor-facing incidents are resolved quickly | 100% of contributor-facing requests have correlation IDs; any production issue can be traced from user report to root cause within 30 minutes using logs alone |
 | NFR-O3 | Business KPIs are accessible for decision-making so the founding team can make data-driven go/no-go decisions | All leading and lagging KPIs from Success Criteria available on dashboard with <5 minute data lag; data export available for quarterly reporting |
 | NFR-O4 | Deployments do not disrupt contributor experience so the platform maintains trust during iteration | Zero-downtime deployments verified; rollback completes within 5 minutes; all production deployments pass staging validation before promotion |
+
+### Content Delivery & Publication
+
+| NFR | Requirement | Measurable Target |
+|---|---|---|
+| NFR-C1 | Published articles load quickly for external readers to support SEO and reader retention | First Contentful Paint <1.2s for article pages; Largest Contentful Paint <2.5s; Core Web Vitals passing for all published content |
+| NFR-C2 | Article pages are optimized for search engine indexing to drive organic contributor and reader discovery | Server-side rendered article pages with structured data (JSON-LD); Open Graph and Twitter Card metadata auto-generated; sitemap updated within 1 hour of publication |
+| NFR-C3 | Publication storage scales with growing article archive to support long-term content growth | System handles 1000+ published articles without query performance degradation beyond 10%; article search returns results within 1s |

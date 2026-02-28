@@ -5,1067 +5,2119 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Edin — Design Direction Mockups</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=JetBrains+Mono:wght@400;500&display=swap');
+  /* ═══════════════════════════════════════════════════════════
+     EDIN DESIGN DIRECTION SHOWCASE
+     Visual exploration of the "Calm Confidence" design system
+     ═══════════════════════════════════════════════════════════ */
 
+  /* === DESIGN TOKENS === */
   :root {
-    --emerald: #2D6A4F;
-    --emerald-light: #40916C;
-    --emerald-dark: #1B4332;
-    --emerald-50: #F0FDF4;
-    --emerald-100: #DCFCE7;
-    --bg: #FAFAF8;
-    --bg-card: #FFFFFF;
-    --text-primary: #1C1917;
-    --text-secondary: #57534E;
-    --text-tertiary: #A8A29E;
-    --border: #E7E5E4;
-    --border-light: #F5F5F4;
-    --tech-blue: #4B6BFB;
-    --fintech-amber: #D97706;
-    --impact-teal: #0D9488;
-    --governance-violet: #7C3AED;
-    --success: #16A34A;
-    --warning: #D97706;
-    --error: #DC2626;
-    --info: #4B6BFB;
-    --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
-    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.05);
-    --radius: 8px;
-    --radius-sm: 6px;
-    --radius-lg: 12px;
-    --serif: 'Source Serif 4', Georgia, serif;
-    --sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    --mono: 'JetBrains Mono', monospace;
+    /* Brand */
+    --brand-primary: #2D3B45;
+    --brand-secondary: #6B7B8D;
+    --brand-accent: #C4956A;
+    --brand-accent-subtle: #E8D5C0;
+    --brand-accent-hover: #B8865C;
+
+    /* Surfaces */
+    --surface-base: #FAFAF7;
+    --surface-raised: #FFFFFF;
+    --surface-sunken: #F2F0EB;
+    --surface-overlay: rgba(45,59,69,0.6);
+
+    /* Domain Accents */
+    --domain-technology: #3A7D7E;
+    --domain-fintech: #C49A3C;
+    --domain-impact: #B06B6B;
+    --domain-governance: #7B6B8A;
+
+    /* Domain Backgrounds (10% opacity) */
+    --domain-technology-bg: #3A7D7E18;
+    --domain-fintech-bg: #C49A3C18;
+    --domain-impact-bg: #B06B6B18;
+    --domain-governance-bg: #7B6B8A18;
+
+    /* Semantic */
+    --semantic-success: #5A8A6B;
+    --semantic-warning: #C49A3C;
+    --semantic-info: #5A7A8A;
+    --semantic-error: #A85A5A;
+
+    /* Typography */
+    --font-serif: 'Source Serif Pro', 'Libre Baskerville', Georgia, 'Times New Roman', serif;
+    --font-sans: 'Inter', 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono: 'JetBrains Mono', 'Source Code Pro', 'Fira Code', monospace;
+
+    /* Spacing */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+    --space-2xl: 48px;
+    --space-3xl: 64px;
+    --space-4xl: 96px;
+
+    /* Borders */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --border-light: 1px solid #E8E6E1;
+    --border-warm: 1px solid #D8D4CE;
+
+    /* Shadows */
+    --shadow-card: 0 1px 3px rgba(0,0,0,0.06);
+    --shadow-narrative: 0 2px 8px rgba(0,0,0,0.04);
+    --shadow-modal: 0 8px 32px rgba(0,0,0,0.12);
+    --shadow-hover: 0 4px 12px rgba(0,0,0,0.08);
   }
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: var(--sans); background: #F5F5F4; color: var(--text-primary); }
+  /* === RESET & BASE === */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  /* Navigation */
-  .nav { position: fixed; top: 0; left: 0; right: 0; background: white; border-bottom: 1px solid var(--border); z-index: 100; padding: 12px 24px; display: flex; align-items: center; gap: 16px; }
-  .nav-title { font-family: var(--serif); font-size: 18px; font-weight: 600; color: var(--emerald-dark); }
-  .nav-tabs { display: flex; gap: 4px; margin-left: 24px; }
-  .nav-tab { padding: 8px 16px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; border: none; background: transparent; color: var(--text-secondary); transition: all 0.15s; }
-  .nav-tab:hover { background: var(--emerald-50); color: var(--emerald); }
-  .nav-tab.active { background: var(--emerald); color: white; }
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 
-  /* Main content */
-  .main { margin-top: 56px; padding: 32px; }
-  .direction-title { font-family: var(--serif); font-size: 28px; font-weight: 600; margin-bottom: 8px; color: var(--text-primary); }
-  .direction-subtitle { font-size: 15px; color: var(--text-secondary); margin-bottom: 32px; line-height: 1.6; max-width: 800px; }
-  .mockup-section { display: none; }
-  .mockup-section.active { display: block; }
+  body {
+    font-family: var(--font-sans);
+    color: var(--brand-primary);
+    background: var(--brand-primary);
+    line-height: 1.5;
+  }
 
-  /* ==================== DIRECTION 1: PUBLIC PORTAL ==================== */
-  .portal-hero { background: linear-gradient(135deg, var(--emerald-dark) 0%, var(--emerald) 100%); padding: 80px 48px; border-radius: var(--radius-lg); margin-bottom: 32px; color: white; position: relative; overflow: hidden; }
-  .portal-hero::after { content: ''; position: absolute; top: -50%; right: -20%; width: 600px; height: 600px; background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%); }
-  .portal-hero h1 { font-family: var(--serif); font-size: 42px; font-weight: 700; margin-bottom: 16px; line-height: 1.2; }
-  .portal-hero p { font-size: 18px; opacity: 0.9; max-width: 600px; line-height: 1.6; margin-bottom: 32px; }
-  .portal-nav { display: flex; align-items: center; justify-content: space-between; padding: 16px 32px; background: white; border-radius: var(--radius-lg); margin-bottom: 24px; box-shadow: var(--shadow-sm); }
-  .portal-nav-brand { font-family: var(--serif); font-size: 22px; font-weight: 700; color: var(--emerald-dark); }
-  .portal-nav-links { display: flex; gap: 32px; }
-  .portal-nav-links a { text-decoration: none; font-size: 14px; font-weight: 500; color: var(--text-secondary); }
-  .portal-nav-links a:hover { color: var(--emerald); }
-  .portal-cta { display: inline-flex; align-items: center; gap: 8px; padding: 12px 28px; background: white; color: var(--emerald-dark); font-weight: 600; font-size: 15px; border-radius: var(--radius); border: none; cursor: pointer; }
-  .portal-cta-secondary { background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.3); margin-left: 12px; }
+  /* === NAVIGATION === */
+  .showcase-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: var(--brand-primary);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding: 0 var(--space-xl);
+    display: flex;
+    align-items: center;
+    height: 56px;
+    gap: var(--space-md);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 
-  .portal-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-bottom: 32px; }
-  .portal-metric { background: white; padding: 28px; border-radius: var(--radius); box-shadow: var(--shadow-sm); text-align: center; }
-  .portal-metric-value { font-family: var(--serif); font-size: 36px; font-weight: 700; color: var(--emerald); }
-  .portal-metric-label { font-size: 13px; color: var(--text-secondary); margin-top: 4px; font-weight: 500; }
+  .showcase-nav::-webkit-scrollbar { display: none; }
 
-  .portal-domains { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 32px; }
-  .portal-domain { background: white; padding: 24px; border-radius: var(--radius); box-shadow: var(--shadow-sm); border-top: 3px solid; }
-  .portal-domain.tech { border-color: var(--tech-blue); }
-  .portal-domain.fintech { border-color: var(--fintech-amber); }
-  .portal-domain.impact { border-color: var(--impact-teal); }
-  .portal-domain.governance { border-color: var(--governance-violet); }
-  .portal-domain h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
-  .portal-domain p { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+  .nav-brand {
+    font-family: var(--font-serif);
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--surface-base);
+    white-space: nowrap;
+    margin-right: var(--space-lg);
+    letter-spacing: 0.02em;
+  }
 
-  .portal-contributors { background: white; padding: 32px; border-radius: var(--radius); box-shadow: var(--shadow-sm); margin-bottom: 32px; }
-  .portal-contributors h2 { font-family: var(--serif); font-size: 24px; margin-bottom: 20px; }
-  .contributor-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-  .contributor-card { display: flex; align-items: center; gap: 12px; padding: 16px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); }
-  .contributor-avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--emerald-50); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 16px; color: var(--emerald); }
-  .contributor-name { font-size: 14px; font-weight: 600; }
-  .contributor-role { font-size: 12px; color: var(--text-secondary); }
-  .domain-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-top: 4px; }
-  .domain-badge.tech { background: #EEF2FF; color: var(--tech-blue); }
-  .domain-badge.fintech { background: #FEF3C7; color: #92400E; }
-  .domain-badge.impact { background: #F0FDFA; color: #0F766E; }
-  .domain-badge.governance { background: #F5F3FF; color: #6D28D9; }
+  .nav-brand span { color: var(--brand-accent); }
 
-  /* ==================== DIRECTION 2: CONTRIBUTOR DASHBOARD ==================== */
-  .dash { display: grid; grid-template-columns: 260px 1fr; gap: 0; background: white; border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-md); min-height: 700px; margin-bottom: 32px; }
-  .dash-sidebar { background: var(--emerald-dark); padding: 24px 0; color: white; }
-  .dash-sidebar-brand { font-family: var(--serif); font-size: 20px; font-weight: 700; padding: 0 20px; margin-bottom: 32px; opacity: 0.95; }
-  .dash-sidebar-section { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 0 20px; margin-bottom: 8px; margin-top: 24px; opacity: 0.5; }
-  .dash-sidebar-item { display: flex; align-items: center; gap: 12px; padding: 10px 20px; font-size: 14px; cursor: pointer; transition: background 0.15s; }
-  .dash-sidebar-item:hover { background: rgba(255,255,255,0.08); }
-  .dash-sidebar-item.active { background: rgba(255,255,255,0.12); border-left: 3px solid var(--emerald-light); }
-  .dash-sidebar-icon { width: 18px; height: 18px; background: rgba(255,255,255,0.3); border-radius: 4px; }
-  .dash-main { padding: 28px; background: var(--bg); }
-  .dash-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-  .dash-header h1 { font-size: 22px; font-weight: 600; }
-  .dash-header-actions { display: flex; gap: 8px; }
-  .dash-btn { padding: 8px 16px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; border: 1px solid var(--border); background: white; cursor: pointer; }
-  .dash-btn-primary { background: var(--emerald); color: white; border-color: var(--emerald); }
+  .nav-item {
+    background: none;
+    border: none;
+    color: rgba(250,250,247,0.6);
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    padding: var(--space-sm) var(--space-md);
+    cursor: pointer;
+    white-space: nowrap;
+    border-radius: var(--radius-sm);
+    transition: all 200ms ease-out;
+    letter-spacing: 0.01em;
+  }
 
-  .dash-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
-  .dash-stat { background: white; padding: 20px; border-radius: var(--radius); box-shadow: var(--shadow-sm); }
-  .dash-stat-label { font-size: 12px; color: var(--text-secondary); font-weight: 500; margin-bottom: 4px; }
-  .dash-stat-value { font-size: 28px; font-weight: 700; color: var(--text-primary); }
-  .dash-stat-trend { font-size: 12px; color: var(--success); margin-top: 4px; font-weight: 500; }
+  .nav-item:hover { color: var(--surface-base); background: rgba(255,255,255,0.08); }
+  .nav-item.active { color: var(--surface-base); background: rgba(196,149,106,0.25); }
 
-  .dash-grid { display: grid; grid-template-columns: 1fr 340px; gap: 20px; }
-  .eval-card { background: white; padding: 20px; border-radius: var(--radius); box-shadow: var(--shadow-sm); margin-bottom: 16px; }
-  .eval-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
-  .eval-card-title { font-size: 14px; font-weight: 600; }
-  .eval-card-meta { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; }
-  .eval-score { display: flex; align-items: center; gap: 8px; }
-  .eval-score-value { font-size: 24px; font-weight: 700; color: var(--emerald); }
-  .eval-score-label { font-size: 11px; color: var(--text-secondary); font-weight: 500; }
-  .eval-dimensions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 12px; }
-  .eval-dim { padding: 8px 12px; background: var(--bg); border-radius: var(--radius-sm); }
-  .eval-dim-label { font-size: 11px; color: var(--text-secondary); }
-  .eval-dim-bar { height: 4px; background: #E7E5E4; border-radius: 2px; margin-top: 6px; position: relative; }
-  .eval-dim-fill { height: 100%; border-radius: 2px; position: absolute; left: 0; top: 0; }
-  .eval-dim-fill.high { background: var(--emerald); }
-  .eval-dim-fill.mid { background: var(--fintech-amber); }
-  .eval-summary { font-size: 13px; color: var(--text-secondary); line-height: 1.5; padding: 12px; background: var(--emerald-50); border-radius: var(--radius-sm); margin-top: 12px; border-left: 3px solid var(--emerald-light); }
+  /* === SECTION LAYOUT === */
+  .direction-section {
+    min-height: 100vh;
+    padding: 80px var(--space-xl) var(--space-3xl);
+    background: var(--surface-base);
+    position: relative;
+  }
 
-  /* Activity feed */
-  .feed { background: white; padding: 20px; border-radius: var(--radius); box-shadow: var(--shadow-sm); }
-  .feed-title { font-size: 14px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-  .feed-live { width: 8px; height: 8px; background: var(--success); border-radius: 50%; animation: pulse 2s infinite; }
-  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-  .feed-item { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border-light); }
+  .direction-section:nth-child(even) { background: var(--surface-sunken); }
+
+  .section-header {
+    max-width: 900px;
+    margin: 0 auto var(--space-2xl);
+    text-align: center;
+  }
+
+  .section-number {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--brand-accent);
+    margin-bottom: var(--space-sm);
+  }
+
+  .section-title {
+    font-family: var(--font-serif);
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--brand-primary);
+    margin-bottom: var(--space-md);
+    line-height: 1.25;
+  }
+
+  .section-subtitle {
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    color: var(--brand-secondary);
+    line-height: 1.6;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  /* === HERO SECTION === */
+  .hero-section {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--brand-primary);
+    color: var(--surface-base);
+    padding: var(--space-4xl) var(--space-xl);
+    text-align: center;
+  }
+
+  .hero-overline {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--brand-accent);
+    margin-bottom: var(--space-lg);
+  }
+
+  .hero-title {
+    font-family: var(--font-serif);
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 700;
+    line-height: 1.15;
+    margin-bottom: var(--space-lg);
+    max-width: 700px;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    color: var(--brand-accent);
+  }
+
+  .hero-description {
+    font-family: var(--font-sans);
+    font-size: 1.0625rem;
+    line-height: 1.7;
+    color: rgba(250,250,247,0.7);
+    max-width: 560px;
+    margin-bottom: var(--space-2xl);
+  }
+
+  .hero-domains {
+    display: flex;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: var(--space-3xl);
+  }
+
+  .domain-pill {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    padding: var(--space-sm) var(--space-md);
+    border-radius: 100px;
+    border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(250,250,247,0.8);
+    transition: all 200ms ease-out;
+  }
+
+  .domain-pill[data-domain="technology"] { border-color: var(--domain-technology); color: var(--domain-technology); }
+  .domain-pill[data-domain="fintech"] { border-color: var(--domain-fintech); color: var(--domain-fintech); }
+  .domain-pill[data-domain="impact"] { border-color: var(--domain-impact); color: var(--domain-impact); }
+  .domain-pill[data-domain="governance"] { border-color: var(--domain-governance); color: var(--domain-governance); }
+
+  .hero-scroll-hint {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    color: rgba(250,250,247,0.4);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    animation: gentle-pulse 3s ease-in-out infinite;
+  }
+
+  @keyframes gentle-pulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 0.8; }
+  }
+
+  /* === DIRECTION 1: ARTICLE READING === */
+  .article-mockup {
+    max-width: 720px;
+    margin: 0 auto;
+    background: var(--surface-raised);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-modal);
+    overflow: hidden;
+  }
+
+  .article-header-image {
+    width: 100%;
+    height: 320px;
+    background: linear-gradient(135deg, var(--domain-fintech-bg) 0%, var(--brand-accent-subtle) 50%, var(--domain-governance-bg) 100%);
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    padding: var(--space-2xl);
+  }
+
+  .article-header-image .domain-tag {
+    position: absolute;
+    top: var(--space-lg);
+    left: var(--space-lg);
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: var(--space-xs) var(--space-md);
+    border-radius: 100px;
+    background: var(--domain-fintech);
+    color: white;
+  }
+
+  .article-content {
+    padding: var(--space-2xl) var(--space-2xl) var(--space-3xl);
+  }
+
+  .article-title {
+    font-family: var(--font-serif);
+    font-size: 2.25rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--brand-primary);
+    margin-bottom: var(--space-lg);
+  }
+
+  .article-byline {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    margin-bottom: var(--space-2xl);
+    padding-bottom: var(--space-lg);
+    border-bottom: var(--border-light);
+  }
+
+  .byline-avatars {
+    display: flex;
+  }
+
+  .byline-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid var(--surface-raised);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-serif);
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: white;
+  }
+
+  .byline-avatar.author { background: var(--brand-accent); margin-right: -8px; z-index: 1; }
+  .byline-avatar.editor { background: var(--brand-secondary); }
+
+  .byline-text {
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    color: var(--brand-secondary);
+    line-height: 1.4;
+  }
+
+  .byline-text strong {
+    color: var(--brand-primary);
+    font-weight: 600;
+  }
+
+  .byline-text .editor-label {
+    color: var(--brand-secondary);
+    font-size: 0.8125rem;
+  }
+
+  .article-body p {
+    font-family: var(--font-serif);
+    font-size: 1.0625rem;
+    line-height: 1.65;
+    color: var(--brand-primary);
+    margin-bottom: var(--space-lg);
+  }
+
+  .article-body .pull-quote {
+    font-family: var(--font-serif);
+    font-size: 1.375rem;
+    font-style: italic;
+    line-height: 1.5;
+    color: var(--brand-accent);
+    border-left: 3px solid var(--brand-accent);
+    padding: var(--space-lg) var(--space-xl);
+    margin: var(--space-2xl) 0;
+    background: linear-gradient(90deg, rgba(196,149,106,0.08) 0%, transparent 100%);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  }
+
+  .article-reading-time {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    color: var(--brand-secondary);
+  }
+
+  /* === DIRECTION 2: EVALUATION REVEAL === */
+  .evaluation-mockup {
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+  }
+
+  .narrative-card {
+    background: var(--surface-raised);
+    border-radius: var(--radius-lg);
+    padding: var(--space-2xl) var(--space-xl);
+    box-shadow: var(--shadow-narrative);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .narrative-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--domain-technology), var(--brand-accent));
+  }
+
+  .narrative-label {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--brand-accent);
+    margin-bottom: var(--space-md);
+  }
+
+  .narrative-text {
+    font-family: var(--font-serif);
+    font-size: 1.1875rem;
+    line-height: 1.65;
+    color: var(--brand-primary);
+  }
+
+  .narrative-text em { color: var(--domain-technology); font-style: normal; font-weight: 600; }
+
+  .narrative-contribution {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    margin-top: var(--space-lg);
+    padding-top: var(--space-lg);
+    border-top: var(--border-light);
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    color: var(--brand-secondary);
+  }
+
+  .contribution-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-sm);
+    background: var(--domain-technology-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+  }
+
+  .quality-dimensions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-md);
+  }
+
+  .dimension-card {
+    background: var(--surface-raised);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    border: var(--border-light);
+    cursor: pointer;
+    transition: all 200ms ease-out;
+  }
+
+  .dimension-card:hover {
+    box-shadow: var(--shadow-hover);
+    border-color: var(--brand-accent-subtle);
+  }
+
+  .dimension-label {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--brand-secondary);
+    margin-bottom: var(--space-sm);
+  }
+
+  .dimension-value {
+    font-family: var(--font-serif);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--brand-primary);
+    margin-bottom: var(--space-md);
+  }
+
+  .dimension-bar {
+    height: 4px;
+    background: var(--surface-sunken);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .dimension-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 600ms ease-out;
+  }
+
+  .dimension-expand {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    color: var(--brand-accent);
+    margin-top: var(--space-sm);
+  }
+
+  .trajectory-card {
+    background: var(--surface-raised);
+    border-radius: var(--radius-md);
+    padding: var(--space-xl);
+    border: var(--border-light);
+  }
+
+  .trajectory-label {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--brand-secondary);
+    margin-bottom: var(--space-md);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .trajectory-svg { width: 100%; height: 120px; }
+
+  .trajectory-note {
+    font-family: var(--font-serif);
+    font-size: 0.875rem;
+    font-style: italic;
+    color: var(--brand-secondary);
+    margin-top: var(--space-md);
+    text-align: center;
+  }
+
+  /* === DIRECTION 3: CONTRIBUTOR DASHBOARD === */
+  .dashboard-mockup {
+    max-width: 1100px;
+    margin: 0 auto;
+    background: var(--surface-raised);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-modal);
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    min-height: 600px;
+  }
+
+  .dashboard-sidebar {
+    background: var(--brand-primary);
+    padding: var(--space-lg);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar-brand {
+    font-family: var(--font-serif);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--surface-base);
+    padding-bottom: var(--space-lg);
+    margin-bottom: var(--space-lg);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .sidebar-brand span { color: var(--brand-accent); }
+  .sidebar-nav { display: flex; flex-direction: column; gap: var(--space-xs); flex: 1; }
+
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    color: rgba(250,250,247,0.6);
+    cursor: pointer;
+    transition: all 200ms ease-out;
+  }
+
+  .sidebar-item:hover { color: var(--surface-base); background: rgba(255,255,255,0.08); }
+  .sidebar-item.active { color: var(--surface-base); background: rgba(196,149,106,0.2); }
+  .sidebar-item .icon { width: 20px; text-align: center; font-size: 0.875rem; }
+
+  .sidebar-item .notification-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--brand-accent);
+    margin-left: auto;
+  }
+
+  .sidebar-profile {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md);
+    margin-top: auto;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: var(--space-lg);
+  }
+
+  .sidebar-profile-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--domain-technology);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-serif);
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: white;
+  }
+
+  .sidebar-profile-info {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    color: rgba(250,250,247,0.8);
+    line-height: 1.3;
+  }
+
+  .sidebar-profile-info .role {
+    font-size: 0.75rem;
+    color: rgba(250,250,247,0.5);
+  }
+
+  .dashboard-content {
+    padding: var(--space-xl);
+    background: var(--surface-base);
+    overflow-y: auto;
+  }
+
+  .dashboard-greeting { margin-bottom: var(--space-2xl); }
+
+  .dashboard-greeting h2 {
+    font-family: var(--font-serif);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--brand-primary);
+    margin-bottom: var(--space-xs);
+  }
+
+  .dashboard-greeting p {
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    color: var(--brand-secondary);
+  }
+
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-lg);
+    margin-bottom: var(--space-xl);
+  }
+
+  .dash-card {
+    background: var(--surface-raised);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    border: var(--border-light);
+    transition: all 200ms ease-out;
+  }
+
+  .dash-card:hover { box-shadow: var(--shadow-hover); }
+
+  .dash-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-md);
+  }
+
+  .dash-card-title {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--brand-secondary);
+  }
+
+  .dash-card-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+  }
+
+  .dash-card-value {
+    font-family: var(--font-serif);
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--brand-primary);
+    margin-bottom: var(--space-xs);
+  }
+
+  .dash-card-desc {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    color: var(--brand-secondary);
+    line-height: 1.5;
+  }
+
+  .activity-feed {
+    background: var(--surface-raised);
+    border-radius: var(--radius-md);
+    border: var(--border-light);
+    overflow: hidden;
+  }
+
+  .activity-feed-header {
+    padding: var(--space-lg);
+    border-bottom: var(--border-light);
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--brand-secondary);
+  }
+
+  .feed-item {
+    padding: var(--space-md) var(--space-lg);
+    border-bottom: var(--border-light);
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-md);
+    transition: background 200ms ease-out;
+  }
+
   .feed-item:last-child { border-bottom: none; }
-  .feed-domain-indicator { width: 4px; border-radius: 2px; flex-shrink: 0; }
-  .feed-domain-indicator.tech { background: var(--tech-blue); }
-  .feed-domain-indicator.fintech { background: var(--fintech-amber); }
-  .feed-domain-indicator.impact { background: var(--impact-teal); }
-  .feed-domain-indicator.governance { background: var(--governance-violet); }
-  .feed-content { flex: 1; }
-  .feed-author { font-size: 13px; font-weight: 600; }
-  .feed-desc { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
-  .feed-time { font-size: 11px; color: var(--text-tertiary); margin-top: 4px; }
-  .feed-score { font-size: 14px; font-weight: 700; color: var(--emerald); align-self: center; }
+  .feed-item:hover { background: var(--surface-sunken); }
 
-  /* ==================== DIRECTION 3: ADMIN DASHBOARD ==================== */
-  .admin { display: grid; grid-template-columns: 64px 1fr; gap: 0; background: white; border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-md); min-height: 650px; margin-bottom: 32px; }
-  .admin-sidebar { background: var(--text-primary); padding: 16px 0; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-  .admin-sidebar-icon { width: 40px; height: 40px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-tertiary); transition: all 0.15s; font-size: 13px; font-weight: 600; }
-  .admin-sidebar-icon:hover { background: rgba(255,255,255,0.08); color: white; }
-  .admin-sidebar-icon.active { background: var(--emerald); color: white; }
-  .admin-main { padding: 24px; background: var(--bg); }
-  .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-  .admin-header h1 { font-size: 20px; font-weight: 600; }
-  .admin-health { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 20px; }
-  .admin-health-card { background: white; padding: 16px; border-radius: var(--radius-sm); box-shadow: var(--shadow-sm); }
-  .admin-health-label { font-size: 11px; color: var(--text-secondary); font-weight: 500; }
-  .admin-health-value { font-size: 22px; font-weight: 700; margin-top: 4px; }
-  .admin-health-status { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
-  .admin-health-status.good { background: var(--success); }
-  .admin-health-status.warn { background: var(--warning); }
+  .feed-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-serif);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: white;
+    flex-shrink: 0;
+  }
 
-  .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .admin-table { background: white; border-radius: var(--radius-sm); box-shadow: var(--shadow-sm); overflow: hidden; }
-  .admin-table-header { padding: 12px 16px; font-size: 13px; font-weight: 600; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-  .admin-table-badge { font-size: 11px; padding: 2px 8px; border-radius: 4px; background: var(--warning); color: white; font-weight: 600; }
-  .admin-table-row { display: grid; grid-template-columns: 1fr 100px 80px 80px; padding: 10px 16px; font-size: 13px; border-bottom: 1px solid var(--border-light); align-items: center; }
-  .admin-table-row:hover { background: var(--bg); }
-  .admin-status { padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; display: inline-block; }
-  .admin-status.pending { background: #FEF3C7; color: #92400E; }
-  .admin-status.review { background: #EEF2FF; color: var(--tech-blue); }
-  .admin-status.complete { background: #DCFCE7; color: #166534; }
+  .feed-content { flex: 1; min-width: 0; }
 
-  /* ==================== DIRECTION 4: EVALUATION BREAKDOWN ==================== */
-  .eval-detail { background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow-md); overflow: hidden; margin-bottom: 32px; }
-  .eval-detail-header { padding: 28px 32px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: flex-start; }
-  .eval-detail-title { font-size: 18px; font-weight: 600; }
-  .eval-detail-meta { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
-  .eval-detail-score-ring { width: 80px; height: 80px; border-radius: 50%; border: 4px solid var(--emerald); display: flex; align-items: center; justify-content: center; flex-direction: column; }
-  .eval-detail-score-num { font-size: 28px; font-weight: 700; color: var(--emerald); line-height: 1; }
-  .eval-detail-score-label { font-size: 10px; color: var(--text-secondary); font-weight: 500; }
-  .eval-detail-body { padding: 28px 32px; }
-  .eval-detail-summary-box { padding: 16px 20px; background: var(--emerald-50); border-radius: var(--radius); border-left: 4px solid var(--emerald); margin-bottom: 24px; }
-  .eval-detail-summary-box p { font-size: 14px; color: var(--emerald-dark); line-height: 1.6; }
-  .eval-detail-dims { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px; }
-  .eval-detail-dim { padding: 16px; border: 1px solid var(--border-light); border-radius: var(--radius); }
-  .eval-detail-dim-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-  .eval-detail-dim-name { font-size: 13px; font-weight: 600; }
-  .eval-detail-dim-score { font-size: 16px; font-weight: 700; }
-  .eval-detail-dim-bar { height: 6px; background: #E7E5E4; border-radius: 3px; overflow: hidden; }
-  .eval-detail-dim-fill { height: 100%; border-radius: 3px; }
-  .eval-detail-dim-desc { font-size: 12px; color: var(--text-secondary); margin-top: 8px; line-height: 1.4; }
-  .eval-detail-actions { display: flex; gap: 12px; padding-top: 20px; border-top: 1px solid var(--border-light); }
-  .eval-detail-btn { padding: 10px 20px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; border: 1px solid var(--border); background: white; cursor: pointer; }
-  .eval-detail-btn.primary { background: var(--emerald); color: white; border-color: var(--emerald); }
-  .eval-detail-transparency { margin-top: 20px; padding: 16px; background: #F5F5F4; border-radius: var(--radius); }
-  .eval-detail-transparency-title { font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
-  .eval-detail-transparency-row { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; }
-  .eval-detail-transparency-label { color: var(--text-secondary); }
-  .eval-detail-transparency-value { font-weight: 500; }
+  .feed-text {
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    color: var(--brand-primary);
+    line-height: 1.4;
+    margin-bottom: var(--space-xs);
+  }
 
-  /* ==================== DIRECTION 5: ONBOARDING ==================== */
-  .onboard { background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow-md); overflow: hidden; margin-bottom: 32px; max-width: 800px; margin-left: auto; margin-right: auto; }
-  .onboard-progress { display: flex; padding: 24px 32px; border-bottom: 1px solid var(--border); gap: 8px; }
-  .onboard-step { flex: 1; text-align: center; }
-  .onboard-step-indicator { height: 4px; border-radius: 2px; margin-bottom: 8px; }
-  .onboard-step-indicator.done { background: var(--emerald); }
-  .onboard-step-indicator.current { background: var(--emerald-light); }
-  .onboard-step-indicator.pending { background: var(--border); }
-  .onboard-step-label { font-size: 11px; font-weight: 500; color: var(--text-secondary); }
-  .onboard-step-label.current { color: var(--emerald); font-weight: 600; }
-  .onboard-body { padding: 40px 32px; }
-  .onboard-body h2 { font-family: var(--serif); font-size: 26px; margin-bottom: 8px; }
-  .onboard-body p { font-size: 15px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 24px; }
-  .onboard-buddy { display: flex; align-items: center; gap: 16px; padding: 20px; background: var(--emerald-50); border-radius: var(--radius); margin-bottom: 24px; }
-  .onboard-buddy-avatar { width: 48px; height: 48px; border-radius: 50%; background: var(--emerald); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 18px; }
-  .onboard-buddy-info h4 { font-size: 14px; font-weight: 600; }
-  .onboard-buddy-info p { font-size: 13px; color: var(--text-secondary); margin-bottom: 0; }
-  .onboard-tasks { border: 1px solid var(--border-light); border-radius: var(--radius); overflow: hidden; }
-  .onboard-task { display: flex; align-items: center; gap: 12px; padding: 16px; border-bottom: 1px solid var(--border-light); }
-  .onboard-task:last-child { border-bottom: none; }
-  .onboard-task-check { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
-  .onboard-task-check.done { background: var(--emerald); border-color: var(--emerald); color: white; }
-  .onboard-task-info { flex: 1; }
-  .onboard-task-title { font-size: 14px; font-weight: 500; }
-  .onboard-task-desc { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
-  .onboard-timer { text-align: center; padding: 20px; margin-top: 24px; }
-  .onboard-timer-value { font-size: 32px; font-weight: 700; color: var(--emerald); font-family: var(--mono); }
-  .onboard-timer-label { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+  .feed-text strong { font-weight: 600; }
 
-  /* ==================== DIRECTION 6: REWARD TRAJECTORY ==================== */
-  .reward { background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow-md); overflow: hidden; margin-bottom: 32px; }
-  .reward-header { padding: 28px 32px; border-bottom: 1px solid var(--border); }
-  .reward-header h2 { font-family: var(--serif); font-size: 22px; margin-bottom: 4px; }
-  .reward-header p { font-size: 14px; color: var(--text-secondary); }
-  .reward-body { padding: 28px 32px; }
-  .reward-chart { height: 200px; background: var(--bg); border-radius: var(--radius); margin-bottom: 24px; position: relative; overflow: hidden; display: flex; align-items: flex-end; padding: 20px; gap: 2px; }
-  .reward-bar { flex: 1; border-radius: 3px 3px 0 0; transition: height 0.3s; min-height: 4px; }
-  .reward-bar.past { background: var(--emerald); }
-  .reward-bar.current { background: var(--emerald-light); }
-  .reward-bar.future { background: var(--emerald-100); border: 1px dashed var(--emerald-light); }
-  .reward-you-are-here { position: absolute; font-size: 11px; font-weight: 600; color: var(--emerald); padding: 4px 8px; background: white; border-radius: 4px; box-shadow: var(--shadow-sm); }
-  .reward-scales { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
-  .reward-scale { padding: 16px; border: 1px solid var(--border-light); border-radius: var(--radius); }
-  .reward-scale-label { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
-  .reward-scale-value { font-size: 20px; font-weight: 700; margin-top: 4px; }
-  .reward-scale-change { font-size: 12px; color: var(--success); margin-top: 2px; }
-  .reward-explanation { padding: 16px; background: var(--bg); border-radius: var(--radius); }
-  .reward-explanation-toggle { display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-  .reward-explanation-title { font-size: 13px; font-weight: 600; }
-  .reward-explanation-body { font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-top: 12px; }
+  .feed-meta {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    color: var(--brand-secondary);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
 
-  /* ==================== DIRECTION 7: CONTRIBUTION MENU ==================== */
-  .tasks { background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow-md); overflow: hidden; margin-bottom: 32px; }
-  .tasks-header { padding: 24px 28px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-  .tasks-header h2 { font-size: 18px; font-weight: 600; }
-  .tasks-filters { display: flex; gap: 8px; padding: 16px 28px; border-bottom: 1px solid var(--border-light); }
-  .tasks-filter { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; border: 1px solid var(--border); background: white; cursor: pointer; transition: all 0.15s; }
-  .tasks-filter:hover { border-color: var(--emerald); color: var(--emerald); }
-  .tasks-filter.active { background: var(--emerald); color: white; border-color: var(--emerald); }
-  .tasks-filter.tech { border-color: var(--tech-blue); color: var(--tech-blue); }
-  .tasks-filter.fintech { border-color: var(--fintech-amber); color: var(--fintech-amber); }
-  .tasks-filter.impact { border-color: var(--impact-teal); color: var(--impact-teal); }
-  .tasks-filter.governance { border-color: var(--governance-violet); color: var(--governance-violet); }
-  .tasks-list { padding: 8px 28px; }
-  .task-item { display: grid; grid-template-columns: 4px 1fr 100px 100px 80px; gap: 16px; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--border-light); }
-  .task-item:last-child { border-bottom: none; }
-  .task-domain-bar { height: 100%; border-radius: 2px; min-height: 40px; }
-  .task-domain-bar.tech { background: var(--tech-blue); }
-  .task-domain-bar.fintech { background: var(--fintech-amber); }
-  .task-domain-bar.impact { background: var(--impact-teal); }
-  .task-domain-bar.governance { background: var(--governance-violet); }
-  .task-title { font-size: 14px; font-weight: 500; }
-  .task-desc { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
-  .task-difficulty { font-size: 12px; font-weight: 500; }
-  .task-effort { font-size: 12px; color: var(--text-secondary); }
-  .task-claim { padding: 6px 14px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 500; border: 1px solid var(--emerald); color: var(--emerald); background: white; cursor: pointer; }
-  .task-claim:hover { background: var(--emerald); color: white; }
+  .feed-domain-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
 
-  /* ==================== DIRECTION 8: MOBILE CONTRIBUTOR ==================== */
-  .mobile-frame { width: 375px; margin: 0 auto 32px; background: white; border-radius: 24px; box-shadow: var(--shadow-lg); overflow: hidden; border: 8px solid #1C1917; }
-  .mobile-status { padding: 8px 20px; display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; }
-  .mobile-header { padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; }
-  .mobile-header h1 { font-size: 20px; font-weight: 600; }
-  .mobile-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--emerald-50); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; color: var(--emerald); }
-  .mobile-content { padding: 0 20px 20px; }
-  .mobile-eval-card { background: var(--bg); padding: 16px; border-radius: var(--radius); margin-bottom: 12px; }
-  .mobile-eval-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-  .mobile-eval-title { font-size: 13px; font-weight: 600; }
-  .mobile-eval-score { font-size: 20px; font-weight: 700; color: var(--emerald); }
-  .mobile-eval-summary { font-size: 12px; color: var(--text-secondary); line-height: 1.4; }
-  .mobile-feed-item { display: flex; gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--border-light); }
-  .mobile-feed-bar { width: 3px; border-radius: 2px; flex-shrink: 0; }
-  .mobile-feed-text { font-size: 12px; }
-  .mobile-feed-author { font-weight: 600; }
-  .mobile-feed-time { color: var(--text-tertiary); font-size: 11px; margin-top: 2px; }
-  .mobile-bottom-nav { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--border); padding: 8px 0 16px; }
-  .mobile-nav-item { text-align: center; font-size: 10px; color: var(--text-tertiary); padding: 8px 0; }
-  .mobile-nav-item.active { color: var(--emerald); }
-  .mobile-nav-icon { width: 24px; height: 24px; margin: 0 auto 4px; background: currentColor; border-radius: 6px; opacity: 0.3; }
-  .mobile-nav-item.active .mobile-nav-icon { opacity: 0.6; }
+  /* === DIRECTION 4: AUTHORING EXPERIENCE === */
+  .authoring-mockup {
+    max-width: 900px;
+    margin: 0 auto;
+    background: var(--surface-raised);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-modal);
+    overflow: hidden;
+  }
+
+  .authoring-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-md) var(--space-xl);
+    border-bottom: var(--border-light);
+    background: var(--surface-raised);
+  }
+
+  .authoring-toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+  }
+
+  .authoring-back {
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    color: var(--brand-secondary);
+    cursor: pointer;
+  }
+
+  .authoring-status {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    color: var(--semantic-success);
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+  }
+
+  .authoring-status .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--semantic-success);
+  }
+
+  .authoring-toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+  }
+
+  .btn {
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 200ms ease-out;
+    border: none;
+  }
+
+  .btn-primary { background: var(--brand-accent); color: white; }
+  .btn-primary:hover { background: var(--brand-accent-hover); }
+
+  .btn-secondary {
+    background: transparent;
+    border: 1px solid var(--brand-accent);
+    color: var(--brand-accent);
+  }
+
+  .btn-secondary:hover { background: rgba(196,149,106,0.08); }
+
+  .authoring-domain-select {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-xs) var(--space-md);
+    border-radius: 100px;
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 500;
+    border: 1px solid var(--domain-impact);
+    color: var(--domain-impact);
+    background: var(--domain-impact-bg);
+  }
+
+  .authoring-editor-area {
+    padding: var(--space-3xl) var(--space-4xl);
+    min-height: 400px;
+  }
+
+  .authoring-editor-area .article-title-input {
+    font-family: var(--font-serif);
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: var(--brand-primary);
+    border: none;
+    outline: none;
+    width: 100%;
+    margin-bottom: var(--space-xl);
+    line-height: 1.2;
+  }
+
+  .authoring-body-input {
+    font-family: var(--font-serif);
+    font-size: 1.0625rem;
+    line-height: 1.65;
+    color: var(--brand-primary);
+  }
+
+  .authoring-body-input p { margin-bottom: var(--space-lg); }
+
+  .authoring-body-input .slash-hint {
+    color: #C8C4BE;
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+  }
+
+  .slash-menu {
+    background: var(--surface-raised);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-modal);
+    border: var(--border-light);
+    padding: var(--space-sm);
+    width: 260px;
+    margin-top: var(--space-md);
+  }
+
+  .slash-menu-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background 200ms ease-out;
+  }
+
+  .slash-menu-item:hover { background: var(--surface-sunken); }
+  .slash-menu-item.selected { background: var(--brand-accent-subtle); }
+
+  .slash-menu-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    background: var(--surface-sunken);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+  }
+
+  .slash-menu-text {
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    color: var(--brand-primary);
+    line-height: 1.3;
+  }
+
+  .slash-menu-text .hint {
+    font-size: 0.75rem;
+    color: var(--brand-secondary);
+  }
+
+  /* === DIRECTION 5: PUBLIC PORTAL === */
+  .portal-mockup {
+    max-width: 1100px;
+    margin: 0 auto;
+    background: var(--surface-raised);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-modal);
+    overflow: hidden;
+  }
+
+  .portal-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-md) var(--space-xl);
+    border-bottom: var(--border-light);
+  }
+
+  .portal-nav-left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xl);
+  }
+
+  .portal-logo {
+    font-family: var(--font-serif);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--brand-primary);
+  }
+
+  .portal-logo span { color: var(--brand-accent); }
+
+  .portal-nav-links { display: flex; gap: var(--space-lg); }
+
+  .portal-nav-link {
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    color: var(--brand-secondary);
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 200ms ease-out;
+  }
+
+  .portal-nav-link:hover { color: var(--brand-primary); }
+  .portal-nav-link.active { color: var(--brand-primary); font-weight: 500; }
+
+  .portal-hero {
+    padding: var(--space-3xl) var(--space-2xl);
+    text-align: center;
+    background: linear-gradient(180deg, var(--surface-raised) 0%, var(--surface-sunken) 100%);
+  }
+
+  .portal-hero h1 {
+    font-family: var(--font-serif);
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--brand-primary);
+    margin-bottom: var(--space-md);
+    line-height: 1.2;
+  }
+
+  .portal-hero p {
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    color: var(--brand-secondary);
+    max-width: 560px;
+    margin: 0 auto var(--space-xl);
+    line-height: 1.6;
+  }
+
+  .portal-stats {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-2xl);
+    margin-top: var(--space-xl);
+  }
+
+  .portal-stat { text-align: center; }
+
+  .portal-stat-value {
+    font-family: var(--font-serif);
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--brand-primary);
+  }
+
+  .portal-stat-label {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    color: var(--brand-secondary);
+    margin-top: var(--space-xs);
+  }
+
+  .portal-featured { padding: var(--space-2xl); }
+
+  .portal-featured-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-xl);
+  }
+
+  .portal-featured-title {
+    font-family: var(--font-serif);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--brand-primary);
+  }
+
+  .portal-featured-link {
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    color: var(--brand-accent);
+    cursor: pointer;
+  }
+
+  .portal-articles-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-lg);
+  }
+
+  .portal-article-card {
+    border-radius: var(--radius-md);
+    border: var(--border-light);
+    overflow: hidden;
+    transition: all 200ms ease-out;
+    cursor: pointer;
+  }
+
+  .portal-article-card:hover { box-shadow: var(--shadow-hover); transform: translateY(-2px); }
+
+  .portal-article-thumb {
+    height: 140px;
+    position: relative;
+  }
+
+  .portal-article-thumb .domain-tag {
+    position: absolute;
+    top: var(--space-md);
+    left: var(--space-md);
+    font-family: var(--font-sans);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 3px var(--space-sm);
+    border-radius: 100px;
+    color: white;
+  }
+
+  .portal-article-body { padding: var(--space-lg); }
+
+  .portal-article-body h3 {
+    font-family: var(--font-serif);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--brand-primary);
+    line-height: 1.3;
+    margin-bottom: var(--space-sm);
+  }
+
+  .portal-article-body p {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    color: var(--brand-secondary);
+    line-height: 1.5;
+    margin-bottom: var(--space-md);
+  }
+
+  .portal-article-meta {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    color: var(--brand-secondary);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  /* === DIRECTION 6: EDITORIAL FEEDBACK === */
+  .editorial-mockup {
+    max-width: 900px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 0;
+    background: var(--surface-raised);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-modal);
+    overflow: hidden;
+    min-height: 500px;
+  }
+
+  .editorial-content {
+    padding: var(--space-2xl);
+    border-right: var(--border-light);
+  }
+
+  .editorial-content .article-title { font-size: 1.75rem; margin-bottom: var(--space-lg); }
+
+  .editorial-text {
+    font-family: var(--font-serif);
+    font-size: 1.0625rem;
+    line-height: 1.65;
+    color: var(--brand-primary);
+  }
+
+  .editorial-text p { margin-bottom: var(--space-lg); }
+
+  .editorial-highlight {
+    background: rgba(196,149,106,0.15);
+    border-bottom: 2px solid var(--brand-accent);
+    cursor: pointer;
+    padding: 2px 0;
+    transition: background 200ms ease-out;
+  }
+
+  .editorial-highlight:hover { background: rgba(196,149,106,0.25); }
+  .editorial-highlight.active { background: rgba(196,149,106,0.3); }
+
+  .editorial-sidebar {
+    background: var(--surface-sunken);
+    padding: var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+  }
+
+  .editorial-sidebar-header {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--brand-secondary);
+    padding-bottom: var(--space-md);
+    border-bottom: var(--border-light);
+  }
+
+  .editorial-comment {
+    background: var(--surface-raised);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    border-left: 3px solid var(--brand-accent);
+  }
+
+  .editorial-comment-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-sm);
+  }
+
+  .editorial-comment-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--brand-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-serif);
+    font-size: 0.625rem;
+    font-weight: 600;
+    color: white;
+  }
+
+  .editorial-comment-name {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--brand-primary);
+  }
+
+  .editorial-comment-role {
+    font-family: var(--font-sans);
+    font-size: 0.6875rem;
+    color: var(--brand-secondary);
+  }
+
+  .editorial-comment-text {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    color: var(--brand-primary);
+    line-height: 1.5;
+  }
+
+  .editorial-status-bar {
+    margin-top: auto;
+    padding-top: var(--space-lg);
+    border-top: var(--border-light);
+  }
+
+  .editorial-status-label {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--brand-secondary);
+    margin-bottom: var(--space-sm);
+  }
+
+  .editorial-status-steps { display: flex; gap: var(--space-xs); }
+
+  .editorial-step {
+    flex: 1;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--surface-base);
+  }
+
+  .editorial-step.complete { background: var(--semantic-success); }
+  .editorial-step.current { background: var(--brand-accent); }
+
+  /* === DIRECTION 7: CONTRIBUTOR PROFILE === */
+  .profile-mockup {
+    max-width: 800px;
+    margin: 0 auto;
+    background: var(--surface-raised);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-modal);
+    overflow: hidden;
+  }
+
+  .profile-header {
+    padding: var(--space-2xl) var(--space-2xl) var(--space-xl);
+    border-bottom: var(--border-light);
+    display: flex;
+    gap: var(--space-xl);
+    align-items: flex-start;
+  }
+
+  .profile-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--domain-technology);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-serif);
+    font-size: 2rem;
+    font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  .profile-info { flex: 1; }
+
+  .profile-name {
+    font-family: var(--font-serif);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--brand-primary);
+    margin-bottom: var(--space-xs);
+  }
+
+  .profile-role {
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    color: var(--brand-secondary);
+    margin-bottom: var(--space-md);
+  }
+
+  .profile-bio {
+    font-family: var(--font-serif);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--brand-primary);
+  }
+
+  .profile-domains {
+    display: flex;
+    gap: var(--space-sm);
+    margin-top: var(--space-md);
+  }
+
+  .profile-domain-tag {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: var(--space-xs) var(--space-md);
+    border-radius: 100px;
+    color: white;
+  }
+
+  .profile-body { padding: var(--space-xl) var(--space-2xl); }
+
+  .profile-section-title {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--brand-secondary);
+    margin-bottom: var(--space-lg);
+  }
+
+  .profile-journey-item {
+    display: flex;
+    gap: var(--space-lg);
+    padding: var(--space-lg) 0;
+    border-bottom: var(--border-light);
+  }
+
+  .profile-journey-item:last-child { border-bottom: none; }
+
+  .journey-date {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    color: var(--brand-secondary);
+    width: 100px;
+    flex-shrink: 0;
+    padding-top: 2px;
+  }
+
+  .journey-content { flex: 1; }
+
+  .journey-title {
+    font-family: var(--font-serif);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--brand-primary);
+    margin-bottom: var(--space-xs);
+  }
+
+  .journey-description {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    color: var(--brand-secondary);
+    line-height: 1.5;
+  }
+
+  .journey-type-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-top: 6px;
+    flex-shrink: 0;
+  }
+
+  /* === DIRECTION 8: ONBOARDING === */
+  .onboarding-mockup {
+    max-width: 640px;
+    margin: 0 auto;
+    background: var(--surface-raised);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-modal);
+    overflow: hidden;
+    padding: var(--space-3xl) var(--space-2xl);
+    text-align: center;
+  }
+
+  .onboarding-step-indicator {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-2xl);
+  }
+
+  .onboarding-step-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--surface-sunken);
+  }
+
+  .onboarding-step-dot.active { background: var(--brand-accent); }
+  .onboarding-step-dot.complete { background: var(--semantic-success); }
+
+  .onboarding-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--brand-accent-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    margin: 0 auto var(--space-xl);
+  }
+
+  .onboarding-title {
+    font-family: var(--font-serif);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--brand-primary);
+    margin-bottom: var(--space-md);
+  }
+
+  .onboarding-description {
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    color: var(--brand-secondary);
+    line-height: 1.6;
+    max-width: 440px;
+    margin: 0 auto var(--space-xl);
+  }
+
+  .onboarding-task {
+    background: var(--surface-sunken);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    text-align: left;
+    margin-bottom: var(--space-xl);
+  }
+
+  .onboarding-task-label {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--brand-accent);
+    margin-bottom: var(--space-sm);
+  }
+
+  .onboarding-task-title {
+    font-family: var(--font-serif);
+    font-size: 1.0625rem;
+    font-weight: 600;
+    color: var(--brand-primary);
+    margin-bottom: var(--space-sm);
+  }
+
+  .onboarding-task-desc {
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    color: var(--brand-secondary);
+    line-height: 1.5;
+  }
+
+  .onboarding-buddy {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    background: var(--surface-sunken);
+    border-radius: var(--radius-md);
+    padding: var(--space-md) var(--space-lg);
+    margin-bottom: var(--space-xl);
+    text-align: left;
+  }
+
+  .onboarding-buddy-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--domain-governance);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-serif);
+    font-weight: 600;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  .onboarding-buddy-text {
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    color: var(--brand-primary);
+    line-height: 1.4;
+  }
+
+  .onboarding-buddy-text .buddy-name { font-weight: 600; }
+
+  .onboarding-buddy-text .buddy-role {
+    font-size: 0.8125rem;
+    color: var(--brand-secondary);
+  }
+
+  /* === RESPONSIVE === */
+  @media (max-width: 900px) {
+    .dashboard-mockup { grid-template-columns: 1fr; }
+    .dashboard-sidebar { display: none; }
+    .editorial-mockup { grid-template-columns: 1fr; }
+    .editorial-sidebar { display: none; }
+    .portal-articles-grid { grid-template-columns: 1fr 1fr; }
+    .quality-dimensions { grid-template-columns: 1fr; }
+    .dashboard-grid { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 600px) {
+    .portal-articles-grid { grid-template-columns: 1fr; }
+    .portal-stats { flex-direction: column; gap: var(--space-lg); }
+    .authoring-editor-area { padding: var(--space-xl); }
+    .profile-header { flex-direction: column; align-items: center; text-align: center; }
+    .hero-title { font-size: 2rem; }
+  }
 </style>
 </head>
 <body>
 
-<nav class="nav">
-  <div class="nav-title">Edin Design Directions</div>
-  <div class="nav-tabs">
-    <button class="nav-tab active" onclick="showSection('public')">Public Portal</button>
-    <button class="nav-tab" onclick="showSection('dashboard')">Contributor Dashboard</button>
-    <button class="nav-tab" onclick="showSection('admin')">Admin Dashboard</button>
-    <button class="nav-tab" onclick="showSection('evaluation')">Evaluation Detail</button>
-    <button class="nav-tab" onclick="showSection('onboarding')">72-Hour Ignition</button>
-    <button class="nav-tab" onclick="showSection('rewards')">Reward Trajectory</button>
-    <button class="nav-tab" onclick="showSection('tasks')">Contribution Menu</button>
-    <button class="nav-tab" onclick="showSection('mobile')">Mobile View</button>
-  </div>
+<!-- NAVIGATION -->
+<nav class="showcase-nav">
+  <div class="nav-brand">Edin <span>Design</span></div>
+  <button class="nav-item active" onclick="scrollToSection('hero')">Overview</button>
+  <button class="nav-item" onclick="scrollToSection('dir1')">Article</button>
+  <button class="nav-item" onclick="scrollToSection('dir2')">Evaluation</button>
+  <button class="nav-item" onclick="scrollToSection('dir3')">Dashboard</button>
+  <button class="nav-item" onclick="scrollToSection('dir4')">Authoring</button>
+  <button class="nav-item" onclick="scrollToSection('dir5')">Portal</button>
+  <button class="nav-item" onclick="scrollToSection('dir6')">Editorial</button>
+  <button class="nav-item" onclick="scrollToSection('dir7')">Profile</button>
+  <button class="nav-item" onclick="scrollToSection('dir8')">Onboarding</button>
 </nav>
 
-<main class="main">
+<!-- HERO -->
+<section class="hero-section" id="hero">
+  <div class="hero-overline">Design Direction Showcase</div>
+  <h1 class="hero-title">Edin — <em>The Fertile Plain</em></h1>
+  <p class="hero-description">
+    Eight design directions exploring "Calm Confidence" — beautiful, calming, insightful visuals
+    that translate complex information into experiences that feel like reading a beautifully designed publication.
+  </p>
+  <div class="hero-domains">
+    <div class="domain-pill" data-domain="technology">Technology</div>
+    <div class="domain-pill" data-domain="fintech">Fintech</div>
+    <div class="domain-pill" data-domain="impact">Impact</div>
+    <div class="domain-pill" data-domain="governance">Governance</div>
+  </div>
+  <div class="hero-scroll-hint">Scroll to explore directions</div>
+</section>
 
-  <!-- DIRECTION 1: PUBLIC PORTAL -->
-  <section id="public" class="mockup-section active">
-    <div class="direction-title">Direction 1: Public Portal</div>
-    <div class="direction-subtitle">The investor and applicant first impression. Editorial authority with substance-first metrics. Serif headings communicate intellectual depth. Real data, not marketing.</div>
-
-    <div class="portal-nav">
-      <div class="portal-nav-brand">Edin</div>
-      <div class="portal-nav-links">
-        <a href="#">About</a>
-        <a href="#">Domains</a>
-        <a href="#">Contributors</a>
-        <a href="#">Metrics</a>
-        <a href="#" style="color: var(--emerald); font-weight: 600;">Apply</a>
+<!-- DIRECTION 1: ARTICLE READING -->
+<section class="direction-section" id="dir1">
+  <div class="section-header">
+    <div class="section-number">Direction 1</div>
+    <h2 class="section-title">The Publication Moment</h2>
+    <p class="section-subtitle">
+      Article reading experience — where "modern Economist" meets community-driven publication.
+      Serif typography, generous whitespace, immersive reading with author and editor bylines.
+    </p>
+  </div>
+  <div class="article-mockup">
+    <div class="article-header-image">
+      <div class="domain-tag">Fintech</div>
+    </div>
+    <div class="article-content">
+      <h1 class="article-title">The Quiet Revolution in Decentralized Credit Scoring</h1>
+      <div class="article-byline">
+        <div class="byline-avatars">
+          <div class="byline-avatar author">AC</div>
+          <div class="byline-avatar editor">MK</div>
+        </div>
+        <div class="byline-text">
+          <strong>Amir Chen</strong> · Edited by <strong>Marcus Kowalski</strong><br>
+          <span class="editor-label"><span class="article-reading-time">12 min read · February 2026</span></span>
+        </div>
+      </div>
+      <div class="article-body">
+        <p>The fundamental challenge of decentralized finance isn't technological — it's epistemic. How do you establish creditworthiness in a system designed to eliminate the institutions that traditionally evaluate it? The answer, emerging from a confluence of zero-knowledge proofs and behavioral economics, is more elegant than most practitioners realize.</p>
+        <div class="pull-quote">"Credit scoring in DeFi isn't about replacing banks with algorithms. It's about making the invisible patterns of financial responsibility visible — without exposing the person behind them."</div>
+        <p>Three years of transaction data across fourteen decentralized protocols reveals a pattern that traditional finance has long understood but rarely articulated: reliability is not a number. It's a trajectory. The difference between a borrower who maintains consistent collateral ratios and one who optimizes at the margin isn't captured by a single score — it's revealed through the shape of their behavior over time.</p>
+        <p>This insight has profound implications for how we design evaluation systems beyond finance. When Edin's AI evaluates a contributor's work, it faces a structurally similar challenge: how to recognize quality that unfolds over time, not quality that can be measured in a snapshot.</p>
       </div>
     </div>
+  </div>
+</section>
 
-    <div class="portal-hero">
-      <h1>Where contributions<br>take root and grow.</h1>
-      <p>A curated contributor platform for the Rose ecosystem. AI-powered evaluation. Scaling-law rewards. Four domains, one garden.</p>
-      <button class="portal-cta">Apply to Contribute →</button>
-      <button class="portal-cta portal-cta-secondary">View the Community</button>
-    </div>
-
-    <div class="portal-metrics">
-      <div class="portal-metric">
-        <div class="portal-metric-value">27</div>
-        <div class="portal-metric-label">Active Contributors</div>
+<!-- DIRECTION 2: EVALUATION REVEAL -->
+<section class="direction-section" id="dir2">
+  <div class="section-header">
+    <div class="section-number">Direction 2</div>
+    <h2 class="section-title">The Evaluation Reveal</h2>
+    <p class="section-subtitle">
+      Narrative-first AI evaluation — the defining interaction. A thoughtful review of your work,
+      not a grade report. Insight before numbers, with progressive disclosure to detailed dimensions.
+    </p>
+  </div>
+  <div class="evaluation-mockup">
+    <div class="narrative-card">
+      <div class="narrative-label">AI Evaluation · Your Latest Contribution</div>
+      <div class="narrative-text">
+        Your refactoring of the authentication middleware demonstrates <em>strong architectural clarity</em>.
+        The separation of token validation from session management reduces coupling in a way that will make
+        future OAuth provider additions straightforward. The test coverage is thorough, particularly the edge
+        case handling for expired refresh tokens — this shows attention to the failure modes that production
+        systems actually encounter.
       </div>
-      <div class="portal-metric">
-        <div class="portal-metric-value">142</div>
-        <div class="portal-metric-label">Contributions This Month</div>
-      </div>
-      <div class="portal-metric">
-        <div class="portal-metric-value">73%</div>
-        <div class="portal-metric-label">AI-Human Agreement</div>
-      </div>
-      <div class="portal-metric">
-        <div class="portal-metric-value">4/4</div>
-        <div class="portal-metric-label">Active Domains</div>
-      </div>
-    </div>
-
-    <div class="portal-domains">
-      <div class="portal-domain tech">
-        <h3>Technology & Development</h3>
-        <p>Platform architecture, AI integration, blockchain implementation, full-stack development</p>
-      </div>
-      <div class="portal-domain fintech">
-        <h3>Fintech & Financial Engineering</h3>
-        <p>Token economics, regulatory compliance, financial infrastructure, scaling laws</p>
-      </div>
-      <div class="portal-domain impact">
-        <h3>Impact & Sustainability</h3>
-        <p>Social impact measurement, inclusive design, environmental considerations</p>
-      </div>
-      <div class="portal-domain governance">
-        <h3>Consciousness & Governance</h3>
-        <p>Community governance design, ethical frameworks, decision-making structures</p>
-      </div>
-    </div>
-
-    <div class="portal-contributors">
-      <h2>Founding Circle</h2>
-      <div class="contributor-grid">
-        <div class="contributor-card">
-          <div class="contributor-avatar">L</div>
-          <div>
-            <div class="contributor-name">Lena M.</div>
-            <div class="contributor-role">Senior Backend Developer</div>
-            <span class="domain-badge tech">Technology</span>
-          </div>
-        </div>
-        <div class="contributor-card">
-          <div class="contributor-avatar">A</div>
-          <div>
-            <div class="contributor-name">Amir K.</div>
-            <div class="contributor-role">Financial Engineer</div>
-            <span class="domain-badge fintech">Fintech</span>
-          </div>
-        </div>
-        <div class="contributor-card">
-          <div class="contributor-avatar">S</div>
-          <div>
-            <div class="contributor-name">Sofia R.</div>
-            <div class="contributor-role">Impact & ESG Analyst</div>
-            <span class="domain-badge impact">Impact</span>
-          </div>
-        </div>
-        <div class="contributor-card">
-          <div class="contributor-avatar">Y</div>
-          <div>
-            <div class="contributor-name">Yuki T.</div>
-            <div class="contributor-role">Governance Specialist</div>
-            <span class="domain-badge governance">Governance</span>
-          </div>
-        </div>
-        <div class="contributor-card">
-          <div class="contributor-avatar">M</div>
-          <div>
-            <div class="contributor-name">Marco V.</div>
-            <div class="contributor-role">DevOps Engineer</div>
-            <span class="domain-badge tech">Technology</span>
-          </div>
-        </div>
-        <div class="contributor-card">
-          <div class="contributor-avatar">E</div>
-          <div>
-            <div class="contributor-name">Elena P.</div>
-            <div class="contributor-role">Token Economics Researcher</div>
-            <span class="domain-badge fintech">Fintech</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- DIRECTION 2: CONTRIBUTOR DASHBOARD -->
-  <section id="dashboard" class="mockup-section">
-    <div class="direction-title">Direction 2: Contributor Dashboard</div>
-    <div class="direction-subtitle">The return visit experience. Linear-inspired density with Stripe-level data clarity. The evaluation feedback loop lives here. Activity Feed as community heartbeat.</div>
-
-    <div class="dash">
-      <div class="dash-sidebar">
-        <div class="dash-sidebar-brand">Edin</div>
-        <div class="dash-sidebar-section">Overview</div>
-        <div class="dash-sidebar-item active"><div class="dash-sidebar-icon"></div> Dashboard</div>
-        <div class="dash-sidebar-item"><div class="dash-sidebar-icon"></div> Activity Feed</div>
-        <div class="dash-sidebar-section">Contribute</div>
-        <div class="dash-sidebar-item"><div class="dash-sidebar-icon"></div> Tasks</div>
-        <div class="dash-sidebar-item"><div class="dash-sidebar-icon"></div> My Contributions</div>
-        <div class="dash-sidebar-item"><div class="dash-sidebar-icon"></div> Evaluations</div>
-        <div class="dash-sidebar-section">Community</div>
-        <div class="dash-sidebar-item"><div class="dash-sidebar-icon"></div> Working Groups</div>
-        <div class="dash-sidebar-item"><div class="dash-sidebar-icon"></div> Rewards</div>
-        <div class="dash-sidebar-section">Account</div>
-        <div class="dash-sidebar-item"><div class="dash-sidebar-icon"></div> Profile</div>
-      </div>
-      <div class="dash-main">
-        <div class="dash-header">
-          <h1>Welcome back, Lena</h1>
-          <div class="dash-header-actions">
-            <button class="dash-btn">View Tasks</button>
-            <button class="dash-btn dash-btn-primary">New Contribution</button>
-          </div>
-        </div>
-
-        <div class="dash-stats">
-          <div class="dash-stat">
-            <div class="dash-stat-label">Evaluation Score (avg)</div>
-            <div class="dash-stat-value">78</div>
-            <div class="dash-stat-trend">↑ 4 from last month</div>
-          </div>
-          <div class="dash-stat">
-            <div class="dash-stat-label">Contributions (month)</div>
-            <div class="dash-stat-value">12</div>
-            <div class="dash-stat-trend">↑ 3 from last month</div>
-          </div>
-          <div class="dash-stat">
-            <div class="dash-stat-label">Peer Feedback</div>
-            <div class="dash-stat-value">5</div>
-            <div class="dash-stat-trend">2 pending review</div>
-          </div>
-          <div class="dash-stat">
-            <div class="dash-stat-label">Reward Trajectory</div>
-            <div class="dash-stat-value" style="font-size: 22px;">Compounding</div>
-            <div class="dash-stat-trend">Week 8 of sustained engagement</div>
-          </div>
-        </div>
-
-        <div class="dash-grid">
-          <div>
-            <div style="font-size: 14px; font-weight: 600; margin-bottom: 12px;">Recent Evaluations</div>
-            <div class="eval-card">
-              <div class="eval-card-header">
-                <div>
-                  <div class="eval-card-title">Refactor authentication middleware</div>
-                  <div class="eval-card-meta"><span class="domain-badge tech">Technology</span> · Pull Request · 2 hours ago</div>
-                </div>
-                <div class="eval-score">
-                  <div>
-                    <div class="eval-score-value">82</div>
-                    <div class="eval-score-label">High Quality</div>
-                  </div>
-                </div>
-              </div>
-              <div class="eval-summary">Strong refactor with clear separation of concerns. Complexity reduction well-executed. Test coverage for new paths is thorough.</div>
-              <div class="eval-dimensions">
-                <div class="eval-dim">
-                  <div class="eval-dim-label">Complexity Management</div>
-                  <div class="eval-dim-bar"><div class="eval-dim-fill high" style="width: 88%"></div></div>
-                </div>
-                <div class="eval-dim">
-                  <div class="eval-dim-label">Test Coverage</div>
-                  <div class="eval-dim-bar"><div class="eval-dim-fill high" style="width: 85%"></div></div>
-                </div>
-                <div class="eval-dim">
-                  <div class="eval-dim-label">Maintainability</div>
-                  <div class="eval-dim-bar"><div class="eval-dim-fill high" style="width: 78%"></div></div>
-                </div>
-                <div class="eval-dim">
-                  <div class="eval-dim-label">Standards Adherence</div>
-                  <div class="eval-dim-bar"><div class="eval-dim-fill mid" style="width: 72%"></div></div>
-                </div>
-              </div>
-            </div>
-
-            <div class="eval-card">
-              <div class="eval-card-header">
-                <div>
-                  <div class="eval-card-title">API documentation: ingestion pipeline</div>
-                  <div class="eval-card-meta"><span class="domain-badge tech">Technology</span> · Documentation · Yesterday</div>
-                </div>
-                <div class="eval-score">
-                  <div>
-                    <div class="eval-score-value">74</div>
-                    <div class="eval-score-label">Good Quality</div>
-                  </div>
-                </div>
-              </div>
-              <div class="eval-summary">Comprehensive API documentation with clear examples. Room to grow: reference completeness for error codes.</div>
-            </div>
-          </div>
-
-          <div>
-            <div class="feed">
-              <div class="feed-title"><span class="feed-live"></span> Activity Feed</div>
-              <div class="feed-item">
-                <div class="feed-domain-indicator tech"></div>
-                <div class="feed-content">
-                  <div class="feed-author">Marco V.</div>
-                  <div class="feed-desc">CI/CD pipeline optimization — 40% build time reduction</div>
-                  <div class="feed-time">12 min ago</div>
-                </div>
-                <div class="feed-score">86</div>
-              </div>
-              <div class="feed-item">
-                <div class="feed-domain-indicator fintech"></div>
-                <div class="feed-content">
-                  <div class="feed-author">Amir K.</div>
-                  <div class="feed-desc">Scaling-law parameter calibration for reward distribution</div>
-                  <div class="feed-time">1 hour ago</div>
-                </div>
-                <div class="feed-score">91</div>
-              </div>
-              <div class="feed-item">
-                <div class="feed-domain-indicator impact"></div>
-                <div class="feed-content">
-                  <div class="feed-author">Sofia R.</div>
-                  <div class="feed-desc">Social impact assessment framework v2</div>
-                  <div class="feed-time">3 hours ago</div>
-                </div>
-                <div class="feed-score">79</div>
-              </div>
-              <div class="feed-item">
-                <div class="feed-domain-indicator governance"></div>
-                <div class="feed-content">
-                  <div class="feed-author">Yuki T.</div>
-                  <div class="feed-desc">Progressive decentralization milestone review</div>
-                  <div class="feed-time">5 hours ago</div>
-                </div>
-                <div class="feed-score">84</div>
-              </div>
-              <div class="feed-item">
-                <div class="feed-domain-indicator tech"></div>
-                <div class="feed-content">
-                  <div class="feed-author">Lena M.</div>
-                  <div class="feed-desc">Refactor authentication middleware</div>
-                  <div class="feed-time">6 hours ago</div>
-                </div>
-                <div class="feed-score">82</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- DIRECTION 3: ADMIN DASHBOARD -->
-  <section id="admin" class="mockup-section">
-    <div class="direction-title">Direction 3: Admin Dashboard</div>
-    <div class="direction-subtitle">Marie's operational command center. Maximum information density. Compact sidebar (icon-only). Community health at a glance. Efficiency-first with Stripe-inspired data clarity.</div>
-
-    <div class="admin">
-      <div class="admin-sidebar">
-        <div class="admin-sidebar-icon active">D</div>
-        <div class="admin-sidebar-icon">A</div>
-        <div class="admin-sidebar-icon">C</div>
-        <div class="admin-sidebar-icon">F</div>
-        <div class="admin-sidebar-icon">M</div>
-        <div class="admin-sidebar-icon" style="margin-top: auto;">S</div>
-      </div>
-      <div class="admin-main">
-        <div class="admin-header">
-          <h1>Community Dashboard</h1>
-          <div style="font-size: 13px; color: var(--text-secondary);">Last updated: 2 min ago</div>
-        </div>
-
-        <div class="admin-health">
-          <div class="admin-health-card">
-            <div class="admin-health-label"><span class="admin-health-status good"></span>Active Contributors</div>
-            <div class="admin-health-value">27</div>
-          </div>
-          <div class="admin-health-card">
-            <div class="admin-health-label"><span class="admin-health-status good"></span>30-Day Retention</div>
-            <div class="admin-health-value">62%</div>
-          </div>
-          <div class="admin-health-card">
-            <div class="admin-health-label"><span class="admin-health-status good"></span>Domain Balance</div>
-            <div class="admin-health-value">4/4</div>
-          </div>
-          <div class="admin-health-card">
-            <div class="admin-health-label"><span class="admin-health-status warn"></span>Feedback Turnaround</div>
-            <div class="admin-health-value">18h</div>
-          </div>
-          <div class="admin-health-card">
-            <div class="admin-health-label"><span class="admin-health-status good"></span>Ingestion Success</div>
-            <div class="admin-health-value">99.2%</div>
-          </div>
-        </div>
-
-        <div class="admin-grid">
-          <div class="admin-table">
-            <div class="admin-table-header">Admission Queue <span class="admin-table-badge">3 pending</span></div>
-            <div class="admin-table-row" style="font-weight: 600; color: var(--text-secondary); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;">
-              <div>Applicant</div><div>Domain</div><div>Status</div><div>Action</div>
-            </div>
-            <div class="admin-table-row">
-              <div>Daniel F.<br><span style="font-size: 11px; color: var(--text-tertiary);">Full-stack developer · Applied 2d ago</span></div>
-              <div><span class="domain-badge tech">Technology</span></div>
-              <div><span class="admin-status review">In Review</span></div>
-              <div><button class="task-claim" style="font-size: 11px; padding: 4px 10px;">Review</button></div>
-            </div>
-            <div class="admin-table-row">
-              <div>Sarah L.<br><span style="font-size: 11px; color: var(--text-tertiary);">ESG consultant · Applied 3d ago</span></div>
-              <div><span class="domain-badge impact">Impact</span></div>
-              <div><span class="admin-status pending">Pending</span></div>
-              <div><button class="task-claim" style="font-size: 11px; padding: 4px 10px;">Assign</button></div>
-            </div>
-            <div class="admin-table-row">
-              <div>James W.<br><span style="font-size: 11px; color: var(--text-tertiary);">Smart contract auditor · Applied 1d ago</span></div>
-              <div><span class="domain-badge tech">Technology</span></div>
-              <div><span class="admin-status pending">Pending</span></div>
-              <div><button class="task-claim" style="font-size: 11px; padding: 4px 10px;">Assign</button></div>
-            </div>
-          </div>
-
-          <div class="admin-table">
-            <div class="admin-table-header">Feedback Status <span class="admin-table-badge" style="background: var(--info);">2 overdue</span></div>
-            <div class="admin-table-row" style="font-weight: 600; color: var(--text-secondary); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;">
-              <div>Contribution</div><div>Reviewer</div><div>Assigned</div><div>Status</div>
-            </div>
-            <div class="admin-table-row">
-              <div>Impact assessment framework<br><span style="font-size: 11px; color: var(--text-tertiary);">Sofia R. · Impact</span></div>
-              <div style="font-size: 12px;">Yuki T.</div>
-              <div style="font-size: 12px; color: var(--error);">3d ago</div>
-              <div><span class="admin-status" style="background: #FEE2E2; color: var(--error);">Overdue</span></div>
-            </div>
-            <div class="admin-table-row">
-              <div>Token vesting schedule analysis<br><span style="font-size: 11px; color: var(--text-tertiary);">Amir K. · Fintech</span></div>
-              <div style="font-size: 12px;">Elena P.</div>
-              <div style="font-size: 12px;">1d ago</div>
-              <div><span class="admin-status review">In Progress</span></div>
-            </div>
-            <div class="admin-table-row">
-              <div>Auth middleware refactor<br><span style="font-size: 11px; color: var(--text-tertiary);">Lena M. · Technology</span></div>
-              <div style="font-size: 12px;">Marco V.</div>
-              <div style="font-size: 12px;">6h ago</div>
-              <div><span class="admin-status complete">Complete</span></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- DIRECTION 4: EVALUATION DETAIL -->
-  <section id="evaluation" class="mockup-section">
-    <div class="direction-title">Direction 4: Evaluation Breakdown</div>
-    <div class="direction-subtitle">The defining experience. Progressive disclosure from score to full transparency. Strengths-first feedback. Domain-appropriate criteria. Appeal flow visible but not anxious.</div>
-
-    <div class="eval-detail">
-      <div class="eval-detail-header">
+      <div class="narrative-contribution">
+        <div class="contribution-icon">&#9881;</div>
         <div>
-          <div class="eval-detail-title">Refactor authentication middleware</div>
-          <div class="eval-detail-meta"><span class="domain-badge tech">Technology</span> · Pull Request · Evaluated 2 hours ago</div>
-        </div>
-        <div class="eval-detail-score-ring">
-          <div class="eval-detail-score-num">82</div>
-          <div class="eval-detail-score-label">of 100</div>
-        </div>
-      </div>
-      <div class="eval-detail-body">
-        <div class="eval-detail-summary-box">
-          <p><strong>High-quality refactor</strong> with clear separation of concerns and thorough test coverage for new code paths. Complexity reduction is well-executed — the authentication flow is now significantly more maintainable. Main growth area: consistent error message formatting across the new middleware chain.</p>
-        </div>
-
-        <div style="font-size: 14px; font-weight: 600; margin-bottom: 12px;">Evaluation Dimensions</div>
-        <div class="eval-detail-dims">
-          <div class="eval-detail-dim">
-            <div class="eval-detail-dim-header">
-              <div class="eval-detail-dim-name">Complexity Management</div>
-              <div class="eval-detail-dim-score" style="color: var(--emerald);">88</div>
-            </div>
-            <div class="eval-detail-dim-bar"><div class="eval-detail-dim-fill" style="width: 88%; background: var(--emerald);"></div></div>
-            <div class="eval-detail-dim-desc">Reduced cyclomatic complexity by 40%. Clear function decomposition. Single-responsibility principle applied consistently.</div>
-          </div>
-          <div class="eval-detail-dim">
-            <div class="eval-detail-dim-header">
-              <div class="eval-detail-dim-name">Test Coverage</div>
-              <div class="eval-detail-dim-score" style="color: var(--emerald);">85</div>
-            </div>
-            <div class="eval-detail-dim-bar"><div class="eval-detail-dim-fill" style="width: 85%; background: var(--emerald);"></div></div>
-            <div class="eval-detail-dim-desc">New code paths have 94% coverage. Edge cases for token refresh and session expiry are well-tested.</div>
-          </div>
-          <div class="eval-detail-dim">
-            <div class="eval-detail-dim-header">
-              <div class="eval-detail-dim-name">Maintainability</div>
-              <div class="eval-detail-dim-score" style="color: var(--emerald);">78</div>
-            </div>
-            <div class="eval-detail-dim-bar"><div class="eval-detail-dim-fill" style="width: 78%; background: var(--emerald);"></div></div>
-            <div class="eval-detail-dim-desc">Clear naming conventions. Documentation inline. Dependency injection pattern enables future extensibility.</div>
-          </div>
-          <div class="eval-detail-dim">
-            <div class="eval-detail-dim-header">
-              <div class="eval-detail-dim-name">Standards Adherence</div>
-              <div class="eval-detail-dim-score" style="color: var(--fintech-amber);">72</div>
-            </div>
-            <div class="eval-detail-dim-bar"><div class="eval-detail-dim-fill" style="width: 72%; background: var(--fintech-amber);"></div></div>
-            <div class="eval-detail-dim-desc">Most conventions followed. Error message formatting is inconsistent across 3 of 8 middleware functions — consider a shared error formatter.</div>
-          </div>
-        </div>
-
-        <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 4px;">Your trend (last 10 evaluations)</div>
-        <div style="display: flex; align-items: flex-end; gap: 4px; height: 40px; margin-bottom: 24px;">
-          <div style="flex:1; background: var(--emerald-100); border-radius: 2px; height: 60%;"></div>
-          <div style="flex:1; background: var(--emerald-100); border-radius: 2px; height: 65%;"></div>
-          <div style="flex:1; background: var(--emerald-100); border-radius: 2px; height: 58%;"></div>
-          <div style="flex:1; background: var(--emerald-100); border-radius: 2px; height: 70%;"></div>
-          <div style="flex:1; background: var(--emerald-100); border-radius: 2px; height: 72%;"></div>
-          <div style="flex:1; background: var(--emerald-100); border-radius: 2px; height: 68%;"></div>
-          <div style="flex:1; background: var(--emerald-100); border-radius: 2px; height: 75%;"></div>
-          <div style="flex:1; background: var(--emerald-100); border-radius: 2px; height: 74%;"></div>
-          <div style="flex:1; background: var(--emerald-100); border-radius: 2px; height: 78%;"></div>
-          <div style="flex:1; background: var(--emerald); border-radius: 2px; height: 82%;"></div>
-        </div>
-
-        <div class="eval-detail-transparency">
-          <div class="eval-detail-transparency-title">Evaluation Transparency</div>
-          <div class="eval-detail-transparency-row">
-            <span class="eval-detail-transparency-label">Evaluation Model</span>
-            <span class="eval-detail-transparency-value">Code Quality v2.1</span>
-          </div>
-          <div class="eval-detail-transparency-row">
-            <span class="eval-detail-transparency-label">AI-Human Agreement Rate</span>
-            <span class="eval-detail-transparency-value">76% (this model version)</span>
-          </div>
-          <div class="eval-detail-transparency-row">
-            <span class="eval-detail-transparency-label">Contribution Type</span>
-            <span class="eval-detail-transparency-value">Pull Request (refactor)</span>
-          </div>
-          <div class="eval-detail-transparency-row">
-            <span class="eval-detail-transparency-label">Evaluated At</span>
-            <span class="eval-detail-transparency-value">2026-02-28 14:32 UTC</span>
-          </div>
-        </div>
-
-        <div class="eval-detail-actions">
-          <button class="eval-detail-btn primary">View Full Criteria →</button>
-          <button class="eval-detail-btn">Flag This Evaluation</button>
-          <button class="eval-detail-btn" style="margin-left: auto;">This contributes to your weekly reward cycle →</button>
+          <strong>Auth middleware refactoring</strong> · rose-protocol/core · 3 files changed<br>
+          <span style="font-size: 0.8125rem;">Evaluated 2 hours ago</span>
         </div>
       </div>
     </div>
-  </section>
-
-  <!-- DIRECTION 5: ONBOARDING -->
-  <section id="onboarding" class="mockup-section">
-    <div class="direction-title">Direction 5: 72-Hour Ignition</div>
-    <div class="direction-subtitle">Daniel's onboarding experience. Guided without rushing. Visible progress. Buddy system with a real person. Clear next steps at every moment. Timer creates gentle urgency, not pressure.</div>
-
-    <div class="onboard">
-      <div class="onboard-progress">
-        <div class="onboard-step"><div class="onboard-step-indicator done"></div><div class="onboard-step-label">Applied</div></div>
-        <div class="onboard-step"><div class="onboard-step-indicator done"></div><div class="onboard-step-label">Accepted</div></div>
-        <div class="onboard-step"><div class="onboard-step-indicator done"></div><div class="onboard-step-label">Welcome Call</div></div>
-        <div class="onboard-step"><div class="onboard-step-indicator current"></div><div class="onboard-step-label current">First Task</div></div>
-        <div class="onboard-step"><div class="onboard-step-indicator pending"></div><div class="onboard-step-label">First Evaluation</div></div>
+    <div class="quality-dimensions">
+      <div class="dimension-card">
+        <div class="dimension-label">Architectural Clarity</div>
+        <div class="dimension-value">Strong</div>
+        <div class="dimension-bar"><div class="dimension-bar-fill" style="width: 88%; background: var(--domain-technology);"></div></div>
+        <div class="dimension-expand">Click to see detail</div>
       </div>
-      <div class="onboard-body">
-        <h2>Welcome to the garden, Daniel.</h2>
-        <p>You're in. Your welcome call with the team went great. Now let's get your first contribution on the Contribution Wall. Your buddy Marco is here to help.</p>
-
-        <div class="onboard-buddy">
-          <div class="onboard-buddy-avatar">M</div>
-          <div class="onboard-buddy-info">
-            <h4>Marco V. — Your Buddy</h4>
-            <p>DevOps Engineer · Technology. Available for questions via Slack or the platform.</p>
-          </div>
-        </div>
-
-        <div style="font-size: 14px; font-weight: 600; margin-bottom: 12px;">Your first task options</div>
-        <div class="onboard-tasks">
-          <div class="onboard-task">
-            <div class="onboard-task-check done">✓</div>
-            <div class="onboard-task-info">
-              <div class="onboard-task-title">Complete your contributor profile</div>
-              <div class="onboard-task-desc">Bio, domain expertise, skill areas</div>
-            </div>
-          </div>
-          <div class="onboard-task">
-            <div class="onboard-task-check"></div>
-            <div class="onboard-task-info">
-              <div class="onboard-task-title" style="color: var(--emerald); font-weight: 600;">Fix typo in API error handling docs</div>
-              <div class="onboard-task-desc"><span class="domain-badge tech">Technology</span> · Beginner · ~30 min · Matched to your skills</div>
-            </div>
-          </div>
-          <div class="onboard-task">
-            <div class="onboard-task-check"></div>
-            <div class="onboard-task-info">
-              <div class="onboard-task-title">Add unit tests for user validation module</div>
-              <div class="onboard-task-desc"><span class="domain-badge tech">Technology</span> · Beginner · ~1 hour · Matched to your skills</div>
-            </div>
-          </div>
-          <div class="onboard-task">
-            <div class="onboard-task-check"></div>
-            <div class="onboard-task-info">
-              <div class="onboard-task-title">Review and improve onboarding guide</div>
-              <div class="onboard-task-desc"><span class="domain-badge tech">Technology</span> · Beginner · ~45 min · Documentation</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="onboard-timer">
-          <div class="onboard-timer-value">47:23:05</div>
-          <div class="onboard-timer-label">Time remaining in your 72-Hour Ignition</div>
-        </div>
+      <div class="dimension-card">
+        <div class="dimension-label">Code Quality</div>
+        <div class="dimension-value">Excellent</div>
+        <div class="dimension-bar"><div class="dimension-bar-fill" style="width: 92%; background: var(--domain-technology);"></div></div>
+        <div class="dimension-expand">Click to see detail</div>
+      </div>
+      <div class="dimension-card">
+        <div class="dimension-label">Test Coverage</div>
+        <div class="dimension-value">Thorough</div>
+        <div class="dimension-bar"><div class="dimension-bar-fill" style="width: 85%; background: var(--domain-technology);"></div></div>
+        <div class="dimension-expand">Click to see detail</div>
+      </div>
+      <div class="dimension-card">
+        <div class="dimension-label">Domain Impact</div>
+        <div class="dimension-value">Growing</div>
+        <div class="dimension-bar"><div class="dimension-bar-fill" style="width: 72%; background: var(--domain-technology);"></div></div>
+        <div class="dimension-expand">Click to see detail</div>
       </div>
     </div>
-  </section>
+    <div class="trajectory-card">
+      <div class="trajectory-label">Your Growth Trajectory</div>
+      <svg class="trajectory-svg" viewBox="0 0 600 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="trajGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#3A7D7E" stop-opacity="0.15"/>
+            <stop offset="100%" stop-color="#3A7D7E" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <path d="M0,100 C60,98 120,90 180,82 C240,74 280,65 340,52 C400,39 440,30 500,22 C540,17 570,14 600,12" stroke="#3A7D7E" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <path d="M0,100 C60,98 120,90 180,82 C240,74 280,65 340,52 C400,39 440,30 500,22 C540,17 570,14 600,12 L600,120 L0,120 Z" fill="url(#trajGrad)"/>
+        <circle cx="570" cy="14" r="5" fill="#3A7D7E"/>
+        <circle cx="570" cy="14" r="8" fill="none" stroke="#3A7D7E" stroke-opacity="0.3" stroke-width="2"/>
+        <circle cx="180" cy="82" r="3" fill="#3A7D7E" fill-opacity="0.4"/>
+        <circle cx="340" cy="52" r="3" fill="#3A7D7E" fill-opacity="0.6"/>
+        <circle cx="500" cy="22" r="3" fill="#3A7D7E" fill-opacity="0.8"/>
+      </svg>
+      <div class="trajectory-note">Your garden is growing steadily — 23 contributions since joining</div>
+    </div>
+  </div>
+</section>
 
-  <!-- DIRECTION 6: REWARD TRAJECTORY -->
-  <section id="rewards" class="mockup-section">
-    <div class="direction-title">Direction 6: Reward Trajectory</div>
-    <div class="direction-subtitle">The scaling-law compounding visualization. "You are here" with a projection of where sustained engagement leads. Simple view first, full math available. The retention hook.</div>
-
-    <div class="reward">
-      <div class="reward-header">
-        <h2>Your Reward Trajectory</h2>
-        <p>How your contributions compound over time through the scaling-law reward model.</p>
+<!-- DIRECTION 3: CONTRIBUTOR DASHBOARD -->
+<section class="direction-section" id="dir3">
+  <div class="section-header">
+    <div class="section-number">Direction 3</div>
+    <h2 class="section-title">Contributor Dashboard</h2>
+    <p class="section-subtitle">
+      Calm clarity with progressive disclosure — evaluation narratives, activity feed, and reward
+      trajectory. No dashboard anxiety, no badge counts. A curated view of your growing garden.
+    </p>
+  </div>
+  <div class="dashboard-mockup">
+    <aside class="dashboard-sidebar">
+      <div class="sidebar-brand">E<span>din</span></div>
+      <nav class="sidebar-nav">
+        <div class="sidebar-item active"><span class="icon">&#127968;</span> Home</div>
+        <div class="sidebar-item"><span class="icon">&#128202;</span> Evaluations <div class="notification-dot"></div></div>
+        <div class="sidebar-item"><span class="icon">&#127793;</span> My Journey</div>
+        <div class="sidebar-item"><span class="icon">&#9997;</span> Write</div>
+        <div class="sidebar-item"><span class="icon">&#128214;</span> Publication</div>
+        <div class="sidebar-item"><span class="icon">&#9881;</span> Settings</div>
+      </nav>
+      <div class="sidebar-profile">
+        <div class="sidebar-profile-avatar">L</div>
+        <div class="sidebar-profile-info">Lena Nguyen<div class="role">Technology · Contributor</div></div>
       </div>
-      <div class="reward-body">
-        <div class="reward-chart">
-          <div class="reward-bar past" style="height: 15%;"></div>
-          <div class="reward-bar past" style="height: 18%;"></div>
-          <div class="reward-bar past" style="height: 22%;"></div>
-          <div class="reward-bar past" style="height: 28%;"></div>
-          <div class="reward-bar past" style="height: 30%;"></div>
-          <div class="reward-bar past" style="height: 35%;"></div>
-          <div class="reward-bar past" style="height: 38%;"></div>
-          <div class="reward-bar current" style="height: 44%;"></div>
-          <div class="reward-bar future" style="height: 52%;"></div>
-          <div class="reward-bar future" style="height: 62%;"></div>
-          <div class="reward-bar future" style="height: 74%;"></div>
-          <div class="reward-bar future" style="height: 90%;"></div>
-          <div class="reward-you-are-here" style="bottom: 46%; left: 58%;">← You are here (Week 8)</div>
+    </aside>
+    <main class="dashboard-content">
+      <div class="dashboard-greeting">
+        <h2>Good morning, Lena</h2>
+        <p>Your latest evaluation is ready — and there's a new article in Technology worth reading.</p>
+      </div>
+      <div class="dashboard-grid">
+        <div class="dash-card">
+          <div class="dash-card-header">
+            <div class="dash-card-title">Latest Evaluation</div>
+            <div class="dash-card-icon" style="background: var(--domain-technology-bg);">&#128202;</div>
+          </div>
+          <div class="dash-card-value">Strong architectural clarity</div>
+          <div class="dash-card-desc">Auth middleware refactoring · Evaluated 2h ago</div>
         </div>
-
-        <div class="reward-scales">
-          <div class="reward-scale">
-            <div class="reward-scale-label">Weekly Score</div>
-            <div class="reward-scale-value">82</div>
-            <div class="reward-scale-change">↑ 6% from last week</div>
+        <div class="dash-card">
+          <div class="dash-card-header">
+            <div class="dash-card-title">Reward Trajectory</div>
+            <div class="dash-card-icon" style="background: var(--brand-accent-subtle);">&#127793;</div>
           </div>
-          <div class="reward-scale">
-            <div class="reward-scale-label">Monthly Cumulative</div>
-            <div class="reward-scale-value">312</div>
-            <div class="reward-scale-change">↑ 14% compounding effect</div>
-          </div>
-          <div class="reward-scale">
-            <div class="reward-scale-label">Quarterly Projection</div>
-            <div class="reward-scale-value">~1,240</div>
-            <div class="reward-scale-change">At current engagement level</div>
+          <div class="dash-card-value">Steady growth</div>
+          <div class="dash-card-desc">Compounding engagement rewards — 23 contributions</div>
+        </div>
+      </div>
+      <div class="activity-feed">
+        <div class="activity-feed-header">Community Activity</div>
+        <div class="feed-item">
+          <div class="feed-avatar" style="background: var(--domain-fintech);">AC</div>
+          <div class="feed-content">
+            <div class="feed-text"><strong>Amir Chen</strong> published "The Quiet Revolution in Decentralized Credit Scoring"</div>
+            <div class="feed-meta"><div class="feed-domain-dot" style="background: var(--domain-fintech);"></div> Fintech · 3 hours ago</div>
           </div>
         </div>
-
-        <div class="reward-explanation">
-          <div class="reward-explanation-toggle">
-            <span class="reward-explanation-title">How the scaling-law model works ▾</span>
+        <div class="feed-item">
+          <div class="feed-avatar" style="background: var(--domain-impact);">SK</div>
+          <div class="feed-content">
+            <div class="feed-text"><strong>Sofia Kimura</strong> contributed an impact assessment for Rose Protocol Q4</div>
+            <div class="feed-meta"><div class="feed-domain-dot" style="background: var(--domain-impact);"></div> Impact · 5 hours ago</div>
           </div>
-          <div class="reward-explanation-body">
-            Rewards follow a power-law relationship across time horizons: longer-term engagement yields disproportionately greater rewards relative to the sum of shorter cycles. This means your weekly rewards are good — but your monthly rewards are significantly more than 4x your weekly, and your quarterly rewards are significantly more than 3x your monthly. The compounding effect rewards sustained, high-quality engagement. The longer you stay and contribute quality work, the steeper your reward curve becomes.
+        </div>
+        <div class="feed-item">
+          <div class="feed-avatar" style="background: var(--domain-governance);">YT</div>
+          <div class="feed-content">
+            <div class="feed-text"><strong>Yuki Tanaka</strong> submitted a governance transparency proposal</div>
+            <div class="feed-meta"><div class="feed-domain-dot" style="background: var(--domain-governance);"></div> Governance · 8 hours ago</div>
+          </div>
+        </div>
+        <div class="feed-item">
+          <div class="feed-avatar" style="background: var(--domain-technology);">DM</div>
+          <div class="feed-content">
+            <div class="feed-text"><strong>Daniel Martinez</strong> completed the 72-Hour Ignition — welcome to Edin!</div>
+            <div class="feed-meta"><div class="feed-domain-dot" style="background: var(--domain-technology);"></div> Technology · Yesterday</div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</section>
+
+<!-- DIRECTION 4: AUTHORING EXPERIENCE -->
+<section class="direction-section" id="dir4">
+  <div class="section-header">
+    <div class="section-number">Direction 4</div>
+    <h2 class="section-title">Authoring Experience</h2>
+    <p class="section-subtitle">
+      Writing feels like thinking — a distraction-free block editor with slash commands.
+      The transition from blank page to structured article is smooth and never intimidating.
+    </p>
+  </div>
+  <div class="authoring-mockup">
+    <div class="authoring-toolbar">
+      <div class="authoring-toolbar-left">
+        <div class="authoring-back">&#8592; Dashboard</div>
+        <div class="authoring-domain-select"><span>&#9679;</span> Impact</div>
+        <div class="authoring-status"><span class="dot"></span> Saved</div>
+      </div>
+      <div class="authoring-toolbar-right">
+        <button class="btn btn-secondary">Preview</button>
+        <button class="btn btn-primary">Submit for Review</button>
+      </div>
+    </div>
+    <div class="authoring-editor-area">
+      <div class="article-title-input">Measuring What Matters: A Framework for Impact Assessment in Decentralized Ecosystems</div>
+      <div class="authoring-body-input">
+        <p>Impact measurement in decentralized systems faces a paradox that traditional development frameworks never anticipated. When the organization itself is distributed, who defines what "impact" means? And when the measurement system is transparent, how do you prevent optimization of metrics at the expense of genuine change?</p>
+        <p>This article proposes a three-layer framework that separates impact <em>evidence</em> from impact <em>narrative</em> from impact <em>verification</em> — allowing each layer to operate with appropriate rigor without collapsing the complexity of real-world change into reductive scores.</p>
+        <div class="slash-hint">Type / for commands...</div>
+        <div class="slash-menu">
+          <div class="slash-menu-item selected">
+            <div class="slash-menu-icon">H</div>
+            <div class="slash-menu-text">Heading<br><span class="hint">Section title</span></div>
+          </div>
+          <div class="slash-menu-item">
+            <div class="slash-menu-icon">&#10078;</div>
+            <div class="slash-menu-text">Quote<br><span class="hint">Pull quote block</span></div>
+          </div>
+          <div class="slash-menu-item">
+            <div class="slash-menu-icon">{ }</div>
+            <div class="slash-menu-text">Code Block<br><span class="hint">Syntax highlighted code</span></div>
+          </div>
+          <div class="slash-menu-item">
+            <div class="slash-menu-icon">&#128202;</div>
+            <div class="slash-menu-text">Data Visualization<br><span class="hint">Embed chart or graph</span></div>
           </div>
         </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- DIRECTION 7: CONTRIBUTION MENU -->
-  <section id="tasks" class="mockup-section">
-    <div class="direction-title">Direction 7: Contribution Menu</div>
-    <div class="direction-subtitle">Instant task discovery with domain filtering. Equal visual weight across all four domains. Domain color bars provide instant identification. Difficulty and effort visible at a glance.</div>
-
-    <div class="tasks">
-      <div class="tasks-header">
-        <h2>Contribution Menu</h2>
-        <div style="font-size: 13px; color: var(--text-secondary);">18 tasks available</div>
+<!-- DIRECTION 5: PUBLIC PORTAL -->
+<section class="direction-section" id="dir5">
+  <div class="section-header">
+    <div class="section-number">Direction 5</div>
+    <h2 class="section-title">Public Portal</h2>
+    <p class="section-subtitle">
+      The face Edin presents to the world — institutional authority, not startup energy.
+      Published articles, contributor quality, and transparent traction evidence for Henrik (investor).
+    </p>
+  </div>
+  <div class="portal-mockup">
+    <nav class="portal-nav">
+      <div class="portal-nav-left">
+        <div class="portal-logo">E<span>din</span></div>
+        <div class="portal-nav-links">
+          <span class="portal-nav-link active">Publication</span>
+          <span class="portal-nav-link">Contributors</span>
+          <span class="portal-nav-link">About</span>
+          <span class="portal-nav-link">Apply</span>
+        </div>
       </div>
-      <div class="tasks-filters">
-        <button class="tasks-filter active">All Domains</button>
-        <button class="tasks-filter tech">Technology</button>
-        <button class="tasks-filter fintech">Fintech</button>
-        <button class="tasks-filter impact">Impact</button>
-        <button class="tasks-filter governance">Governance</button>
-        <span style="margin-left: 16px; border-left: 1px solid var(--border); padding-left: 16px; display: flex; gap: 8px;">
-          <button class="tasks-filter">Beginner</button>
-          <button class="tasks-filter">Intermediate</button>
-          <button class="tasks-filter">Advanced</button>
-        </span>
+      <button class="btn btn-primary" style="font-size: 0.8125rem; padding: 6px 16px;">Sign In</button>
+    </nav>
+    <div class="portal-hero">
+      <h1>Where Expertise<br>Becomes Publication</h1>
+      <p>A curated community of domain experts in Technology, Fintech, Impact, and Governance — building, evaluating, and publishing together.</p>
+      <div class="portal-stats">
+        <div class="portal-stat"><div class="portal-stat-value">147</div><div class="portal-stat-label">Active Contributors</div></div>
+        <div class="portal-stat"><div class="portal-stat-value">89</div><div class="portal-stat-label">Published Articles</div></div>
+        <div class="portal-stat"><div class="portal-stat-value">4</div><div class="portal-stat-label">Expert Domains</div></div>
+        <div class="portal-stat"><div class="portal-stat-value">2.4k</div><div class="portal-stat-label">Monthly Readers</div></div>
       </div>
-      <div class="tasks-list">
-        <div class="task-item">
-          <div class="task-domain-bar tech"></div>
-          <div><div class="task-title">Implement webhook retry queue for GitHub integration</div><div class="task-desc">Build exponential backoff retry mechanism for failed webhook deliveries</div></div>
-          <div class="task-difficulty" style="color: var(--fintech-amber);">Intermediate</div>
-          <div class="task-effort">~4 hours</div>
-          <button class="task-claim">Claim</button>
+    </div>
+    <div class="portal-featured">
+      <div class="portal-featured-header">
+        <div class="portal-featured-title">Latest from the Community</div>
+        <div class="portal-featured-link">View all articles</div>
+      </div>
+      <div class="portal-articles-grid">
+        <div class="portal-article-card">
+          <div class="portal-article-thumb" style="background: linear-gradient(135deg, var(--domain-fintech-bg) 0%, var(--brand-accent-subtle) 100%);">
+            <div class="domain-tag" style="background: var(--domain-fintech);">Fintech</div>
+          </div>
+          <div class="portal-article-body">
+            <h3>The Quiet Revolution in Decentralized Credit Scoring</h3>
+            <p>How zero-knowledge proofs and behavioral economics are reshaping creditworthiness...</p>
+            <div class="portal-article-meta">Amir Chen · 12 min · Feb 2026</div>
+          </div>
         </div>
-        <div class="task-item">
-          <div class="task-domain-bar fintech"></div>
-          <div><div class="task-title">Draft token classification analysis for MiCA compliance</div><div class="task-desc">Research and document utility token vs. e-money token classification arguments</div></div>
-          <div class="task-difficulty" style="color: var(--error);">Advanced</div>
-          <div class="task-effort">~8 hours</div>
-          <button class="task-claim">Claim</button>
+        <div class="portal-article-card">
+          <div class="portal-article-thumb" style="background: linear-gradient(135deg, var(--domain-technology-bg) 0%, #3A7D7E22 100%);">
+            <div class="domain-tag" style="background: var(--domain-technology);">Technology</div>
+          </div>
+          <div class="portal-article-body">
+            <h3>Composable Authentication Patterns for Multi-Chain Systems</h3>
+            <p>A practical guide to building auth middleware that scales across protocol boundaries...</p>
+            <div class="portal-article-meta">Lena Nguyen · 8 min · Feb 2026</div>
+          </div>
         </div>
-        <div class="task-item">
-          <div class="task-domain-bar impact"></div>
-          <div><div class="task-title">Define social impact KPIs for contributor retention metrics</div><div class="task-desc">Map community health indicators to social impact measurement frameworks</div></div>
-          <div class="task-difficulty" style="color: var(--fintech-amber);">Intermediate</div>
-          <div class="task-effort">~3 hours</div>
-          <button class="task-claim">Claim</button>
-        </div>
-        <div class="task-item">
-          <div class="task-domain-bar governance"></div>
-          <div><div class="task-title">Review progressive decentralization roadmap milestones</div><div class="task-desc">Assess feasibility and timeline of Phase 1 governance authority transfer steps</div></div>
-          <div class="task-difficulty" style="color: var(--fintech-amber);">Intermediate</div>
-          <div class="task-effort">~2 hours</div>
-          <button class="task-claim">Claim</button>
-        </div>
-        <div class="task-item">
-          <div class="task-domain-bar tech"></div>
-          <div><div class="task-title">Fix API error handling in contributor profile endpoint</div><div class="task-desc">Standardize error response format and add missing validation</div></div>
-          <div class="task-difficulty" style="color: var(--success);">Beginner</div>
-          <div class="task-effort">~1 hour</div>
-          <button class="task-claim">Claim</button>
+        <div class="portal-article-card">
+          <div class="portal-article-thumb" style="background: linear-gradient(135deg, var(--domain-impact-bg) 0%, #B06B6B22 100%);">
+            <div class="domain-tag" style="background: var(--domain-impact);">Impact</div>
+          </div>
+          <div class="portal-article-body">
+            <h3>Measuring What Matters: Impact Assessment in Decentralized Ecosystems</h3>
+            <p>Why traditional development frameworks fail in distributed organizations...</p>
+            <div class="portal-article-meta">Sofia Kimura · 15 min · Feb 2026</div>
+          </div>
         </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- DIRECTION 8: MOBILE VIEW -->
-  <section id="mobile" class="mockup-section">
-    <div class="direction-title">Direction 8: Mobile Contributor View</div>
-    <div class="direction-subtitle">The checking pattern — contributors monitoring evaluations, feedback, and the Activity Feed from mobile. Bottom tab navigation. Compact cards. Focus on the return visit.</div>
-
-    <div class="mobile-frame">
-      <div class="mobile-status">
-        <span>9:41</span>
-        <span>●●●●○</span>
-      </div>
-      <div class="mobile-header">
-        <h1>Dashboard</h1>
-        <div class="mobile-avatar">L</div>
-      </div>
-      <div class="mobile-content">
-        <div style="font-size: 13px; font-weight: 600; margin-bottom: 8px;">New Evaluation</div>
-        <div class="mobile-eval-card">
-          <div class="mobile-eval-top">
-            <div>
-              <div class="mobile-eval-title">Auth middleware refactor</div>
-              <div style="margin-top: 4px;"><span class="domain-badge tech">Technology</span> <span style="font-size: 11px; color: var(--text-tertiary);">· 2h ago</span></div>
-            </div>
-            <div class="mobile-eval-score">82</div>
-          </div>
-          <div class="mobile-eval-summary">High-quality refactor with clear separation of concerns. Tap for full breakdown →</div>
-        </div>
-
-        <div style="font-size: 13px; font-weight: 600; margin-bottom: 8px; margin-top: 16px; display: flex; align-items: center; gap: 6px;"><span class="feed-live"></span> Activity Feed</div>
-        <div class="mobile-feed-item">
-          <div class="mobile-feed-bar" style="background: var(--tech-blue);"></div>
-          <div class="mobile-feed-text">
-            <div><span class="mobile-feed-author">Marco V.</span> CI/CD pipeline optimization</div>
-            <div class="mobile-feed-time">12 min · Score: 86</div>
-          </div>
-        </div>
-        <div class="mobile-feed-item">
-          <div class="mobile-feed-bar" style="background: var(--fintech-amber);"></div>
-          <div class="mobile-feed-text">
-            <div><span class="mobile-feed-author">Amir K.</span> Scaling-law parameter calibration</div>
-            <div class="mobile-feed-time">1h · Score: 91</div>
-          </div>
-        </div>
-        <div class="mobile-feed-item">
-          <div class="mobile-feed-bar" style="background: var(--impact-teal);"></div>
-          <div class="mobile-feed-text">
-            <div><span class="mobile-feed-author">Sofia R.</span> Impact assessment framework v2</div>
-            <div class="mobile-feed-time">3h · Score: 79</div>
-          </div>
-        </div>
-        <div class="mobile-feed-item">
-          <div class="mobile-feed-bar" style="background: var(--governance-violet);"></div>
-          <div class="mobile-feed-text">
-            <div><span class="mobile-feed-author">Yuki T.</span> Decentralization milestone review</div>
-            <div class="mobile-feed-time">5h · Score: 84</div>
-          </div>
-        </div>
-      </div>
-      <div class="mobile-bottom-nav">
-        <div class="mobile-nav-item active"><div class="mobile-nav-icon"></div>Home</div>
-        <div class="mobile-nav-item"><div class="mobile-nav-icon"></div>Feed</div>
-        <div class="mobile-nav-item"><div class="mobile-nav-icon"></div>Tasks</div>
-        <div class="mobile-nav-item"><div class="mobile-nav-icon"></div>Profile</div>
+<!-- DIRECTION 6: EDITORIAL FEEDBACK -->
+<section class="direction-section" id="dir6">
+  <div class="section-header">
+    <div class="section-number">Direction 6</div>
+    <h2 class="section-title">Editorial Feedback</h2>
+    <p class="section-subtitle">
+      The Editor shapes the piece through inline annotations — collaborative suggestions alongside the text.
+      Marcus (Editor) guides Clara (Author) toward publication-quality prose.
+    </p>
+  </div>
+  <div class="editorial-mockup">
+    <div class="editorial-content">
+      <h1 class="article-title">Measuring What Matters</h1>
+      <div class="editorial-text">
+        <p>Impact measurement in decentralized systems faces a paradox that traditional development frameworks never anticipated. <span class="editorial-highlight active">When the organization itself is distributed, who defines what "impact" means?</span> And when the measurement system is transparent, how do you prevent optimization of metrics at the expense of genuine change?</p>
+        <p>This article proposes a three-layer framework that separates impact <em>evidence</em> from impact <em>narrative</em> from impact <em>verification</em> — allowing each layer to operate with appropriate rigor without collapsing the complexity of real-world change into reductive scores.</p>
+        <p><span class="editorial-highlight">The first layer — evidence — operates on observable, verifiable data points.</span> Transaction volumes, code deployments, governance votes cast, community engagement metrics. These are facts, not interpretations. The challenge is choosing which facts matter, and that choice is inherently political.</p>
       </div>
     </div>
-  </section>
+    <div class="editorial-sidebar">
+      <div class="editorial-sidebar-header">Editorial Feedback</div>
+      <div class="editorial-comment">
+        <div class="editorial-comment-header">
+          <div class="editorial-comment-avatar">MK</div>
+          <div>
+            <div class="editorial-comment-name">Marcus Kowalski</div>
+            <div class="editorial-comment-role">Editor · Governance</div>
+          </div>
+        </div>
+        <div class="editorial-comment-text">This is a powerful rhetorical question. Consider making it even sharper by adding a specific example — perhaps the tension between Uniswap's grant committee and its broader DAO governance? Ground the abstraction early.</div>
+      </div>
+      <div class="editorial-comment">
+        <div class="editorial-comment-header">
+          <div class="editorial-comment-avatar">MK</div>
+          <div>
+            <div class="editorial-comment-name">Marcus Kowalski</div>
+            <div class="editorial-comment-role">Editor · Governance</div>
+          </div>
+        </div>
+        <div class="editorial-comment-text">"The challenge is choosing which facts matter, and that choice is inherently political" — this is the thesis statement of the piece. Consider moving it earlier, perhaps into the opening paragraph.</div>
+      </div>
+      <div class="editorial-status-bar">
+        <div class="editorial-status-label">Article Status</div>
+        <div class="editorial-status-steps">
+          <div class="editorial-step complete"></div>
+          <div class="editorial-step complete"></div>
+          <div class="editorial-step current"></div>
+          <div class="editorial-step"></div>
+          <div class="editorial-step"></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-top: 6px;">
+          <span style="font-family: var(--font-sans); font-size: 0.6875rem; color: var(--brand-secondary);">Draft</span>
+          <span style="font-family: var(--font-sans); font-size: 0.6875rem; color: var(--brand-accent); font-weight: 500;">In Review</span>
+          <span style="font-family: var(--font-sans); font-size: 0.6875rem; color: var(--brand-secondary);">Published</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-</main>
+<!-- DIRECTION 7: CONTRIBUTOR PROFILE -->
+<section class="direction-section" id="dir7">
+  <div class="section-header">
+    <div class="section-number">Direction 7</div>
+    <h2 class="section-title">Contributor Profile</h2>
+    <p class="section-subtitle">
+      A professional portfolio, not a social media card. The contributor's journey told through
+      evaluations and publications — "Your Fingerprints" on the ecosystem.
+    </p>
+  </div>
+  <div class="profile-mockup">
+    <div class="profile-header">
+      <div class="profile-avatar">L</div>
+      <div class="profile-info">
+        <h2 class="profile-name">Lena Nguyen</h2>
+        <div class="profile-role">Senior Developer · Contributor since October 2025</div>
+        <p class="profile-bio">Backend systems architect with a focus on authentication infrastructure and protocol security. Passionate about clean abstractions that make complex systems feel simple.</p>
+        <div class="profile-domains">
+          <span class="profile-domain-tag" style="background: var(--domain-technology);">Technology</span>
+        </div>
+      </div>
+    </div>
+    <div class="profile-body">
+      <div class="profile-section-title">Journey — Your Fingerprints</div>
+      <div class="profile-journey-item">
+        <div class="journey-date">Feb 2026</div>
+        <div class="journey-type-indicator" style="background: var(--domain-technology);"></div>
+        <div class="journey-content">
+          <div class="journey-title">Auth middleware refactoring</div>
+          <div class="journey-description">"Strong architectural clarity" — Separation of token validation from session management</div>
+        </div>
+      </div>
+      <div class="profile-journey-item">
+        <div class="journey-date">Feb 2026</div>
+        <div class="journey-type-indicator" style="background: var(--brand-accent);"></div>
+        <div class="journey-content">
+          <div class="journey-title">Published: Composable Authentication Patterns</div>
+          <div class="journey-description">Article on multi-chain auth architecture · Edited by Marcus Kowalski · 342 readers</div>
+        </div>
+      </div>
+      <div class="profile-journey-item">
+        <div class="journey-date">Jan 2026</div>
+        <div class="journey-type-indicator" style="background: var(--domain-technology);"></div>
+        <div class="journey-content">
+          <div class="journey-title">Protocol bridge security audit</div>
+          <div class="journey-description">"Excellent attention to edge cases" — Cross-chain message verification improvements</div>
+        </div>
+      </div>
+      <div class="profile-journey-item">
+        <div class="journey-date">Dec 2025</div>
+        <div class="journey-type-indicator" style="background: var(--domain-technology);"></div>
+        <div class="journey-content">
+          <div class="journey-title">API rate limiting implementation</div>
+          <div class="journey-description">"Thoughtful approach to fairness" — Token-bucket algorithm with priority queues</div>
+        </div>
+      </div>
+      <div class="profile-journey-item">
+        <div class="journey-date">Oct 2025</div>
+        <div class="journey-type-indicator" style="background: var(--semantic-success);"></div>
+        <div class="journey-content">
+          <div class="journey-title">Joined Edin · 72-Hour Ignition completed</div>
+          <div class="journey-description">First contribution: Configuration validation for deployment pipeline</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DIRECTION 8: ONBOARDING -->
+<section class="direction-section" id="dir8">
+  <div class="section-header">
+    <div class="section-number">Direction 8</div>
+    <h2 class="section-title">72-Hour Ignition</h2>
+    <p class="section-subtitle">
+      Daniel's first moments in Edin — warm but substantive, guided but not patronizing.
+      A buddy, a meaningful first task, and the feeling of being part of something real.
+    </p>
+  </div>
+  <div class="onboarding-mockup">
+    <div class="onboarding-step-indicator">
+      <div class="onboarding-step-dot complete"></div>
+      <div class="onboarding-step-dot complete"></div>
+      <div class="onboarding-step-dot active"></div>
+      <div class="onboarding-step-dot"></div>
+    </div>
+    <div class="onboarding-icon">&#127793;</div>
+    <h2 class="onboarding-title">Your First Contribution</h2>
+    <p class="onboarding-description">You've been accepted into Edin. Now it's time to plant your first seed — a meaningful task that introduces you to the community and lets the AI Evaluation Engine see your craft for the first time.</p>
+    <div class="onboarding-buddy">
+      <div class="onboarding-buddy-avatar">YT</div>
+      <div class="onboarding-buddy-text">
+        <span class="buddy-name">Yuki Tanaka</span> is your onboarding buddy<br>
+        <span class="buddy-role">Governance Specialist · Available for questions</span>
+      </div>
+    </div>
+    <div class="onboarding-task">
+      <div class="onboarding-task-label">Suggested First Task</div>
+      <div class="onboarding-task-title">Review and improve the deployment validation configuration</div>
+      <div class="onboarding-task-desc">This task is scoped to be completable within a few hours. You'll work with the tools you already use — Edin will ingest your contribution automatically. Your buddy Yuki is available if you have questions about the codebase or the process.</div>
+    </div>
+    <button class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 1rem;">View Task Details</button>
+    <p style="font-family: var(--font-sans); font-size: 0.8125rem; color: var(--brand-secondary); margin-top: var(--space-md);">No rush — your ignition period lasts 72 hours</p>
+  </div>
+</section>
 
 <script>
-function showSection(id) {
-  document.querySelectorAll('.mockup-section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  event.target.classList.add('active');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
+  function scrollToSection(id) {
+    document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+  }
+
+  const sections = document.querySelectorAll('.direction-section, .hero-section');
+  const navItems = document.querySelectorAll('.nav-item');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        navItems.forEach(item => item.classList.remove('active'));
+        const activeItem = document.querySelector('.nav-item[onclick="scrollToSection(\'' + id + '\')"]');
+        if (activeItem) activeItem.classList.add('active');
+      }
+    });
+  }, { threshold: 0.3 });
+
+  sections.forEach(section => observer.observe(section));
+
+  document.querySelectorAll('.dimension-card').forEach(card => {
+    card.addEventListener('click', () => {
+      card.style.borderColor = 'var(--brand-accent)';
+      card.style.background = 'var(--brand-accent-subtle)';
+      setTimeout(() => { card.style.borderColor = ''; card.style.background = ''; }, 1500);
+    });
+  });
+
+  document.querySelectorAll('.editorial-highlight').forEach(highlight => {
+    highlight.addEventListener('click', () => {
+      document.querySelectorAll('.editorial-highlight').forEach(h => h.classList.remove('active'));
+      highlight.classList.add('active');
+    });
+  });
+
+  const dimensionObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const fills = entry.target.querySelectorAll('.dimension-bar-fill');
+        fills.forEach(fill => {
+          const width = fill.style.width;
+          fill.style.width = '0%';
+          requestAnimationFrame(() => { requestAnimationFrame(() => { fill.style.width = width; }); });
+        });
+      }
+    });
+  }, { threshold: 0.5 });
+
+  const evalSection = document.getElementById('dir2');
+  if (evalSection) dimensionObserver.observe(evalSection);
 </script>
+
 </body>
 </html>

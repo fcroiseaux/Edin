@@ -1,10 +1,13 @@
 ---
-stepsCompleted: [1, 2, 3, 4, 5, 6, 7, 8]
+stepsCompleted: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+lastStep: 14
 inputDocuments:
   - _bmad-output/planning-artifacts/product-brief-Edin-2026-02-27.md
   - _bmad-output/planning-artifacts/prd.md
   - _bmad-output/planning-artifacts/prd-validation-report.md
   - docs/edin_platform_description.md
+designContext:
+  founderFeedback: 'Beautiful, calming, insightful visuals — not metrics and nervousness. Multi-cultural visual language. Modern Economist reading experience for Publication Platform. Translate complex information into calming visuals.'
 ---
 
 # UX Design Specification Edin
@@ -18,580 +21,1436 @@ inputDocuments:
 
 ### Project Vision
 
-Edin is an integration-first curated contributor platform for the Rose decentralized finance ecosystem, built within the IOUR Foundation (Belgian non-profit). The platform connects to contributors' existing tools (starting with GitHub in MVP), evaluates output through an AI-powered Evaluation Engine, and distributes rewards using a scaling-law methodology across multiple temporal horizons. The web application serves three distinct interface contexts — a public-facing portal (SEO-optimized, SSR), an authenticated contributor dashboard (real-time SPA), and an admin dashboard — unified under a hybrid SPA/SSR architecture.
+Edin is a curated contributor platform for the Rose decentralized finance ecosystem that organizes, evaluates, rewards, and publishes collaborative development across four domains: Technology, Fintech, Impact, and Governance. The platform operates through six functional pillars — Integration Layer, Web Portal, AI Evaluation Engine, Multi-Scale Reward System, Governance Layer, and Publication Platform — serving a community of domain experts who contribute through existing tools while Edin provides the intelligence, reward, and publishing layers.
 
-The UX design must serve seven personas spanning four contribution domains (Technology, Fintech, Impact, Governance) with radically different mental models, while maintaining a coherent product identity. The platform's credibility rests on three pillars that are fundamentally UX challenges: AI evaluation must feel fair and transparent, the scaling-law reward model must be comprehensible to >80% of contributors, and non-code contributions must have genuinely equal visual and experiential weight.
+The Publication Platform — a modern think tank and community-driven publication — is core to the community growth strategy. Every piece of content has an Author and an Editor (who receives 20% of the author's reward), creating a structured incentive for editorial mentorship. The publication aims to rival the quality and authority of established publications like The Economist, produced entirely by a decentralized community of domain experts.
+
+The UX must embody the founder's design vision: **beautiful, calming, insightful visuals** that translate complex information (AI evaluations, scaling-law rewards, contribution data) into experiences that feel like reading a beautifully designed publication rather than monitoring a dashboard. Multi-cultural visual language reflects the platform's universal roots (Edin — Sumerian for "fertile plain") and its global, multi-domain community.
 
 ### Target Users
 
-**Primary Contributors (Authenticated Experience):**
+**Primary Contributors (4 domain personas):**
 
-- **Lena — Senior Developer (Technology):** Highly selective, craft-driven. Needs AI evaluation that distinguishes quality from quantity. Judges the platform by whether a thorough code review scores higher than a quick-fix PR. Tech-savvy, uses GitHub natively.
-- **Amir — Financial Engineer (Fintech):** PhD-level quant, never used Git. Needs a clear non-code contribution path and a community that values financial engineering as structurally equal to code. In MVP, contributes via GitHub (docs/specs). Low familiarity with developer tooling.
-- **Sofia — Impact Analyst (Impact):** Non-developer seeking structural influence. Will judge the platform in the first 5 minutes by whether Impact contributions have the same visibility as code. Moderate technical literacy.
-- **Yuki — Governance Specialist (Governance):** Former lawyer, DAO expert. Demands credible progressive decentralization with published milestones. Highly critical, will scrutinize governance displays for substance vs. marketing.
+- **Lena (Technology)** — Senior developer, values craft over quantity. Needs AI evaluation that recognizes quality work. Tech-savvy, uses GitHub daily. Wants to see the *craft* of her work reflected, not just commit counts.
+- **Amir (Fintech)** — Financial engineer, non-developer. Needs equal domain standing alongside code contributions. Comfortable with data-rich interfaces but not developer tools. Contributes through documents and analyses.
+- **Sofia (Impact)** — Impact analyst, values structural equality. Needs evidence that Impact is a real pillar. Comfortable with professional tools, expects institutional-quality interfaces.
+- **Yuki (Governance)** — Governance specialist, deeply skeptical of performative decentralization. Needs transparent, traceable governance records. Detail-oriented, expects precision.
 
-**Secondary Users:**
+**Publication Personas:**
 
-- **Daniel — Applicant:** Mid-level contributor navigating the 72-Hour Ignition onboarding. First impression of the platform; the admission UX defines perceived quality.
-- **Marie — Admin:** Community operations lead managing admission queues, feedback assignments, health metrics, and contributor management. Needs efficiency-first, data-dense interfaces.
-- **Henrik — Investor:** Accesses public showcase for due diligence. Needs credibility signals in under 60 seconds: contributor roster quality, community metrics, AI evaluation evidence.
+- **Clara (Author)** — Contributor who writes insightful articles. Needs a professional authoring experience with structured editorial support. Values seeing her ideas shaped and published to a quality standard.
+- **Marcus (Editor)** — Experienced contributor who curates and shapes others' work. Needs editorial tools that feel professional and rewarding. Values visible editorial identity and mentorship.
 
-**Device & Context:** Contributors primarily use desktop for deep work but check dashboards, feedback, and the Activity Feed from mobile. Investor and applicant access is multi-device. Admin is desktop-optimized.
+**Operational Personas:**
+
+- **Daniel (Applicant)** — Mid-level developer discovering Edin. Needs a clear, welcoming path from discovery to first contribution within 72 hours. Less experienced, needs guidance without condescension.
+- **Marie (Admin)** — Platform operations lead. Needs efficient tools for admissions, metrics, and community health. Values operational clarity without information overload.
+- **Henrik (Investor)** — Due diligence evaluator. Accesses public portal only (no auth). Needs transparent traction evidence — contributor quality, evaluation data, community health — presented with the authority and design quality of a professional investor relations page.
 
 ### Key Design Challenges
 
-1. **Multi-audience coherence across 7 personas and 6 RBAC tiers.** Each persona has a different mental model, technical fluency, and success definition — yet the platform must feel like one product. The RBAC system (Public → Applicant → Contributor → Founding Contributor → Working Group Lead → Admin) creates layered experiences that must transition seamlessly.
+1. **Calming complexity** — The platform handles dense information (AI evaluation breakdowns, multi-temporal rewards, contribution attribution, editorial workflows) that could easily become overwhelming. The founder explicitly wants this translated into calming, beautiful visuals — not anxious dashboards. This is the defining UX tension: how to convey depth and transparency without triggering information anxiety.
 
-2. **AI evaluation transparency and trust.** Contributors must perceive AI scoring as fair (target: >70% trust score). The UX must present evaluation breakdowns that are transparent without being overwhelming, and provide a frictionless flag/appeal flow for disputed scores. This is the platform's credibility core.
+2. **Four interface contexts, one coherent experience** — Public Portal (SEO, investors), Publication Platform (reading + authoring), Contributor Dashboard (evaluations, rewards, tasks), and Admin Dashboard (operations) must feel like one product while serving fundamentally different interaction modes and audiences.
 
-3. **Scaling-law reward comprehension.** Seven temporal horizons and power-law compounding must be communicated so that >80% of contributors can explain the model. The UX must translate mathematical complexity into intuitive visual storytelling — progressive disclosure from "here's your trajectory" to "here's the math."
+3. **Multi-cultural visual inclusivity** — The community spans technology, finance, governance, and impact across global backgrounds. Visual language must avoid culturally narrow design idioms while maintaining warmth and authority. The name "Edin" references Sumerian, Hebrew, and Islamic traditions — the visual system should reflect this universality.
 
-4. **Non-code contribution equality as lived experience.** The Activity Feed, contribution menu, and evaluation displays must deliver genuinely equal visual prominence across all four domains (FR40). Sofia and Yuki will judge this instantly. Structural equality in the database must become experiential equality on screen.
+4. **Professional editorial experience** — The Publication Platform needs content creation and editorial workflows that feel like a professional publishing tool, while the reading experience must rival established publications in typography, layout, and visual elegance.
 
-5. **72-Hour Ignition onboarding compression.** The journey from admission to first meaningful contribution must complete within 72 hours for >80% of contributors. The UX must guide without rushing: buddy pairing, welcome call coordination, domain-matched first-task selection, and progress tracking.
-
-6. **Asynchronous processing transparency.** GitHub ingestion (<15 min), AI evaluation (<30 min for code), and Activity Feed updates (<5s) operate on different timescales. The UX must manage the gap between action and feedback with progressive status indicators that build trust rather than anxiety.
+5. **Equal visual dignity across domains** — Technology, Fintech, Impact, and Governance must have architecturally equal visual weight. The design must actively resist the gravitational pull toward code-centric aesthetics that dominate contributor platforms.
 
 ### Design Opportunities
 
-1. **Activity Feed as community heartbeat.** A real-time, multi-domain Contribution Wall can become Edin's signature UX element — showing the garden growing in real-time. Unlike GitHub's individual contribution graphs, this is communal and cross-domain, creating belonging and visibility for all contribution types.
+1. **"Insightful visuals" as differentiator** — If Edin translates complex evaluation data into genuinely beautiful, narrative-style visualizations (data journalism rather than dashboards), it becomes visually unmatched in the contributor platform space. The founder's vision points toward an editorial/journalistic visual language.
 
-2. **Reward trajectory visualization as retention engine.** The scaling-law compounding, visualized as an interactive "you are here → here's where sustained engagement takes you" curve, serves both comprehension (H3 validation) and retention. This can be a compelling, shareable moment.
+2. **Publication Platform as design showcase** — Published articles are the most public-facing content. Beautifully designed article pages become the platform's visual calling card — attracting contributors and readers through design quality alone.
 
-3. **Curated admission as brand ritual.** The contribution-based application, personal welcome call, and buddy assignment can be designed as a premium experience that communicates selectivity and care — making each accepted contributor feel chosen. First impressions define retention.
-
-4. **Progressive disclosure for domain-specific depth.** A clean primary experience with domain-specific depth available on demand serves all personas: Lena gets code metrics, Amir gets financial models, Sofia gets impact frameworks, Yuki gets governance details — without cluttering each other's views.
+3. **"The garden" metaphor as design foundation** — Edin means "fertile plain." The visual language can draw on organic, living-system metaphors (growth, cultivation, seasons) rather than mechanical ones (pipelines, funnels, engines), naturally producing the calming, insightful aesthetic the founder envisions.
 
 ## Core User Experience
 
 ### Defining Experience
 
-Edin's core user experience is the **evaluation feedback loop**: contribute in external tools → see your work ingested and evaluated → understand your impact → be motivated to contribute again. The defining interaction is not the contribution itself (which happens in GitHub and other tools), but the **return visit** — the moment a contributor opens their Edin dashboard and sees how their work was scored, where it appears on the Activity Feed, and how it advances their reward trajectory.
+**"See how your work was truly understood — and share that understanding with the world."**
 
-This feedback loop must feel fair, transparent, and motivating. If it does, contributors return. If it doesn't, they leave. Every UX decision flows from protecting the integrity of this loop.
+Edin's core experience operates through two intertwined loops that share a common emotional center: the feeling that your contribution was genuinely comprehended and elevated.
 
-**Core Loop by Persona:**
+**The Contribution Loop:** A contributor works with their familiar tools. Edin ingests the output. The AI Evaluation Engine analyzes the work and produces a transparent breakdown — not a score on a screen, but an insightful narrative about what the contribution achieved, what quality it demonstrated, and how it advanced the ecosystem. The contributor reads the evaluation and thinks: "It understood the craft." This understanding motivates the next contribution.
 
-- **Lena (Developer):** Push code → see AI evaluation with quality-over-quantity scoring → see her review ranked above a trivial PR → feel validated → take on harder work
-- **Amir (Financial Engineer):** Submit financial analysis via GitHub → see it evaluated with domain-appropriate criteria → see it on the Activity Feed alongside code → feel equal → deepen engagement
-- **Sofia (Impact Analyst):** Submit impact framework → see peer feedback + emerging AI evaluation → see Impact contributions prominently displayed → feel structurally valued → propose larger initiatives
-- **Yuki (Governance Specialist):** Review governance milestones → see credible decentralization progress → contribute governance proposals → see transparent decision trails → deepen trust
-- **Daniel (Applicant):** Land on public portal → feel the community is real and selective → complete micro-task application → receive personal welcome → make first contribution within 72 hours
-- **Marie (Admin):** Open admin dashboard → see community health at a glance → manage admission queue efficiently → assign feedback → monitor onboarding progress
-- **Henrik (Investor):** Land on public showcase → see credible contributor roster in <30 seconds → review quality metrics and AI evaluation evidence → see real momentum → engage for deeper diligence
+**The Publication Loop:** A contributor has an insight worth sharing. They write a draft. An Editor — a fellow contributor who understands the domain — shapes the piece through structured editorial feedback. The article transforms from rough expertise into polished, publication-quality prose. It goes live on the Publication Platform, beautifully typeset, and reaches readers beyond the Edin community. The author sees their ideas taken seriously, shaped with care, and read by people who matter. This visibility motivates the next article.
+
+Both loops converge on the same moment: **understanding made visible**. The AI evaluation makes the quality of technical work visible. The editorial process makes the quality of intellectual insight visible. Edin's UX must make both forms of "being understood" feel calming, insightful, and beautiful — never anxious or metrics-driven.
 
 ### Platform Strategy
 
-**Primary Platform:** Web application with hybrid SPA/SSR architecture.
+**Primary platform:** Web application (responsive)
 
-- **Public pages** (project showcase, Founding Circle, domain manifestos, contributor roster): Server-side rendered for SEO, fast initial load, and investor/applicant discovery. Optimized for sub-1.5s First Contentful Paint on 4G.
-- **Authenticated dashboards** (contributor, admin): Single-page application for responsive, real-time interactions. Activity Feed updates via WebSocket/SSE. Time to Interactive <3s.
-- **Mobile-responsive:** Contributors check evaluations, feedback, and the Activity Feed from mobile. Admin is desktop-optimized. Public pages render across all devices.
-- **No native app required:** The web application covers all use cases. Mobile browser access is sufficient for the monitoring/checking pattern that contributors use on mobile.
-- **No offline functionality:** All value comes from real-time evaluation data, live Activity Feed, and server-side AI processing. Offline adds complexity without user value.
+- **Public Portal + Publication Platform:** Server-side rendered for SEO. Article reading experience optimized for all devices — mobile reading is a primary use case (people read articles on phones and tablets). Typography-first design approach.
+- **Contributor Dashboard:** Single-page application for responsive interactions. Desktop-first design with full mobile support. Real-time updates for Activity Feed and evaluation notifications.
+- **Admin Dashboard:** Desktop-optimized. Complex data tables and operational views. Mobile access for monitoring, not primary workflow.
+- **Authoring/Editorial:** Desktop-first for writing and editing. Mobile for reviewing editorial feedback and managing workflow status.
+
+**No offline requirement.** All interactions require network access for real-time data (evaluations, editorial feedback, contribution ingestion).
+
+**No native app.** The web experience must be excellent enough that native wrappers add no value. Article reading experience should match native reading apps in typographic quality.
 
 ### Effortless Interactions
 
-**Zero-effort contribution ingestion:** Contributors push to GitHub — their work appears in Edin automatically. No manual submission, no copy-pasting, no second upload. The Integration Layer handles everything. If a contributor has to do anything to register their work in Edin, the UX has failed.
+**What must feel completely natural:**
 
-**One-glance evaluation comprehension:** The evaluation score is immediately visible with a clear quality indicator. One click reveals the full breakdown — criteria, scoring, and how it compares. No hunting, no jargon, no confusion about what "73/100" means.
+- **Contributing:** Zero workflow change. Work in GitHub, Google Docs, whatever tools you use. Edin ingests automatically. The contributor never "uploads to Edin" — their work appears because Edin is watching their tools, not the other way around.
+- **Reading an evaluation:** The evaluation breakdown should read like a short editorial review of your work, not a grade report. No cognitive load to parse scores — the insight comes through narrative and gentle visual hierarchy, not dense metrics tables.
+- **Reading a published article:** Opening an article should feel like opening The Economist or Aeon — immediate immersion in well-typeset prose with elegant layout. No platform chrome competing for attention. The content is the experience.
+- **Starting as an Author:** The path from "I have an idea" to "I'm writing a draft" should be 2-3 clicks. The authoring interface should feel like a focused writing tool (Notion, Medium editor), not a form with fields.
 
-**Instant task discovery:** The contribution menu surfaces domain-matched, skill-appropriate tasks immediately. Filtering by domain, difficulty, and effort is instantaneous (<1s per NFR-P7). A contributor should go from "I have time to contribute" to "I know what to work on" in under 30 seconds.
+**What should happen automatically:**
 
-**Seamless onboarding progression:** The 72-Hour Ignition tracks itself. A contributor sees where they are in the onboarding flow, what's next (welcome call, buddy intro, first task), and how much time they have — without needing to ask anyone.
-
-**Automatic notifications:** Evaluation complete, peer feedback received, task status changed, governance proposal updated — contributors are notified without polling. They check Edin when something happens, not to check if something happened.
+- Contribution ingestion from connected tools (no manual submission for code/docs)
+- Editor assignment when an article is submitted (matched by domain expertise)
+- Peer feedback assignment for new contributions
+- Activity Feed updates as contributions and publications flow in
+- Reward calculations and trajectory updates
 
 ### Critical Success Moments
 
-1. **First evaluation received** — The moment a new contributor sees their first AI evaluation score and breakdown. This is where trust in the platform is won or lost. The UX must communicate fairness instantly: "Your code review was scored higher than a quick fix because of these quality factors." If this moment fails, H2 fails.
+1. **"The AI understood my craft"** (Lena moment) — When a contributor sees their evaluation breakdown and realizes the system recognized the quality and subtlety of their work. If this moment fails (evaluation feels mechanical or unfair), the platform loses its core differentiator. The UX must make this evaluation feel like a thoughtful assessment, not a test result.
 
-2. **First Activity Feed experience** — The first time a contributor sees the Contribution Wall with real-time multi-domain activity. This creates the "living garden" impression. All four domains must be visibly active with equal treatment. If the Feed feels code-dominated or static, the multi-domain thesis fails.
+2. **"My article looks like it belongs in a real publication"** (Clara moment) — When an author sees their published article on the Publication Platform for the first time and it looks genuinely beautiful — professional typography, elegant layout, author and editor profiles displayed with care. If this moment fails (article looks like a blog post or wiki entry), the "modern Economist" vision collapses.
 
-3. **First reward trajectory view** — The moment a contributor sees the scaling-law compounding visualization and understands "if I stay and contribute at this level, here's where my rewards go." This must create an "aha" moment, not confusion. If >20% of contributors can't explain what they see, the UX must be simplified.
+3. **"I belong here"** (Daniel moment) — When a new contributor completes the 72-Hour Ignition and sees their first contribution on the Activity Feed alongside work from senior contributors. If this moment fails (onboarding feels bureaucratic or isolating), retention drops.
 
-4. **Investor 30-second credibility check** — Henrik lands on the public showcase. Within 30 seconds he must see: real contributor names with real backgrounds, live community metrics, AI evaluation evidence, and enough substance to justify a deeper conversation. If the first impression is "marketing page," he leaves.
+4. **"My domain has real weight"** (Amir/Sofia moment) — When a non-developer contributor sees their work displayed with equal visual prominence alongside code contributions. If this moment fails (the platform feels code-centric despite its four-pillar structure), the multi-domain equality thesis fails.
 
-5. **Non-code contribution equality moment** — The first time Amir, Sofia, or Yuki sees their non-code contribution displayed on the Activity Feed with the same visual prominence as Lena's code commit. This is the moment the multi-domain equality promise becomes real. If their contribution feels visually secondary, the structural equality is performative.
-
-6. **Admission acceptance** — Daniel receives acceptance, a personal welcome message, and a scheduled welcome call. This is the brand ritual. It must feel like joining something exclusive and caring, not like joining a filter. The onboarding UX from this moment through the 72-hour mark defines long-term retention.
+5. **"This community is real"** (Henrik moment) — When an investor accesses the public portal and sees a living, high-quality publication alongside contributor profiles and transparent metrics. If this moment fails (the public page looks like a startup landing page with vanity metrics), investor credibility collapses.
 
 ### Experience Principles
 
-1. **Close the loop, not the tool.** Edin never replaces the contributor's workflow — it completes it. The platform's value is the feedback loop: contribute elsewhere, understand your impact here. Every screen serves the return visit.
+1. **Insight before numbers** — Never show a metric without context. Every data point should tell a story. An evaluation score is meaningless; an evaluation narrative that explains what the AI recognized about the contributor's craft is transformative. Lead with the insight, make the number available on demand.
 
-2. **Transparency is trust.** Every evaluation score has a visible breakdown. Every reward calculation has a visible formula. Every governance decision has a visible trail. If a contributor cannot understand why something happened, the UX has failed. Opacity is the enemy.
+2. **The page breathes** — Generous whitespace, deliberate pacing, content that reveals itself as you need it. No information overload. The design should feel like a curated exhibition, not a control panel. This directly embodies the founder's "calming, not nervous" directive.
 
-3. **Equal by default, deep by choice.** All four domains receive identical visual treatment in every shared interface — Activity Feed, contribution menu, leaderboards, metrics. Domain-specific detail is available through progressive disclosure, never at the expense of another domain's visibility.
+3. **Equal by design, distinct by character** — All four domains share the same visual weight, layout patterns, and reward pathways. But each domain has its own visual character (color accent, subtle pattern language) that gives it identity without hierarchy. Technology doesn't look more important than Impact — they look different but equally dignified.
 
-4. **Compression without pressure.** Time-sensitive experiences (72-Hour Ignition, evaluation wait, reward trajectory) must feel guided, not rushed. Progressive status indicators replace anxiety. "Your evaluation is processing" with a clear timeline beats a spinner.
+4. **Publication quality everywhere** — The typographic and layout standards of the Publication Platform should influence the entire design system. Contributor profiles, evaluation breakdowns, and even admin dashboards should feel editorially designed — as if every page were composed with the care of a magazine layout.
 
-5. **The garden is alive.** The platform must feel like a living community, not a static dashboard. Real-time Activity Feed, contributor presence signals, and fresh contribution data create the heartbeat. Edin should feel different every time you open it.
+5. **The garden grows** — The platform should feel alive and growing, not static and administrative. Activity Feeds, contribution timelines, reward trajectories, and publication archives should evoke the sense of a living ecosystem — a garden being cultivated by many hands. Organic metaphors over mechanical ones.
+
+6. **Warmth through substance** — Emotional warmth comes from treating contributors with intellectual respect, not from cheerful UI copy or gamification badges. The warmth of Edin is the warmth of being taken seriously — of having your work evaluated with care, your articles edited with attention, your domain treated with structural equality.
 
 ## Desired Emotional Response
 
 ### Primary Emotional Goals
 
-**Recognized** — "My craft matters here." The dominant emotional goal across all contributor personas. Edin's AI evaluation must make contributors feel seen at a craft level — quality distinguished from quantity, depth valued over speed, domain expertise respected regardless of whether it's code or governance. This is the emotional antidote to every platform that reduced their work to commit counts or social popularity.
+**The Edin Emotional Signature: Calm Confidence**
 
-**Belonging** — "I was chosen. I'm building something with people I respect." The curated admission model creates the foundation; the Activity Feed and working groups sustain it. Contributors should feel they are co-architects of something meaningful, not users of a tool. The "garden" metaphor must be emotionally real: this is a cultivated space, not a marketplace.
+Edin should make users feel the way you feel when reading a beautifully designed long-form article by someone who truly understands their subject — calm, engaged, intellectually stimulated, and confident that you're in the hands of people who care about quality. Not the anxiety of a performance dashboard. Not the dopamine hit of a social feed. The sustained, quiet satisfaction of being in a place where serious work is done with care.
 
-**Fair** — "I understand how I was evaluated, and it makes sense." Not agreement with every score, but trust in the process. Transparency creates this feeling; opacity destroys it. Every evaluation breakdown, every reward calculation, every governance decision must reinforce the conviction that the system operates honestly.
+Three primary emotional states:
+
+1. **Intellectual respect** — "This platform treats me as a serious professional." Every interaction — from the evaluation breakdown to the publication layout to the admin dashboard — communicates that the people behind Edin respect the intelligence of their users. No condescension, no gamification tricks, no infantilizing onboarding wizards. The design assumes competence and rewards attention.
+
+2. **Calm clarity** — "I can see everything I need without feeling overwhelmed." Complex information (AI evaluations, reward trajectories, editorial feedback, community health) is presented through progressive disclosure: the insight first, the detail on demand. The visual environment is spacious, unhurried, and deliberately paced. Contributors should feel the opposite of dashboard anxiety.
+
+3. **Belonging through contribution** — "My work matters here, and I can see the evidence." The platform makes the impact of each contributor's work visible — not through vanity metrics or leaderboards, but through the narrative quality of evaluations, the editorial care given to publications, and the equal visual dignity afforded to every domain.
 
 ### Emotional Journey Mapping
 
-| Stage | Target Emotion | Design Implication | Anti-Pattern to Avoid |
-|---|---|---|---|
-| **Discovery** (public portal) | Intrigued, impressed — "This is serious and different" | Substance-first showcase: real names, real metrics, real AI evidence. No stock photos, no vague promises | "Another crypto marketing page" — glossy without substance |
-| **Application** | Respected, challenged — "They're asking me to demonstrate, not just fill forms" | Domain-specific micro-task that feels like a preview of contribution, not a test | "Just another form" — bureaucratic, impersonal |
-| **Acceptance** | Chosen, welcomed — "I'm joining something exclusive that wants me specifically" | Personal welcome message, scheduled welcome call, buddy assignment within 24 hours | "Processed and filed" — automated confirmation email |
-| **First 72 hours** | Guided, capable — "I know exactly what to do and I can do it" | Clear onboarding progression, visible timeline, domain-matched first task, buddy available | "Overwhelmed and lost" — too many options, no clear path |
-| **First evaluation** | Understood, fairly assessed — "The system sees what I actually did" | Transparent score breakdown, quality factors highlighted, clear criteria explanation | "Gamed, opaque, arbitrary" — score without explanation |
-| **Ongoing contribution** | Valued, growing — "My impact is compounding and visible" | Contribution history with trend lines, skill growth indicators, community recognition | "Grinding for tokens" — transactional, mechanical |
-| **Reward trajectory** | Motivated, committed — "Staying makes mathematical sense" | Visual projection showing compounding growth, clear "you are here" indicator | "Confused, skeptical" — complex formula without visual translation |
-| **Community interaction** | Peer among peers — "I belong here regardless of my domain" | Equal domain visibility, cross-domain activity, working group presence | "Outsider, unequal" — code-dominated culture |
-| **Error / failure states** | Supported, informed — "Something went wrong but I know what's happening" | Clear error messages with next steps, evaluation appeal flow, status transparency | "Abandoned, anxious" — silent failures, unexplained states |
+| Stage | Desired Feeling | Design Implication |
+|---|---|---|
+| **Discovery** (Henrik, Daniel) | Quiet authority — "These people are serious" | Public portal and Publication Platform project institutional quality, not startup energy. Published articles demonstrate intellectual depth. Contributor roster shows real professionals, not avatar walls |
+| **Application** (Daniel) | Respectful challenge — "They care who joins" | Micro-task application feels like an invitation to demonstrate competence, not a gatekeeping hurdle. Clear expectations, dignified process |
+| **Admission** (Daniel) | Welcome without ceremony — "I'm part of something real" | 72-Hour Ignition onboarding is warm but substantive. No confetti animations. The warmth comes from a real person (buddy) and a meaningful first task |
+| **First contribution** (All contributors) | Anticipatory calm — "I'm curious to see how this is received" | After submission, the contributor sees a clear status ("evaluation in progress") without anxious waiting. No countdown timers or urgency signals |
+| **Seeing evaluation** (Lena, Amir, Sofia) | Recognition of craft — "It understood what I did" | The evaluation breakdown reads like a thoughtful review, not a report card. Narrative first, scores secondary. The contributor feels *seen*, not graded |
+| **Publishing an article** (Clara) | Creative pride — "This is the best version of my thinking" | The published article looks beautiful. The author's name, the editor's name, the domain tag — all displayed with the care of a byline in a quality publication |
+| **Editing an article** (Marcus) | Mentorship satisfaction — "I helped shape something meaningful" | The editorial interface shows the arc from draft to publication. The editor sees their impact not as tracked changes but as a narrative of improvement |
+| **Returning daily** (All contributors) | Steady engagement — "There's always something worth seeing" | The Activity Feed and Publication stream are curated, not noisy. Quality over quantity. Each item earns its place on the page |
+| **Viewing rewards** (All contributors) | Patient confidence — "My sustained engagement is building something" | Reward trajectory visualizations show growth curves, not point totals. The compounding nature of scaling-law rewards is communicated through visual metaphors of organic growth, not gamification bars |
+| **Something goes wrong** (All users) | Supported resilience — "The system has my back" | Errors are communicated with clarity and empathy. "Your contribution is being retried" not "Ingestion failed." The system takes responsibility, not the user |
 
 ### Micro-Emotions
 
-**Trust over skepticism** — The most critical micro-emotion. Contributors in the Web3/crypto space have been burned by platforms that promised decentralization and delivered autocracy (Yuki's explicit concern), that promised fair rewards and delivered popularity contests, or that promised inclusion and delivered code-centrism. Every interaction must build trust incrementally through evidence, not claims. Specific trust signals: real names on the roster, visible evaluation criteria before contributing, governance milestones with dates, reward formulas shown in full.
+**Critical emotional states to cultivate:**
 
-**Confidence over confusion** — Second-most critical. The scaling-law reward model and AI evaluation are intellectually complex. If a contributor feels confused at any point — when viewing their score, when reading the reward explanation, when navigating the onboarding — the UX has failed before trust can even form. Confidence comes from progressive disclosure: simple summary first, detail on demand, full transparency available.
+- **Trust over skepticism** — Yuki (the governance skeptic) is the design litmus test. If the platform earns Yuki's trust through transparent governance records and credible decentralization milestones, it earns everyone's trust. Design implication: every claim must be backed by visible evidence. No marketing language in the authenticated experience.
 
-**Belonging over isolation** — Critical for non-code contributors. Amir has never contributed to open source. Sofia has been sidelined as "the non-technical person." The UX must actively signal inclusion through equal visual treatment, domain-specific welcome paths, and visible non-code activity. Belonging is not the absence of exclusion — it must be positively designed.
+- **Confidence over confusion** — Amir (the non-developer) is the accessibility litmus test. If Amir can navigate contribution, evaluation, and reward flows without developer-specific knowledge, the platform is truly multi-domain. Design implication: no jargon-dependent interfaces, no code-centric metaphors in shared spaces.
 
-**Accomplishment over frustration** — The 72-Hour Ignition must end with a visible, celebrated contribution. Not "you completed onboarding" but "your work is on the Contribution Wall and here's how it was received." Every contribution cycle should close with a clear sense of completion and visible impact.
+- **Accomplishment over frustration** — Daniel (the applicant) is the onboarding litmus test. If Daniel feels accomplished within 72 hours rather than overwhelmed by unfamiliar processes, the 72-Hour Ignition works. Design implication: guided but not patronizing, structured but not rigid.
 
-**Calm authority over hype** — Edin's tone should feel like a well-run institution, not a startup pitch. The IOUR Foundation's non-profit structure, the Belgian regulatory context, and the mathematical rigor of the scaling laws all support a tone of quiet confidence. The UX should feel curated, considered, and substantive — never breathless, never overselling.
+- **Belonging over isolation** — Sofia (the impact analyst) is the equality litmus test. If Sofia's impact assessment has the same visual dignity and presence as Lena's code refactoring, multi-domain equality is real. Design implication: no visual hierarchy between contribution types.
+
+- **Creative pride over performance anxiety** — Clara (the author) is the publication litmus test. If Clara feels creative pride when she sees her published article rather than performance anxiety about metrics, the Publication Platform has the right emotional tenor. Design implication: publication metrics are secondary to the quality of the reading experience.
+
+**Emotions to actively prevent:**
+
+- **Dashboard anxiety** — The feeling of being monitored by numbers. Prevented by: narrative-first evaluation, progressive disclosure, generous whitespace, no red/green scoring.
+- **Imposter syndrome** — The feeling of not belonging. Prevented by: welcoming onboarding, buddy system, contributions displayed alongside (not below) senior work.
+- **Competitive tension** — The feeling that others' success diminishes yours. Prevented by: no leaderboards, no ranking, no comparative metrics. Every contributor's journey is individual.
+- **Publication pressure** — The feeling that you must publish or lose standing. Prevented by: publication is an opportunity, not a requirement. No "days since last article" counters.
 
 ### Design Implications
 
-| Emotional Goal | UX Design Approach |
+| Emotional Goal | UX Approach |
 |---|---|
-| **Recognized** | AI evaluation scores show quality factors prominently (code complexity, review thoroughness, documentation depth). Contribution cards on the Activity Feed highlight *what made this contribution valuable*, not just that it happened. Evaluation breakdowns lead with quality narrative, not just numbers. |
-| **Belonging** | Founding Circle roster with real photos and bios. Working group activity visible on dashboard. "Your Fingerprints Are Everywhere" — show contributors where their work influenced the project. Community rituals (welcome calls, working group meetings) have UX touchpoints. |
-| **Fair** | Every score has a one-click breakdown. Evaluation criteria visible before contributing. Flag/appeal flow is 2 clicks, not buried. Reward formula shown in full with a "how this applies to you" personalized view. Governance decisions show the trail from proposal to outcome. |
-| **Trust** | No claims without evidence. Public metrics are real-time, not curated snapshots. Contributor roster shows real professional backgrounds. AI evaluation shows model version and agreement rate with human experts. Progressive decentralization roadmap shows completed milestones, not just promises. |
-| **Confidence** | Progressive disclosure everywhere: summary → detail → full data. Onboarding has a visible progress bar with clear next steps. Reward trajectory has "simple view" and "detailed view." Evaluation has "your score" → "why this score" → "full criteria." |
-| **Calm authority** | Muted, professional color palette. Typography that conveys substance. No exclamation marks in UI copy. Data-dense where appropriate (admin dashboard). White space and breathing room where emotional impact matters (public showcase, evaluation results). |
+| Intellectual respect | Typography-forward design. Serif headings for editorial contexts. Long-form readable content. No emoji or casual iconography in professional spaces. Contributor profiles that look like author biographies, not social media cards |
+| Calm clarity | Progressive disclosure: summary → detail on click/expand. Generous whitespace (minimum 24px between content blocks). Muted color palette with deep, warm tones. No animation for animation's sake — motion only to communicate state changes |
+| Belonging through contribution | Activity Feed that shows contributions chronologically without ranking. Domain color accents that give identity without hierarchy. "Your Fingerprints" section on contributor profile that shows where their work has had impact |
+| Recognition of craft | Evaluation breakdowns that open with a narrative paragraph ("Your refactoring reduced complexity by...") before showing any scores. Scores displayed as subtle indicators, not bold numbers |
+| Creative pride | Published articles with beautiful typography, generous margins, author/editor credits displayed like bylines. Article pages that feel like a standalone publication, not a platform subpage |
+| Patient confidence | Reward trajectory shown as a growth curve visualization with organic, gardening-inspired visual language. "Your garden is growing" not "Your score is 847" |
 
 ### Emotional Design Principles
 
-1. **Evidence before claims.** Never tell contributors the platform is fair — show them the evaluation breakdown. Never tell investors the community is real — show them the live Activity Feed. Every emotional goal is achieved through demonstrable proof, not marketing language.
+1. **Evidence before claims** — Never tell users to feel something; show them evidence that creates the feeling naturally. Don't say "your work is valued" — show them an evaluation that demonstrates deep understanding of their contribution. Don't say "this is a quality publication" — design article pages so beautifully that the quality is self-evident.
 
-2. **Dignity in every interaction.** From the application micro-task (which respects expertise) to the evaluation appeal (which takes disagreement seriously) to the error state (which explains clearly) — every touchpoint treats the contributor as a respected professional. No patronizing, no gamification tricks, no engagement manipulation.
+2. **Dignity in every interaction** — Every touchpoint treats the user as an intelligent professional. Error messages explain what happened and what's being done. Empty states explain what will appear and why. Loading states communicate progress, not anxiety. No cheerful copy masking system limitations.
 
-3. **Emotional safety for vulnerability.** Contributors submit work for AI judgment — this is inherently vulnerable. The UX must create safety around evaluation: scores are private by default, breakdowns are explanatory not punitive, trends show growth not failure, and the appeal flow signals "we take your perspective seriously."
+3. **Emotional safety for vulnerability** — Contributing work and publishing articles are acts of vulnerability. The platform must create emotional safety through predictable processes, clear expectations, and private feedback before public visibility. An evaluation is shared with the contributor first, never publicly without their contribution being visible. Editorial feedback is private between author and editor.
 
-4. **Warmth through substance.** The curated community feel comes not from friendly illustrations or casual copy, but from showing real people doing real work with real recognition. Warmth is the Contribution Wall showing a financial analysis next to a code commit with equal prominence. Warmth is the buddy system with a real name and a scheduled call.
+4. **Warmth through substance** — The emotional warmth of Edin comes not from bright colors, friendly illustrations, or casual tone — it comes from the substance of what the platform delivers: evaluations that show genuine understanding, editorial feedback that genuinely improves work, rewards that genuinely compound. Substance is warmth.
 
-5. **Anticipatory reassurance.** During asynchronous waits (evaluation processing, ingestion pipeline, feedback assignment), the UX proactively communicates status and timeline. "Your code is being evaluated — typical time: 20 minutes" prevents anxiety before it forms. Never leave a contributor wondering what's happening.
+5. **Anticipatory reassurance** — At every point where a user might feel uncertain ("Did my contribution upload?" "When will I hear back?" "Is my article being reviewed?"), provide proactive status information before they need to ask. Calm confidence requires knowing where things stand without having to chase information.
 
 ## UX Pattern Analysis & Inspiration
 
 ### Inspiring Products Analysis
 
-**GitHub — The developer's home (Lena, Daniel, Marie)**
+**1. The Economist (Digital Edition) — Editorial Authority & Reading Experience**
 
-GitHub is the gravitational center for Edin's primary persona (Lena) and the MVP's sole integration target. Its contribution graph is one of the most powerful UX inventions in developer tools — a single visual that communicates consistency, volume, and commitment at a glance. The PR review flow treats code review as a first-class activity, aligning with Edin's quality-over-quantity ethos. The notification system efficiently routes attention without overwhelming. Profile pages create portable professional identity. Key lesson: a single, well-designed visualization can drive behavior. Edin's reward trajectory visualization should aspire to the same behavioral power. GitHub's progressive disclosure (summary → diff → line-by-line comments) is the model for how Edin should reveal evaluation detail.
+- **Core UX strength:** Transforms dense, complex global analysis into calm, authoritative reading experiences. The reader never feels overwhelmed despite the depth of content. Typography, whitespace, and visual hierarchy do the heavy lifting — the design says "this is serious" without saying "this is stressful."
+- **Onboarding:** Minimal. The content speaks for itself. New readers are drawn in by article quality, not by guided tours.
+- **Navigation & information hierarchy:** Section-based (Finance, Science, Culture) with equal visual weight — no section dominates. Article pages strip away navigation chrome, creating an immersive reading tunnel. This directly maps to Edin's four-domain equality requirement.
+- **Visual design choices:** Serif typography for authority. Red accent used sparingly for brand identity, not for alerts. Illustrations are editorial (commissioned, conceptual) rather than stock or decorative. Dense information presented through curated editorial judgment, not raw data dumps.
+- **What keeps users returning:** The feeling of being well-informed without being overwhelmed. Intellectual stimulation wrapped in visual calm.
+- **Relevance to Edin:** The Publication Platform's reading experience should aim for this exact emotional register. Article pages, evaluation narratives, and contributor profiles should all inherit this editorial design DNA.
 
-**Linear — Opinionated simplicity for complex work (all contributors)**
+**2. Stripe Documentation & Dashboard — Calm Complexity**
 
-Linear is the best current example of a professional tool that feels fast, clean, and opinionated without being simplistic. Keyboard-driven navigation, sub-200ms interactions, minimal visual noise, and an information hierarchy that puts the work front and center. It manages complex project states without visual clutter. The onboarding is frictionless. Key lesson: Edin's contributor dashboard should aspire to Linear's information density without visual overwhelm. The contribution menu is structurally similar to Linear's issue views — filtering should feel equally instant. Linear's tone (professional, confident, no exclamation marks) matches Edin's "calm authority" emotional principle.
+- **Core UX strength:** Makes extraordinarily complex financial/technical information feel manageable and even elegant. The dashboard communicates serious data without triggering anxiety. Progressive disclosure is masterful — summary views that expand into detail without context switching.
+- **Onboarding:** Gradual capability reveal. New users see a simplified view that grows in complexity as they use more features. No information overload on day one.
+- **Navigation & information hierarchy:** Left sidebar navigation with clear grouping. Content area uses generous whitespace and consistent typography hierarchy. Data visualizations are minimal and purposeful — small charts that tell one story clearly rather than dense multi-axis dashboards.
+- **Innovative interactions:** API documentation that feels like reading a well-written technical book. Inline examples that run. Status indicators that communicate health without alarm.
+- **Visual design choices:** Neutral, airy palette with strategic color accents. Typography is clean and spacious. Gradients and subtle depth (not flat, not skeuomorphic — a calm middle ground).
+- **Relevance to Edin:** The Contributor Dashboard should learn from Stripe's ability to present complex data (evaluations, rewards, trajectories) with calm clarity. Progressive disclosure pattern is directly transferable for evaluation breakdowns.
 
-**Stripe Dashboard — Trust through data clarity (Henrik, Marie, all contributors)**
+**3. Are.na — Community Curation & Equal Dignity**
 
-Stripe's dashboard is the gold standard for presenting financial/metrics data in a way that builds trust. Clean typography, generous white space, real-time data that feels reliable, and progressive disclosure from summary metrics to granular detail. The dashboard tells you "everything is working" at a glance, with drill-down available when needed. Error states are clear and actionable. Key lesson: Edin's admin dashboard (Marie), public metrics (Henrik), and evaluation displays (all contributors) should draw from Stripe's "trust through data clarity" approach. The evaluation score breakdown should feel as trustworthy as a Stripe payment receipt.
+- **Core UX strength:** A platform where visual art, research, code, essays, and links all coexist with equal visual weight. No content type dominates. The design treats every contribution with the same quiet respect, regardless of format. This is the closest existing model to Edin's multi-domain equality aspiration.
+- **Navigation:** Channel-based organization that creates contexts without hierarchy. Every contributor's collection looks the same — the design doesn't privilege any user over another.
+- **Visual design choices:** Monochromatic, grid-based, deliberately minimal. Content speaks for itself. No gamification, no follower counts, no trending algorithms. The anti-social-media aesthetic.
+- **What keeps users returning:** The feeling of being part of an intellectual community that values curation over consumption. Quality over popularity.
+- **Relevance to Edin:** Are.na demonstrates that a platform can treat diverse contribution types (code, documents, analyses, governance proposals) with equal visual dignity. Its anti-gamification philosophy aligns perfectly with Edin's "no leaderboards, no competitive tension" principle. The contributor profile model — showing what you've curated rather than how popular you are — maps to Edin's "Your Fingerprints" concept.
 
-**Strava — The social contribution loop (all contributors)**
+**4. Notion — Authoring Experience & Structured Content**
 
-Strava's core UX loop is remarkably similar to Edin's: perform an activity elsewhere → it's automatically ingested → you see your stats → the community feed shows others' activities → you're motivated to do more. The Activity Feed is the heartbeat. The "segment" system lets different types of athletes feel equally valued in their domain. Key lesson: Strava proves the automatic ingestion → evaluation → social feed → motivation loop works at scale. Edin's Activity Feed should study how Strava makes the feed feel communal without being competitive. The segment model is analogous to Edin's four domains.
+- **Core UX strength:** Makes content creation feel effortless through block-based editing with slash commands. The transition from blank page to structured document is smooth and never intimidating. Writing feels like thinking, not like filling out forms.
+- **Innovative interactions:** Slash command menu that surfaces capabilities contextually. Inline embedding. Template system that provides structure without constraining creativity. Toggle blocks for progressive disclosure within authored content.
+- **Visual design choices:** Clean, minimal chrome. The content area dominates. Sidebar navigation collapses to maximize writing space. Typography optimized for readability during both editing and reading.
+- **Relevance to Edin:** The Publication Platform's authoring experience should feel this natural. Clara (the author) should experience the same "writing feels like thinking" flow. The editorial feedback layer should integrate as seamlessly as Notion's commenting system — present when needed, invisible when writing.
 
-**The Economist app — Substance over flash (Amir, Yuki, Henrik)**
+**5. Aeon Magazine — Long-Form Visual Storytelling**
 
-For non-developer personas, the reference isn't a tech tool — it's a publication that respects intellectual depth. The Economist treats complex topics with visual clarity and editorial authority. Clean typography, data visualizations that explain rather than decorate, and a tone that assumes intelligence without assuming expertise. Key lesson: Edin's public showcase, domain manifestos, and reward methodology explanation should draw from this "intellectual authority" aesthetic. The scaling-law explanation should feel like an Economist data feature — rigorous but accessible.
+- **Core UX strength:** Proves that serious intellectual content can be presented with visual beauty that enhances rather than distracts from the ideas. Full-bleed imagery, pull quotes, and typographic variation create rhythm in long-form reading.
+- **Visual design choices:** Large-format photography and illustration as article headers. Generous line-height and readable measure (characters per line). Section breaks that give the reader breathing room. Author profiles that feel like introductions to real people, not database entries.
+- **Relevance to Edin:** Aeon demonstrates the "Publication quality everywhere" principle — that editorial design standards can elevate even the simplest content presentation. The article page template and author/editor profile treatment should draw from this tradition. Multi-cultural imagery (Aeon covers global perspectives) also maps to Edin's multi-cultural visual language requirement.
 
 ### Transferable UX Patterns
 
-| Pattern | Source | Edin Application |
-|---|---|---|
-| **Contribution graph / streak visualization** | GitHub | Reward trajectory visualization — a single visual showing compounding engagement over time |
-| **Progressive disclosure: summary → detail → raw data** | GitHub PR reviews, Stripe | Evaluation scores: score → breakdown → full criteria → raw data |
-| **Instant filtering with keyboard shortcuts** | Linear | Contribution menu filtering by domain/difficulty/effort |
-| **Automatic activity ingestion → social feed** | Strava | GitHub integration → Activity Feed (Contribution Wall) |
-| **Domain-specific excellence within unified feed** | Strava segments | Four-pillar equality: each domain has its own quality metrics, shared feed |
-| **Trust-building data presentation** | Stripe Dashboard | Admin health metrics, public investor view, evaluation transparency |
-| **Real-time status with clear processing states** | Stripe (payment processing) | Evaluation pipeline: "ingested → processing → evaluated" with estimated time |
-| **Substance-first content with data visualization** | The Economist | Reward methodology explanation, domain manifestos, public showcase |
-| **Keyboard-driven navigation for power users** | Linear | Contributor dashboard navigation for repeat users (Lena) |
-| **Onboarding that gets you productive fast** | Linear | 72-Hour Ignition — minimal steps to first meaningful contribution |
+**Navigation Patterns:**
+
+- **Section equality architecture** (from The Economist) — Four domain sections (Technology, Fintech, Impact, Governance) with identical structural treatment, distinct identity through color accent and subtle motif, but no visual hierarchy. Directly solves the "equal dignity across domains" challenge.
+- **Progressive navigation collapse** (from Notion) — Sidebar that collapses during focused tasks (reading articles, viewing evaluations, writing) to create immersive content zones. Navigation chrome disappears when the content is the experience.
+- **Contextual interface switching** (from Stripe) — Smooth transitions between the four interface contexts (Public, Publication, Contributor, Admin) without jarring visual breaks. Shared design vocabulary, different information density.
+
+**Interaction Patterns:**
+
+- **Narrative-first data presentation** (from Stripe + The Economist) — Evaluation breakdowns that open with a narrative paragraph (what the AI recognized about the contributor's craft) before revealing detailed scores. The insight comes through story, the data supports it. Directly implements "Insight before numbers."
+- **Progressive disclosure cards** (from Stripe) — Summary cards on the Contributor Dashboard that expand to reveal evaluation detail, reward trajectory, or contribution history. No page transitions for exploration — the information unfolds in place.
+- **Block-based authoring with slash commands** (from Notion) — Publication Platform editor that uses familiar block-based editing patterns. Slash commands for inserting code blocks, data visualizations, pull quotes. Reduces authoring friction to near-zero.
+- **Inline editorial feedback** (adapted from Notion comments + Google Docs suggestions) — Editor feedback that appears contextually within the article draft, not in a separate feedback panel. The editorial conversation happens alongside the text it references.
+
+**Visual Patterns:**
+
+- **Typographic hierarchy as primary design language** (from The Economist + Aeon) — Serif headings for editorial content (articles, evaluations, profiles), sans-serif for interface elements (navigation, buttons, data). This dual-typographic approach naturally creates the "publication quality everywhere" effect while distinguishing content from chrome.
+- **Breathing whitespace system** (from Are.na + Stripe) — Systematic spacing that enforces the "page breathes" principle. Minimum 24px between content blocks, 48px between sections. Content never feels cramped.
+- **Organic data visualization** (inspired by garden metaphor) — Reward trajectories and contribution timelines rendered as growth curves with organic, botanical visual language. Not bar charts and line graphs — visual metaphors that evoke cultivation, seasons, and living systems.
+- **Multi-cultural visual palette** (from Aeon + The Economist global editions) — Color palette and illustration style that draws from diverse visual traditions. Warm earth tones, muted jewel tones, and natural gradients that reference global design traditions without appropriating specific cultural motifs.
 
 ### Anti-Patterns to Avoid
 
-| Anti-Pattern | Where It Appears | Why It Fails for Edin |
-|---|---|---|
-| **Popularity-contest UX** | Gitcoin grant rounds, social media likes | Directly contradicts the "fair AI evaluation" thesis. No upvote/like mechanics on contributions. Quality is assessed by AI, not crowd sentiment |
-| **Crypto-jargon overload** | Most DAO dashboards | Alienates Amir, Sofia, and Henrik immediately. Edin must speak contributor language, not blockchain language. "Rewards" not "tokenomics." "Evaluation" not "staking" |
-| **Gamification badges and achievements** | Many contributor platforms | Creates the wrong emotional register. Edin's contributors are senior professionals, not players. Recognition should feel earned and substantive, not collectible |
-| **Dashboard-as-decoration** | Corporate analytics tools | Empty charts and vanity metrics destroy Henrik's trust in 10 seconds. Every metric displayed must be real, current, and meaningful |
-| **Complexity-first reward displays** | DeFi yield dashboards | The scaling-law model is already intellectually complex. The UX must simplify first. Progressive disclosure is mandatory |
-| **Code-centric activity feeds** | GitHub, GitLab | If the Activity Feed defaults to showing code commits more prominently, non-code contributors feel invisible. Equal visual weight must be designed, not default |
-| **Impersonal onboarding wizards** | SaaS products | The 72-Hour Ignition is a human experience (buddy, welcome call, personal message). The UX should support warmth, not replace it with a step-by-step wizard |
+- **Dashboard-ification** — Filling contributor views with KPI cards, percentage changes, and red/green indicators. This is the single biggest threat to the "Calm Confidence" emotional signature. GitHub's contribution graph and its anxiety-inducing "streak" culture is the anti-model. Edin should never make contributors feel like they're being performance-monitored.
+
+- **Social media engagement metrics** — Follower counts, like buttons, share counters, or trending algorithms on the Publication Platform. These create competitive tension and reduce editorial quality to popularity metrics. Mirror.xyz and Medium both fell into this trap, undermining editorial credibility with engagement gamification.
+
+- **Code-centric aesthetics in shared spaces** — Monospace fonts, terminal-style interfaces, or developer-tool metaphors in spaces shared by all four domains. This accidentally signals "this is a developer platform" and alienates Amir (fintech), Sofia (impact), and Yuki (governance). Even subtle choices — like using "deploy" instead of "publish" or showing raw JSON in evaluation breakdowns — violate domain equality.
+
+- **Wizard-style onboarding** — Step-by-step guided tours with tooltips pointing at interface elements. These feel patronizing to the serious professionals Edin serves. Daniel's 72-Hour Ignition should feel like an invitation to contribute, not a software tutorial.
+
+- **Notification overload** — Badge counts, push notifications for every activity, or "you haven't contributed in X days" nudges. These create the anxious monitoring feeling the founder explicitly rejected. Activity should be discoverable, not pushed.
+
+- **Vanity empty states** — Cheerful illustrations with "Nothing here yet! Start contributing!" copy. Empty states should be informative and dignified: what will appear here, why it matters, and what conditions produce content.
 
 ### Design Inspiration Strategy
 
 **What to Adopt:**
 
-- GitHub's progressive disclosure model for evaluation scores (summary → breakdown → full criteria)
-- Linear's information density, speed, and professional tone for the contributor dashboard
-- Stripe's data presentation patterns for metrics, admin views, and investor-facing pages
-- Strava's automatic ingestion → social feed → motivation loop as the structural model for the core experience
+- **The Economist's editorial authority** — The typographic confidence, section equality, and calm-despite-complexity approach. Adopt directly for the Publication Platform reading experience and extend across the entire design system. Articles, evaluation narratives, and contributor profiles should all feel editorially composed.
+- **Stripe's progressive disclosure** — The pattern of summary → expandable detail for complex data. Adopt for evaluation breakdowns, reward trajectories, and admin dashboards. This is the primary mechanism for achieving "calm clarity" with dense information.
+- **Are.na's contribution equality** — The visual treatment that gives every content type equal dignity. Adopt for the Activity Feed and contributor profile views where diverse contribution types (code, documents, analyses, proposals) must coexist without hierarchy.
 
 **What to Adapt:**
 
-- GitHub's contribution graph → Edin's reward trajectory visualization (multi-temporal, not just daily; compounding, not linear)
-- Strava's segment model → Edin's four-domain equality (with stronger visual parity enforcement)
-- Linear's keyboard navigation → available for power users but not required (Amir may never use shortcuts)
-- The Economist's editorial authority → domain manifestos and reward methodology, but more interactive and personalized
+- **Notion's block editor → Publication authoring** — Adapt the familiar block-based editing pattern for the Publication Platform, but layer in editorial workflow features (submission status, editor feedback inline, revision history). The writing experience is Notion-like; the editorial layer is unique to Edin.
+- **Aeon's visual storytelling → Evaluation narratives** — Adapt the visual rhythm of long-form articles (pull quotes, breathing room, typographic variation) for AI evaluation breakdowns. An evaluation should read with the same visual cadence as a well-designed article, not a report.
+- **Stripe's data visualization → Garden-inspired metrics** — Adapt Stripe's clean, purposeful data visualization approach but replace the fintech aesthetic with organic, botanical visual metaphors. Growth curves that feel like watching a garden develop, not tracking stock prices.
 
 **What to Avoid:**
 
-- Any UX pattern that looks or feels like a crypto/DeFi dashboard
-- Any gamification (badges, streaks, leaderboards) — recognition through evaluation quality and community visibility instead
-- Any popularity-based mechanics (likes, upvotes, social ranking)
-- Any onboarding that feels automated or impersonal
+- **GitHub's contribution tracking model** — Green squares, streak counts, and commit-frequency visualization. This creates exactly the "metrics and nervousness" the founder rejected.
+- **Medium's social-engagement layer** — Claps, follower counts, and recommendation algorithms that reduce editorial quality to popularity. Edin's Publication Platform values editorial judgment (the Editor role) over crowd engagement.
+- **Slack's notification urgency model** — Badge counts, unread indicators, and "catch up" pressure. Edin's Activity Feed should be a calm stream to browse, not an inbox to clear.
+- **Traditional admin dashboard patterns** — Dense data tables with filter dropdowns and export buttons. Even Marie (admin) deserves the "calm clarity" treatment — operational dashboards should use the same editorial design language as the rest of the platform.
 
 ## Design System Foundation
 
 ### Design System Choice
 
-**Tailwind CSS + Headless Component Library (Radix UI)**
+**Approach: Themeable Headless System — Tailwind CSS + Radix UI**
 
-A themeable, utility-first approach combining Tailwind CSS for complete visual control with Radix UI for accessible, unstyled interaction primitives. This gives Edin full design authority over its visual identity while leveraging battle-tested accessibility and interaction patterns.
+Edin uses a **headless component library (Radix UI) styled through a utility-first CSS framework (Tailwind CSS)**, creating a design system that provides accessibility and interaction patterns out of the box while allowing complete visual control. This is the "Themeable System" approach, chosen specifically because Edin's visual identity — editorial typography, organic data visualization, multi-cultural palette — cannot be achieved by skinning an opinionated component library like Material Design or Ant Design.
 
-This is neither a fully custom system (too expensive for MVP timeline) nor an opinionated component library (too generic for Edin's distinctive brand needs). It occupies the strategic middle ground: custom visual identity built on proven interaction foundations.
+**The system operates in three layers:**
+
+1. **Radix UI (Behavior layer)** — Provides accessible, unstyled primitives for complex interactive components: dialogs, dropdowns, tabs, accordions, tooltips, navigation menus. These handle keyboard navigation, screen reader announcements, focus management, and ARIA attributes. Zero visual opinions — every pixel is Edin's to design.
+
+2. **Tailwind CSS (Style layer)** — Utility-first framework that compiles to optimized CSS. Design tokens (colors, spacing, typography, shadows) are defined in the Tailwind configuration and used consistently across all components. No CSS naming conventions to argue about, no style drift across contributors.
+
+3. **Edin Component Library (Composition layer)** — Custom React components that combine Radix primitives with Tailwind styling to create Edin-specific patterns: Evaluation Narrative Cards, Article Page Layouts, Contributor Profile Views, Activity Feed Items, Domain-tagged Content Blocks. This is where Edin's editorial design language lives.
 
 ### Rationale for Selection
 
-| Decision Factor | Requirement | How Tailwind + Radix Delivers |
-|---|---|---|
-| **Visual identity** | Edin needs a distinctive, curated aesthetic — not "generic SaaS" or "crypto startup" | Tailwind provides pixel-level control. No inherited visual opinions from Material, Ant, or Bootstrap. Edin looks like nothing else |
-| **Timeline** | MVP by Q2 2026 with 2-3 developers | Tailwind accelerates UI development through utility classes. Radix provides complex interaction patterns (modals, dropdowns, accordions, tooltips) without building from scratch |
-| **Accessibility** | WCAG 2.1 Level AA (NFR-A1), screen reader support (NFR-A2), keyboard navigation (NFR-A3) | Radix UI is built accessibility-first: keyboard navigation, focus management, ARIA attributes, and screen reader announcements are built into every primitive |
-| **SSR compatibility** | Hybrid SPA/SSR architecture (Next.js/SvelteKit) | Both Tailwind and Radix work seamlessly with SSR frameworks. No hydration issues, no flash of unstyled content |
-| **Performance** | FCP <1.5s (NFR-P1), TTI <3s (NFR-P2) | Tailwind purges unused CSS at build time — minimal CSS payload. Radix components are tree-shakeable. No heavy framework runtime |
-| **Three interface contexts** | Public portal, contributor dashboard, admin dashboard need distinct but coherent experiences | Tailwind's design token system (via tailwind.config) creates shared foundation with context-specific variations. Same tokens, different compositions |
-| **Data-dense displays** | Admin dashboard, evaluation breakdowns, metrics views need information density | Tailwind excels at dense, precise layouts. No component library padding/margin opinions to override |
-| **Real-time updates** | Activity Feed, evaluation notifications, admin health metrics | Radix primitives handle dynamic content updates with proper ARIA live region support |
-| **Team familiarity** | Small team needs low learning curve | Tailwind is the most widely adopted CSS framework in the React/Next.js ecosystem. Radix has excellent documentation |
+**Why not a fully custom design system:**
 
-**Why not Material Design / Ant Design:** Both carry strong visual associations (Google / enterprise) that conflict with Edin's need for distinctive "calm authority." Their opinionated component styling would require extensive overriding to achieve the desired aesthetic, negating the speed advantage.
+- Edin's MVP timeline requires speed. Building accessible dialog management, keyboard navigation, and screen reader support from scratch would consume months of engineering with no visible UX benefit. Radix provides this invisible foundation.
+- Accessibility is non-negotiable (NFR requirements). Radix's accessibility compliance is battle-tested across thousands of production applications.
 
-**Why not fully custom:** With 2-3 developers and a 6-month MVP timeline, building accessible modals, dropdowns, tooltips, and focus management from scratch would consume disproportionate effort for foundational UI patterns that are already solved.
+**Why not an opinionated system (Material Design, Ant Design, Chakra UI):**
+
+- Edin's visual identity — editorial serif typography, organic data visualizations, breathing whitespace, multi-cultural color palette — is fundamentally incompatible with the visual language of Material Design (geometric, industrial) or Ant Design (corporate, data-dense).
+- The "modern Economist" reading experience requires typographic control that opinionated systems resist. Fighting against Material Design's typography system to achieve editorial typography is worse than starting from a clean slate.
+- The four interface contexts (Public Portal, Publication Platform, Contributor Dashboard, Admin Dashboard) need distinct visual registers within one system. Opinionated libraries make this difficult because their consistency model fights contextual variation.
+
+**Why Tailwind CSS + Radix UI specifically:**
+
+- **Full typographic control** — Tailwind's typography plugin (`@tailwindcss/typography`) combined with custom font definitions supports the dual-typography approach (serif for editorial content, sans-serif for interface elements) identified in Step 5.
+- **Design token architecture** — Tailwind's configuration file becomes the single source of truth for Edin's design tokens: the domain color accents, the multi-cultural palette, the breathing whitespace scale, the organic border-radius values.
+- **SSR compatibility** — Both Tailwind (CSS only, no runtime) and Radix (server-component compatible) work with Edin's hybrid SPA/SSR architecture. Critical for the Publication Platform and Public Portal, which require server-side rendering for SEO.
+- **Responsive without compromise** — Tailwind's responsive utilities allow the four interface contexts to adapt to their optimal device (mobile-first for article reading, desktop-first for authoring, desktop-optimized for admin) within a single design token system.
 
 ### Implementation Approach
 
 **Design Token Architecture:**
 
-Tailwind's configuration file (`tailwind.config`) serves as the single source of truth for all design tokens:
+```
+tailwind.config.js
+├── colors/
+│   ├── brand (Edin primary palette — warm, muted, earthy)
+│   ├── domain.technology (accent color for Technology domain)
+│   ├── domain.fintech (accent color for Fintech domain)
+│   ├── domain.impact (accent color for Impact domain)
+│   ├── domain.governance (accent color for Governance domain)
+│   ├── semantic (success, warning, info — never red/green for scoring)
+│   └── surface (backgrounds, cards, borders — warm neutrals)
+├── typography/
+│   ├── serif (editorial: articles, evaluations, profiles)
+│   ├── sans (interface: navigation, buttons, labels)
+│   └── mono (code contexts only — never in shared spaces)
+├── spacing/
+│   ├── breathing (24px, 32px, 48px, 64px — generous content spacing)
+│   └── compact (8px, 12px, 16px — interface element spacing)
+├── borderRadius/
+│   ├── organic (soft, natural curves — default for cards and containers)
+│   └── sharp (minimal radius — for buttons and interactive elements)
+└── shadows/
+    └── subtle (light, warm-toned shadows — depth without drama)
+```
 
-- **Colors:** Brand palette, semantic colors (success/warning/error/info), domain colors (one per pillar — Technology, Fintech, Impact, Governance), neutral scale
-- **Typography:** Font families, size scale, weight scale, line heights. Professional serif or sans-serif stack aligned with "calm authority" and "intellectual substance" principles
-- **Spacing:** Consistent spacing scale used across all three interface contexts
-- **Breakpoints:** Mobile-first responsive breakpoints aligned with the three device contexts (mobile contributor checking, desktop deep work, desktop admin)
-- **Shadows/Borders:** Subtle elevation system for cards, modals, and interactive elements
-- **Animation:** Restrained motion tokens — functional transitions only, no decorative animation (aligned with "calm authority" principle)
+**Component Architecture:**
 
-**Component Strategy:**
-
-| Component Type | Approach | Examples |
-|---|---|---|
-| **Interaction primitives** | Radix UI (unstyled, accessible) | Modals, dropdowns, tooltips, tabs, accordions, popovers, toggle groups, progress bars |
-| **Form elements** | Radix UI + custom Tailwind styling | Inputs, selects, checkboxes, radio groups, sliders |
-| **Layout components** | Custom Tailwind compositions | Page shells, sidebars, responsive grids, card layouts |
-| **Data display** | Custom Tailwind compositions | Tables, metric cards, charts, evaluation breakdowns, Activity Feed items |
-| **Navigation** | Custom Tailwind + Radix Navigation Menu | Top nav, sidebar nav, breadcrumbs, mobile menu |
-| **Feedback/Status** | Radix Toast + custom styling | Notifications, status indicators, processing states, error messages |
-
-**Shared Component Library:**
-
-Build a project-level component library (`/components/ui/`) with Edin-styled wrappers around Radix primitives. Each wrapper applies Tailwind classes consistent with the design token system. This creates reusable, consistent components while keeping full visual control:
-
-- `Button` — primary, secondary, ghost, destructive variants
-- `Card` — contribution card, evaluation card, metric card, profile card
-- `Badge` — domain badges (Technology, Fintech, Impact, Governance), status badges
-- `ScoreDisplay` — evaluation score with progressive disclosure (summary → breakdown)
-- `FeedItem` — Activity Feed contribution item with domain-equal visual treatment
-- `StatusIndicator` — processing pipeline status (ingested → evaluating → complete)
+```
+components/
+├── primitives/          ← Radix UI + Tailwind styling
+│   ├── Dialog/
+│   ├── Dropdown/
+│   ├── Tabs/
+│   ├── Accordion/       ← Progressive disclosure pattern
+│   └── Tooltip/
+├── editorial/           ← Publication-quality components
+│   ├── ArticlePage/
+│   ├── AuthorByline/
+│   ├── EditorCredit/
+│   ├── PullQuote/
+│   └── ArticleCard/
+├── evaluation/          ← Narrative-first data components
+│   ├── EvaluationNarrative/
+│   ├── ScoreIndicator/  ← Subtle, secondary to narrative
+│   ├── RewardTrajectory/ ← Organic growth visualization
+│   └── ContributionTimeline/
+├── community/           ← Contributor & activity components
+│   ├── ContributorProfile/
+│   ├── ActivityFeedItem/
+│   ├── DomainBadge/     ← Equal-weight domain indicators
+│   └── YourFingerprints/
+├── authoring/           ← Block-based editor components
+│   ├── BlockEditor/
+│   ├── SlashCommandMenu/
+│   ├── InlineEditorialFeedback/
+│   └── RevisionHistory/
+└── layout/              ← Context-specific layouts
+    ├── PublicLayout/     ← SSR, SEO-optimized
+    ├── PublicationLayout/ ← Immersive reading, minimal chrome
+    ├── DashboardLayout/  ← SPA, sidebar navigation
+    └── AdminLayout/      ← Desktop-optimized, data-friendly
+```
 
 ### Customization Strategy
 
+**Four Interface Contexts, One Token System:**
+
+Each interface context shares the same design tokens but applies them with different visual intensity:
+
+| Context | Typography Emphasis | Spacing | Chrome Level | Color Intensity |
+|---|---|---|---|---|
+| **Public Portal** | Serif-dominant, editorial | Very generous | Minimal — content-first | Warm, muted — institutional authority |
+| **Publication Platform** | Serif for reading, sans for authoring tools | Generous for reading, compact for editor | Zero chrome during reading, tool-level for authoring | Rich, editorial — article headers and domain accents |
+| **Contributor Dashboard** | Mixed — narrative serif for evaluations, sans for interface | Breathing — 24px minimum between blocks | Moderate — sidebar nav + content area | Domain accents as identity, warm neutrals as base |
+| **Admin Dashboard** | Sans-dominant, data-readable | Compact but not cramped | Functional — tables, filters, but editorially designed | Neutral with semantic accents for status |
+
 **Domain Color System:**
 
-Each of the four contribution domains receives a distinct color that appears consistently across all interfaces — Activity Feed items, contribution menu tags, working group badges, profile domain indicators, and evaluation displays. These four colors are first-class design tokens, not afterthoughts:
+Four domain accents that provide identity without hierarchy. Each accent is derived from a warm, muted palette inspired by natural materials and multi-cultural design traditions:
 
-- **Technology & Development** — color TBD during visual design
-- **Fintech & Financial Engineering** — color TBD during visual design
-- **Impact & Sustainability** — color TBD during visual design
-- **Consciousness & Governance** — color TBD during visual design
+- **Technology** — Deep teal (evokes precision and depth, avoids "developer blue")
+- **Fintech** — Warm amber (evokes value and stability, avoids "money green")
+- **Impact** — Terra rose (evokes earth and warmth, avoids "charity/NGO blue")
+- **Governance** — Slate violet (evokes wisdom and structure, avoids "government grey")
 
-Domain colors must pass WCAG AA contrast requirements in all usage contexts.
+These accents are used for: domain badges, section headers, subtle background tints on domain-specific content, and the contributor profile domain indicator. They are never used for status or scoring.
 
-**Three Interface Context Themes:**
+**Responsive Strategy:**
 
-The design token system supports three visual contexts sharing a common foundation:
+- Article reading: fluid typography (clamp-based), optimal measure (60-75 characters per line), mobile-first
+- Contributor dashboard: responsive grid, sidebar collapses to bottom nav on mobile, cards stack vertically
+- Admin dashboard: desktop-first, horizontal scroll for wide tables on mobile, simplified views for monitoring
+- Authoring: desktop-first editor with mobile review capabilities
 
-- **Public portal:** More white space, larger typography, hero sections, editorial feel (The Economist inspiration). Optimized for first impression and credibility.
-- **Contributor dashboard:** Denser information display, functional typography, real-time elements, data-forward (Linear/Stripe inspiration). Optimized for the return visit and evaluation feedback loop.
-- **Admin dashboard:** Maximum information density, compact spacing, table-heavy layouts, efficiency-first (Stripe Dashboard inspiration). Optimized for operational speed.
-
-**Progressive Enhancement:**
-
-The design system starts lean for MVP and extends as the platform grows:
-
-- MVP: Core components for the seven must-have capabilities. ~20-25 components.
-- Phase 2: Extended components for governance workflow, advanced analytics, multi-integration views.
-- Phase 3: Components for DAO governance, portable reputation displays, cross-ecosystem views.
-
-## Defining Interaction
+## Defining Interactions
 
 ### The Defining Experience
 
-**"See how your contribution was truly understood."**
+**"See how your work was truly understood — and share that understanding with the world."**
 
-The moment a contributor opens their evaluation breakdown and sees that the AI understood the nature of their work — that a thorough code review was valued higher than a quick fix, that a financial model was assessed on its analytical rigor, that an impact framework was recognized for its governance implications — that's the moment Edin becomes irreplaceable.
+If someone asks an Edin contributor what makes the platform different, the answer is: *"It actually understands what you did."* And if they're also an author: *"And it helps you publish your thinking beautifully."*
 
-This is what a contributor would tell a respected peer: "There's a platform where an AI actually understands the quality of what you do — and rewards you for it."
+**The Defining Interaction — two forms of the same experience:**
 
-The Activity Feed creates belonging; the reward trajectory creates retention. But fair, transparent evaluation is the foundation on which both are built. Without trust in evaluation, belonging feels hollow and retention feels manipulative. This is Edin's intellectual moat.
+**Form 1: The Evaluation Reveal** — A contributor checks their latest evaluation. Instead of a score or a grade, they read a narrative — a paragraph that describes what the AI recognized about their work: the architectural decision that simplified complexity, the financial model that accounted for edge cases, the governance proposal that balanced competing interests. The contributor thinks: *"It understood the craft."* This is Edin's equivalent of Tinder's swipe — the moment that, if it works, creates an emotional hook that drives everything else.
+
+**Form 2: The Publication Moment** — An author sees their article live on the Publication Platform. The typography is elegant. Their name and their editor's name sit under the title like a byline in The Economist. The domain tag (Technology, Fintech, Impact, Governance) gives it context. The article looks like it belongs in a serious publication, because it does. The author thinks: *"My ideas look as good as they deserve."*
+
+Both forms produce the same emotional payload: **recognition of quality through visible understanding**.
 
 ### User Mental Model
 
-Each persona brings a fundamentally different mental model to the evaluation experience:
+**How contributors currently experience evaluation:**
 
-**Lena (Developer) — Code review quality model.**
+Contributors come from a world where work evaluation means one of two things: (1) automated metrics that measure quantity, not quality (lines of code, number of commits, story points closed), or (2) subjective human reviews that are inconsistent, delayed, and often political. Their mental model is: "evaluation = judgment, and judgment is usually crude or unfair."
 
-Her reference frame is a senior engineer reviewing her PR. She expects to see criteria she recognizes — complexity, maintainability, test coverage, standards adherence — applied with nuance she respects. A good evaluation distinguishes a deep refactor from a trivial rename. A bad evaluation treats all PRs as equal. She will mentally benchmark Edin's evaluation against tools she already knows (SonarQube, CodeClimate, a respected tech lead's review). To win her trust, the evaluation must demonstrate at least one insight she wouldn't have gotten from existing tools.
+Edin must break this model. The evaluation reveal should feel like receiving a thoughtful review from someone who genuinely read your work — not like checking a grade. The user's expectation shifts from "How did I score?" to "What did it see?"
 
-**Amir (Financial Engineer) — Academic peer review model.**
+**How authors currently experience publishing:**
 
-His reference frame is a journal referee or a senior quant reviewing a research paper. He expects domain-appropriate criteria: analytical rigor, methodology soundness, practical applicability, novelty of approach. If the evaluation applies code-centric metrics to his financial model ("test coverage: N/A"), it confirms his fear that this is just another developer platform with non-code contribution as an afterthought. The evaluation criteria must speak his language.
+Authors come from a world where professional publishing means either: (1) traditional editorial gatekeeping (journals, newspapers) with months-long processes and opaque decisions, or (2) self-publishing (Medium, blogs) with no editorial support and no quality signal. Their mental model is: "publishing = either gatekept or anarchic."
 
-**Sofia (Impact Analyst) — Impact assessment framework model.**
+Edin breaks this too. The Publication Platform offers structured editorial mentorship (the Editor role) without gatekeeping (any contributor can write). The author's expectation shifts from "Will they accept my piece?" to "How will the editor help me make it better?"
 
-Her reference frame is a multilateral development bank evaluating a project proposal. She expects recognition of systemic thinking, stakeholder analysis, long-term impact projection — not just deliverable completion. If her social impact assessment framework is scored solely on "document completeness," the evaluation has missed the point. She needs to see that strategic, systems-level thinking is a first-class evaluation dimension.
+**How readers currently experience contributor platforms:**
 
-**Yuki (Governance Specialist) — Legal audit model.**
+External readers (Henrik, potential contributors) expect contributor platforms to look like tech dashboards — GitHub profiles, StackOverflow stats, LinkedIn endorsements. Their mental model is: "contributor platform = metrics wall."
 
-Her reference frame is a legal review or governance audit. She expects full criteria visibility, version-tracked evaluation models, and a credible appeal path. She will look for the evaluation's equivalent of "showing your work" — not just the score, but the reasoning chain. If she can't audit the process, she won't trust the outcome. The appeal flow is not optional for Yuki — it's a trust prerequisite.
+Edin's public face — the Publication Platform and contributor profiles — should break this expectation by looking like a publication first and a platform second. The reader's reaction should be: "Wait, this is written *by* contributors?"
 
-**Daniel (New Contributor) — Grade/feedback model.**
+### Success Criteria
 
-His reference frame is getting a grade back from a respected teacher. He expects fairness, encouragement where warranted, and clear guidance on how to improve. His first evaluation defines whether he trusts the platform. If the first score feels arbitrary or unexplained, he may not submit a second contribution.
+**The Evaluation Reveal succeeds when:**
 
-**Common Mental Model Risks:**
+- The contributor reads the evaluation narrative *before* looking for a score — because the narrative is more interesting than the number
+- The evaluation references specific aspects of the work that feel accurate and insightful — not generic
+- The contributor shares the evaluation insight with a colleague or in their domain (not the score, the insight)
+- Reading the evaluation takes 30-60 seconds — long enough to feel substantive, short enough to feel effortless
+- The contributor feels motivated to contribute again, not because of the score, but because they were understood
 
-- Score without explanation → "black box" perception → trust collapse
-- Code-centric criteria applied to non-code work → domain inequality → non-developer churn
-- High-quantity contributor scoring above high-quality → broken thesis → Lena leaves
-- No recourse for disputed scores → powerlessness → Yuki leaves
-- First evaluation too harsh without context → discouragement → Daniel leaves
+**The Publication Moment succeeds when:**
 
-### Success Criteria for Core Experience
+- The author shares the article link externally (social media, professional network) with pride in how it looks
+- External readers cannot tell the article was written on a contributor platform — it looks like an independent publication
+- The editor's name alongside the author's feels like a mark of quality, not a co-authorship claim
+- The article page loads fast (<1.2s FCP) and looks beautiful on mobile — because articles are shared and read on phones
 
-The evaluation experience succeeds when:
+**The Daily Return succeeds when:**
 
-1. **Immediate comprehension** — A contributor sees their evaluation score and understands what it means within 3 seconds. The score display communicates quality level at a glance (not just a number, but a contextual indicator).
-
-2. **One-click understanding** — One click from the score reveals the full breakdown: which criteria were applied, how each dimension was scored, and what the main quality factors were. The breakdown answers "why this score?" without requiring further clicks.
-
-3. **Domain-appropriate criteria** — The evaluation criteria displayed match the contribution's domain. A code commit shows code quality dimensions. A financial analysis shows analytical rigor dimensions. An impact assessment shows strategic thinking dimensions. No contributor sees irrelevant criteria.
-
-4. **Quality over quantity signal** — A contributor who submitted one deep, high-quality contribution sees a higher score than a contributor who submitted three shallow ones. This must be visible in the scoring breakdown — not just implied, but explicitly communicated as a quality factor.
-
-5. **Improvement path visible** — The evaluation breakdown suggests where the contributor could strengthen their work. Not prescriptive ("you should have...") but informative ("the dimensions with most room for growth are..."). This transforms evaluation from judgment into feedback.
-
-6. **Trust verification available** — For contributors who want to go deeper (Yuki), the full evaluation criteria specification, model version, and AI-human agreement rate are accessible. Two more clicks, not buried in settings.
-
-7. **Appeal feels respected** — Flagging an evaluation for human review is a 2-click action visible from the evaluation breakdown. The contributor receives acknowledgment immediately and resolution within a defined timeframe. The flag is not buried or discouraged.
+- Contributors open Edin to browse, not to check — the Activity Feed and Publication stream feel like reading a curated publication, not clearing an inbox
+- Time spent correlates with content quality, not notification pressure — no "catch up" anxiety
+- Contributors discover others' work through the feed and feel inspired, not competitive
 
 ### Novel UX Patterns
 
-**What's Familiar (adopt directly):**
+**Novel — The Narrative Evaluation:**
 
-- **Score + breakdown pattern** — Universal across credit scores, academic grades, code analysis tools, performance reviews. Contributors immediately understand "I got a score, I can click to see why." No learning curve.
-- **Progressive disclosure** — Summary → detail → raw data. Well-established in GitHub (PR overview → diff → line comments), Stripe (transaction → receipt → event log), and every analytics dashboard. Users expect this drill-down flow.
-- **Notification + action** — "Your evaluation is ready → View" follows the same pattern as email notifications, GitHub review requests, and Slack messages. Familiar trigger for returning to the platform.
+This is Edin's most innovative interaction pattern. No existing platform presents AI-generated work evaluation as a readable narrative with progressive disclosure to supporting data. The closest analogues are:
 
-**What's Novel (requires careful design):**
+- Code review comments (GitHub) — but these are human-written and attached to specific lines, not holistic
+- Performance review narratives (corporate HR tools) — but these are periodic, not per-contribution
+- AI-generated summaries (ChatGPT, Notion AI) — but these are user-initiated, not systematic evaluations
 
-- **Multi-domain evaluation criteria** — No existing platform evaluates code, financial engineering, impact analysis, and governance proposals through the same system with domain-specific criteria. The UX must make this feel natural, not forced. Approach: the evaluation card adapts its criteria labels and dimensions to the contribution type. A code evaluation card looks different from a governance evaluation card — same structure, different vocabulary.
-- **AI evaluation with transparency** — Most AI-powered tools present results as black boxes. Edin's transparency requirement (show criteria, model version, agreement rate) is novel. Approach: treat the evaluation like a Stripe receipt — every line item visible, total at the top, full audit trail available.
-- **Evaluation appeal as trust mechanism** — Most platforms treat appeals as complaints. Edin must frame the flag/appeal flow as a collaborative quality signal: "Your feedback improves the evaluation system." Approach: when a contributor flags an evaluation, show it as contributing to evaluation quality, not disputing the system.
+**Edin's approach:** Each contribution receives an AI-generated evaluation that opens as a narrative paragraph (2-4 sentences describing what the AI recognized), followed by expandable detail sections (quality dimensions, comparison to contributor's trajectory, domain-specific criteria). The narrative is the primary interface; the data supports it through progressive disclosure.
 
-**Teaching Strategy:**
+**Teaching the pattern:** No explicit teaching needed. The narrative-first format leverages the universal mental model of "reading a review." Contributors will naturally read the narrative first because it's the most prominent element. The progressive disclosure (click to expand detailed scores) follows the familiar "summary → detail" pattern from news articles.
 
-Use the familiar score/breakdown pattern as the entry point. Contributors see something they immediately understand (a score, a breakdown, an improvement suggestion). As they engage more deeply, they discover Edin's novel layers: domain-specific criteria that speak their language, transparent AI methodology, an appeal flow that respects their judgment. The novelty emerges through use, not through instruction.
+**Adapted — The Editorial Workflow:**
+
+The Publication Platform's Author → Editor → Publish flow combines familiar patterns in an Edin-specific way:
+
+- **Familiar:** Block-based authoring (from Notion), inline comments for editorial feedback (from Google Docs), submission/review status tracking (from journal management systems)
+- **Novel combination:** The editor is a peer contributor (not a professional editor), matched by domain expertise. The 80/20 reward split makes editorial work a first-class contribution, not volunteer labor. The editorial feedback appears inline within the article draft alongside the AI's content evaluation — combining human editorial judgment with AI quality assessment.
+
+**Established — Everything Else:**
+
+The remaining interactions use proven patterns:
+
+- Sidebar navigation for dashboard (Stripe pattern)
+- Activity Feed as reverse-chronological stream (familiar social/professional pattern, but without engagement metrics)
+- Profile pages as professional portfolios (LinkedIn/portfolio pattern, but with editorial design quality)
+- Application flow as guided multi-step form (standard pattern, but with dignity-first UX copy)
+- Admin tables and filters (standard operational pattern, but with editorial design language)
 
 ### Experience Mechanics
 
-**1. Initiation — The evaluation arrives:**
+**1. The Evaluation Reveal — Step by Step:**
 
-- **Trigger:** Contribution is evaluated (within <30 min for code, <15 min for docs per NFR-P6)
-- **Notification:** "Your [contribution type] has been evaluated" — push notification + dashboard indicator
-- **Dashboard state:** The contributor's latest contributions panel shows a new evaluation badge on the relevant contribution card
-- **Activity Feed:** The evaluated contribution appears/updates on the Contribution Wall with its score visible
+**Initiation:**
 
-**2. Interaction — The contributor opens the evaluation:**
+- Trigger: A new evaluation is ready. A subtle indicator appears in the sidebar navigation (a warm-toned dot, not a badge count). The Activity Feed shows a new item: "Your contribution to [project] has been evaluated."
+- The contributor clicks through to the evaluation. No urgency signals — the evaluation waits patiently.
 
-- **First view (summary):** The evaluation card shows: contribution title, domain badge, overall score (0-100 with contextual quality indicator), evaluation date, and a one-line quality summary ("High-quality code review with thorough coverage analysis")
-- **One-click breakdown:** Expanding the evaluation reveals: individual dimension scores (3-5 dimensions per domain), quality factors that most influenced the score (what made this score what it is), comparison to the contributor's own historical average (trend), and improvement suggestions
-- **Deep dive (optional):** A "View full evaluation" link reveals: complete criteria specification for this contribution type, model version used, the contributor's score in context of the quality distribution, and link to flag/appeal
+**Interaction:**
 
-**3. Feedback — The contributor understands their score:**
+- The evaluation opens with a **Narrative Card** — a visually prominent block styled like an editorial pull quote. 2-4 sentences describing what the AI recognized. Serif typography, generous whitespace. This is the hero element of the page.
+- Below the narrative: **Quality Dimension Cards** — expandable accordion sections (Radix Accordion primitive) for each evaluation dimension (quality, complexity, domain impact, etc.). Each shows a one-line summary; expanding reveals the detailed breakdown. Scores appear as subtle progress indicators within the expanded view, never as headline numbers.
+- Side panel or below: **Trajectory Context** — a small organic visualization showing how this contribution fits into the contributor's overall trajectory. Growth curve style, not bar chart. "Your garden is growing" visual language.
 
-- **Positive reinforcement:** Quality factors are presented as strengths first: "Strong in: analytical rigor, methodology clarity. Room to grow: reference completeness"
-- **Trend line:** A small sparkline shows the contributor's evaluation trend over their last 10 contributions — growth is visible
-- **Contextual tooltip:** Hovering over any dimension score shows a brief explanation of what that dimension measures and what distinguishes high from low scores
-- **No ranking against others:** Evaluation is about personal quality and growth, not competition. No leaderboard, no percentile ranking
+**Feedback:**
 
-**4. Completion — The contributor knows what comes next:**
+- The narrative itself is the primary feedback — reading it should feel rewarding regardless of the specific score.
+- Quality dimensions use warm, descriptive labels ("Strong architectural clarity," "Growing domain fluency") rather than numerical grades.
+- If the evaluation identifies areas for growth, the language is encouraging and specific: "Your next contribution could explore [specific technique]" — not "Area for improvement: [metric]."
 
-- **Score feeds reward trajectory:** A subtle link connects the evaluation to the contributor's reward trajectory: "This evaluation contributes to your [weekly/monthly] reward cycle"
-- **Contribution Wall update:** The Activity Feed shows the evaluated contribution with its score, visible to the community — recognition is social
-- **Next action prompt:** If the contributor has been inactive, the evaluation card suggests: "Ready for your next contribution? View tasks in [your domain]"
-- **Appeal available:** "Something not right? Flag this evaluation" — visible but not prominent. Accessible without being anxious
+**Completion:**
 
-**5. Error / Edge Cases:**
+- The contributor can bookmark the evaluation, return to the dashboard, or navigate to their trajectory view. No prompt to "rate this evaluation" or "share your result."
+- The evaluation remains accessible on the contributor's profile under a "Reflections" or "Journey" section — framed as part of their growth narrative, not a scorecard history.
 
-- **Evaluation delayed beyond threshold:** Status indicator shows "Evaluation in progress — taking longer than usual. Typical: 20 min, current: 45 min. We'll notify you when ready."
-- **Evaluation fails (AI error):** "We couldn't complete the evaluation for this contribution. A human reviewer has been notified. You'll receive feedback within [timeframe]."
-- **Score disputed (flagged):** "Thank you for flagging this evaluation. A human reviewer will examine your contribution. You'll receive an updated evaluation within [timeframe]. Your feedback helps improve our evaluation quality."
+**2. The Publication Flow — Step by Step:**
+
+**Initiation:**
+
+- From the Contributor Dashboard: a "Write" action in the sidebar (not a button labeled "Create Article" — the verb is the invitation). Clicking opens the Publication authoring environment.
+- The authoring environment is a clean, distraction-free block editor. No sidebar, no toolbar clutter. A blinking cursor on a beautiful blank page with the contributor's name pre-filled as author.
+
+**Interaction — Writing:**
+
+- Block-based editor with slash commands for structure (heading, quote, code block, image, data visualization embed). Familiar Notion-like interaction.
+- Domain tag selection: a single dropdown at the top (Technology, Fintech, Impact, Governance) that subtly tints the editing environment with the domain's accent color — a gentle reminder of editorial context.
+- Auto-save with a quiet "Saved" indicator. No manual save button. No anxiety about losing work.
+
+**Interaction — Editorial:**
+
+- When the author submits the draft, the system matches an Editor by domain expertise. The author sees: "Your article has been assigned to [Editor Name]" with the editor's profile photo and a brief bio. The editor feels like a person, not a process.
+- Editorial feedback appears as inline annotations within the draft — highlighted passages with the editor's comments in a side panel (on desktop) or expandable below the highlight (on mobile). The feedback reads as collaborative suggestions, not corrections.
+- The author revises in the same editor, with editor feedback visible alongside. A "Ready for review" action sends the revision back to the editor.
+
+**Interaction — Publication:**
+
+- When the editor approves, the author sees a preview of their article as it will appear on the Publication Platform — full editorial layout, serif typography, domain accent, author and editor bylines. This preview is the "Publication Moment."
+- A "Publish" action makes the article live. The transition from draft to published is marked by a subtle visual change (the preview becomes the live page), not by a celebration animation.
+
+**Feedback:**
+
+- After publication, the author's dashboard shows a quiet notification: "Your article is now live on the Publication Platform." A link takes them to the published page.
+- Publication metrics (reads, time on page) become available after 48 hours — deliberately delayed to prevent refresh-checking anxiety. Metrics are presented as editorial analytics ("Your article reached 342 readers, with an average reading time of 6 minutes") not as engagement scores.
+
+**Completion:**
+
+- The article lives permanently on the Publication Platform and on the author's profile. It becomes part of the author's contribution portfolio alongside their evaluated technical work.
+- The editor's profile also credits the article — visible editorial identity, as designed.
 
 ## Visual Design Foundation
 
 ### Color System
 
-**Brand Palette:**
+**Philosophy:** Edin's color palette draws from the natural world — earth, stone, water, foliage — reflecting the "fertile plain" etymology and the multi-cultural, organic design language. Colors should feel like they were extracted from a beautifully photographed landscape or a well-printed publication, not from a digital color picker. Every color should look good on paper.
 
-- **Primary: Deep Emerald** (~#2D6A4F) — Connects to the Edin garden/fertile plain metaphor. Communicates maturity, sustainability, and care. Distinct from crypto blue/purple and generic SaaS teal. Used for primary CTAs, active states, brand accents, and key interactive elements.
-- **Neutral scale: Warm grays** (stone/warm-gray family) — Organic, not clinical. Used for backgrounds, text, borders, and surface hierarchy. Warm neutrals support the "cultivated, not industrial" identity.
-- **Background: Off-white** (~#FAFAF8) — Slightly warm, not pure white. Communicates warmth and substance. Public portal uses generously; dashboards use for breathing room between dense content.
+**Brand Palette — Core Colors:**
 
-**Semantic Colors:**
-
-| Token | Color | Usage |
-|---|---|---|
-| `success` | Green (brand family) | Positive states, completed evaluations, successful ingestion |
-| `warning` | Warm amber (~#D97706) | Attention states, pending reviews, approaching thresholds |
-| `error` | Muted red (~#DC2626) | Error states, failed ingestion, evaluation failures |
-| `info` | Slate blue (~#4B6BFB) | Informational states, tips, system messages |
-
-**Domain Colors (equal visual weight, WCAG AA compliant):**
-
-| Domain | Color | Hex Range | Rationale |
+| Token | Hex | Usage | Rationale |
 |---|---|---|---|
-| **Technology & Development** | Slate Blue | ~#4B6BFB | Familiar tech association, precision, clarity |
-| **Fintech & Financial Engineering** | Warm Amber/Gold | ~#D97706 | Financial heritage, mathematical elegance |
-| **Impact & Sustainability** | Teal | ~#0D9488 | Growth and sustainability, distinct from brand emerald |
-| **Consciousness & Governance** | Deep Violet | ~#7C3AED | Authority, governance tradition, contemplative depth |
+| `brand.primary` | `#2D3B45` | Primary text, headings, navigation | Deep charcoal with blue undertone — authoritative without being harsh. Inspired by printing ink. |
+| `brand.secondary` | `#6B7B8D` | Secondary text, captions, metadata | Muted steel — readable, recedes behind primary content |
+| `brand.accent` | `#C4956A` | Brand accent, CTAs, key highlights | Warm terracotta/golden clay — the "Edin warmth." Evokes earth, clay tablets (Sumerian reference), and organic material. Calming yet distinctive. |
+| `brand.accent-subtle` | `#E8D5C0` | Accent backgrounds, hover states | Diluted terracotta — a warm parchment tone for subtle emphasis |
 
-Domain colors appear on: Activity Feed item borders/accents, contribution menu tags, working group badges, profile domain indicators, evaluation card domain labels, and metric displays. All four colors must have equivalent saturation and visual weight — none should appear primary or secondary relative to others.
+**Surface Palette — Backgrounds & Containers:**
 
-**Color Usage Rules:**
+| Token | Hex | Usage | Rationale |
+|---|---|---|---|
+| `surface.base` | `#FAFAF7` | Page background | Warm off-white — never pure white (#FFF), which feels clinical. The warmth of good paper. |
+| `surface.raised` | `#FFFFFF` | Cards, modals, elevated content | True white used only for raised elements, creating subtle depth against warm base |
+| `surface.sunken` | `#F2F0EB` | Inset areas, code blocks, metadata sections | Warm light grey — gently recessed without feeling dark |
+| `surface.overlay` | `rgba(45,59,69,0.6)` | Modal overlays, focus traps | Semi-transparent primary — maintains warm tone even in overlays |
 
-- Primary emerald is reserved for brand-level elements and interactive states, never for a single domain
-- Domain colors are structural — they identify contribution origin, not quality or hierarchy
-- Semantic colors override domain colors in status contexts (an error on a Technology contribution shows red, not blue)
-- Dark text on light backgrounds as the default. Reversed (light on dark) only for primary CTAs and selected states
-- All color combinations must meet WCAG 2.1 AA contrast ratios (4.5:1 for normal text, 3:1 for large text)
+**Domain Accent Palette:**
+
+| Token | Hex | Usage | Rationale |
+|---|---|---|---|
+| `domain.technology` | `#3A7D7E` | Technology domain badge, section accents | Deep teal — precision and depth without "developer blue" |
+| `domain.fintech` | `#C49A3C` | Fintech domain badge, section accents | Warm amber/gold — value and stability without "money green" |
+| `domain.impact` | `#B06B6B` | Impact domain badge, section accents | Terra rose — earth and warmth without "charity blue" |
+| `domain.governance` | `#7B6B8A` | Governance domain badge, section accents | Slate violet — wisdom and structure without "government grey" |
+
+These four accents are deliberately close in saturation and brightness — no domain visually dominates. They are used for: domain badges, section header underlines, subtle background tints on domain-specific content cards, and contributor profile domain indicators.
+
+**Semantic Palette:**
+
+| Token | Hex | Usage | Rationale |
+|---|---|---|---|
+| `semantic.success` | `#5A8A6B` | Positive states, completed status | Muted sage green — calm affirmation, not celebratory neon |
+| `semantic.warning` | `#C49A3C` | Caution states, pending review | Shares amber with fintech domain — warm alert, never alarming |
+| `semantic.info` | `#5A7A8A` | Informational states, tips | Cool slate blue — neutral information tone |
+| `semantic.error` | `#A85A5A` | Error states, critical alerts | Muted brick red — serious but not aggressive. Used sparingly. |
+
+**Critical constraint:** Red/green are never used for scoring or evaluation. No traffic-light metaphors. Evaluation quality is communicated through narrative language and warm descriptive labels, not color-coded indicators.
+
+**Dark Mode Consideration:** Not in MVP scope. The warm, paper-like palette is Edin's identity. If dark mode is added in future phases, it should feel like reading under warm lamplight, not like a developer IDE.
 
 ### Typography System
 
-**Typeface Strategy:**
+**Philosophy:** Edin uses a dual-typeface system that distinguishes editorial content from interface elements. This is the most powerful visual signal that Edin is a publication platform, not a dashboard tool. The typography should make every page feel editorially composed.
 
-- **Headings (public portal): Serif** — Newsreader, Lora, or Source Serif Pro (open-source, web-optimized). The serif communicates editorial authority and intellectual substance on public-facing pages. Aligns with The Economist inspiration and "calm authority" emotional principle.
-- **Body / Dashboard UI: Inter** — The most refined open-source sans-serif for screen rendering. Designed for UI at all sizes, excellent legibility at small sizes for data-dense displays. Used throughout contributor and admin dashboards, and for body text everywhere. Aligns with Linear/Stripe/GitHub inspiration.
-- **Monospace: JetBrains Mono** or Fira Code — For code snippets in evaluation breakdowns, contribution references, technical metadata, and any developer-facing content.
+**Typeface Pairing:**
+
+| Role | Typeface | Style | Rationale |
+|---|---|---|---|
+| **Editorial** (serif) | **Libre Baskerville** or **Source Serif Pro** | Used for: article body text, evaluation narratives, contributor profile bios, pull quotes, section headings in editorial contexts | Classic transitional serif with excellent screen readability. Evokes publication authority (The Economist, Aeon) without feeling dated. Open-source, excellent language support for multi-cultural content. |
+| **Interface** (sans-serif) | **Inter** or **Source Sans Pro** | Used for: navigation, buttons, labels, form elements, metadata, dashboard data, admin interface | Highly legible sans-serif designed for screens. Neutral enough to recede behind editorial content. Wide language support. |
+| **Code** (monospace) | **JetBrains Mono** or **Source Code Pro** | Used for: code blocks within articles, technical evaluation details, API references — NEVER in shared interface spaces | Clean monospace for technical contexts only. Used exclusively within code blocks and technology-domain-specific content, never as general UI typography. |
 
 **Type Scale:**
 
-| Level | Size | Weight | Typeface | Usage |
+| Token | Size | Line Height | Weight | Usage |
 |---|---|---|---|---|
-| Display | 36-48px | Serif, semibold | Heading font | Public portal hero headings, landing page |
-| H1 | 30px | Serif, semibold | Heading font | Page titles (public), major section headers |
-| H2 | 24px | Sans-serif, semibold | Inter | Section headers (dashboard), card group titles |
-| H3 | 20px | Sans-serif, medium | Inter | Subsection headers, modal titles, card titles |
-| H4 | 16px | Sans-serif, semibold | Inter | Card subtitles, table headers, form labels |
-| Body | 16px | Sans-serif, regular | Inter | Standard text, descriptions, form content |
-| Body small | 14px | Sans-serif, regular | Inter | Secondary text, metadata, timestamps, tooltips |
-| Caption | 12px | Sans-serif, medium | Inter | Labels, badges, status indicators, table metadata |
+| `text.display` | 2.5rem (40px) | 1.2 | 700 serif | Article titles, hero headings |
+| `text.h1` | 2rem (32px) | 1.25 | 700 serif | Section headings, page titles |
+| `text.h2` | 1.5rem (24px) | 1.3 | 600 serif | Subsection headings |
+| `text.h3` | 1.25rem (20px) | 1.4 | 600 sans | Card titles, group labels |
+| `text.body` | 1.0625rem (17px) | 1.65 | 400 serif | Article body text, evaluation narratives |
+| `text.body-interface` | 0.9375rem (15px) | 1.5 | 400 sans | Dashboard content, descriptions |
+| `text.small` | 0.8125rem (13px) | 1.5 | 400 sans | Metadata, timestamps, captions |
+| `text.micro` | 0.75rem (12px) | 1.4 | 500 sans | Labels, badges, overlines |
 
-**Typography Rules:**
+**Key decisions:**
 
-- Line height: 1.5 for body text, 1.25 for headings, 1.6 for long-form content (public portal articles, manifestos)
-- Maximum line length: 65-75 characters for readability on public pages. Dashboard text fills available width.
-- Font weight hierarchy: semibold for headings and emphasis, medium for interactive labels, regular for body. No bold in body text — use semibold sparingly for inline emphasis.
-- Serif headings used only on public-facing pages. Contributor and admin dashboards use Inter throughout for density and consistency.
+- Article body text at 17px with 1.65 line-height — optimized for long-form reading. This is larger than typical web body text (16px) because reading comfort is a design priority.
+- Optimal measure: 60-75 characters per line for editorial content. Achieved through `max-width` on article content containers, not by stretching text across the viewport.
+- Headings in editorial contexts (articles, evaluations, profiles) use serif; headings in interface contexts (dashboard, admin, navigation) use sans-serif. This dual treatment is the primary visual signal distinguishing "content" from "chrome."
 
 ### Spacing & Layout Foundation
 
-**Base Unit:** 4px (Tailwind default spacing scale)
+**Philosophy:** "The page breathes." Spacing in Edin is deliberately generous — every element has room to exist. The spacing system enforces the calm, unhurried visual rhythm that prevents dashboard anxiety. Dense information is managed through progressive disclosure, not through compact spacing.
 
-**Practical Spacing Scale:**
+**Spacing Scale (8px base unit):**
 
 | Token | Value | Usage |
 |---|---|---|
-| `xs` | 4px | Inline spacing, icon gaps, tight label padding |
-| `sm` | 8px | Minimum spacing between related elements, compact padding |
-| `md` | 16px | Standard padding, card internal spacing, form field gaps |
-| `lg` | 24px | Section spacing, card gaps (public), generous padding |
-| `xl` | 32px | Major section breaks, public portal margins |
-| `2xl` | 48px | Page-level spacing, hero section padding |
-| `3xl` | 64px | Public portal section separators |
+| `space.xs` | 4px | Inline spacing, icon gaps |
+| `space.sm` | 8px | Tight element grouping (label to input) |
+| `space.md` | 16px | Standard element spacing within cards |
+| `space.lg` | 24px | Between content blocks (minimum for editorial content) |
+| `space.xl` | 32px | Between content sections |
+| `space.2xl` | 48px | Between major sections, page section breaks |
+| `space.3xl` | 64px | Hero spacing, major visual breaks |
+| `space.4xl` | 96px | Page-level breathing room (top/bottom margins) |
 
-**Context-Specific Density:**
+**Critical rule:** Editorial content (articles, evaluations, profiles) uses `space.lg` (24px) as the *minimum* gap between content blocks. Interface content (dashboard cards, admin tables) can use `space.md` (16px). No content anywhere uses less than `space.md` between blocks.
 
-| Context | Card Padding | Card Gap | Section Gap | Max Content Width |
-|---|---|---|---|---|
-| **Public portal** | 24-32px | 24-32px | 48-64px | 1200px |
-| **Contributor dashboard** | 16-20px | 16px | 24-32px | Full width (minus sidebar) |
-| **Admin dashboard** | 12-16px | 12px | 16-24px | Full width (minus sidebar) |
+**Layout Grid:**
 
-**Grid System:**
+| Context | Grid | Max Width | Margins |
+|---|---|---|---|
+| **Article reading** | Single column, centered | 720px (optimal measure) | Auto margins, `space.2xl` padding on mobile |
+| **Public portal** | 12-column responsive | 1200px | `space.xl` gutters |
+| **Contributor dashboard** | Sidebar (240px) + content area | 1440px | Sidebar fixed, content area responsive with `space.lg` gutters |
+| **Admin dashboard** | Sidebar (240px) + content area | 1600px | Same structure as contributor, wider for data tables |
+| **Authoring editor** | Single column, centered | 800px | Generous side margins for inline editorial feedback panel |
 
-- **Public portal:** 12-column grid, max-width 1200px, 32px gutters. Content centered. Editorial layout with generous margins.
-- **Contributor dashboard:** Fixed sidebar (240-280px, collapsible) + main content area with fluid 12-column grid. Sidebar contains navigation, domain filter, and quick actions.
-- **Admin dashboard:** Collapsible sidebar (240px collapsed to 64px icon-only) + full-width content area optimized for data tables, metric grids, and queue management.
-- **Mobile (< 768px):** Single column layout. Bottom tab navigation for contributor dashboard (Home/Feed, Tasks, Evaluations, Profile). Sidebar hidden. Admin dashboard not optimized for mobile (desktop-only per design decision).
+**Card & Container Styling:**
 
-**Layout Principles:**
+| Element | Border Radius | Shadow | Border |
+|---|---|---|---|
+| Content cards | `12px` (organic) | `0 1px 3px rgba(0,0,0,0.06)` | `1px solid #E8E6E1` (warm border) |
+| Narrative cards (evaluations) | `16px` (extra organic) | `0 2px 8px rgba(0,0,0,0.04)` | None — distinguished by warm background tint |
+| Buttons (primary) | `8px` | None | None — solid background |
+| Buttons (secondary) | `8px` | None | `1px solid #C4956A` (accent border) |
+| Input fields | `8px` | None | `1px solid #D8D4CE` — warms to accent on focus |
+| Modal dialogs | `16px` | `0 8px 32px rgba(0,0,0,0.12)` | None |
 
-1. **Hierarchy through whitespace.** Separation between sections uses spacing, not borders or dividers. Less visual noise, more deliberate structure. Borders reserved for interactive elements (cards, inputs, tables) where containment is functional.
-2. **Cards as primary containers.** Contribution cards, evaluation cards, metric cards, profile cards — all use the same base card component styled to context-appropriate density. Consistent elevation (subtle shadow), consistent corner radius (8px), consistent internal structure.
-3. **Sidebar navigation for authenticated contexts.** Left sidebar with icon + label navigation. Collapsible to icon-only for more content space. Active state uses primary emerald. Sections: Dashboard, Activity Feed, Tasks, Evaluations, Working Groups, Profile (contributor) or Dashboard, Admissions, Contributors, Feedback, Metrics, Settings (admin).
-4. **Top navigation for public portal.** Horizontal navigation with logo, section links (About, Domains, Contributors, Metrics, Apply), and auth action (Sign In / Dashboard). Sticky on scroll. Transparent over hero, solid on scroll.
+**Motion & Animation:**
+
+- Transitions: 200ms ease-out for color/opacity changes, 300ms ease-out for layout shifts
+- No decorative animation. Motion is used exclusively to communicate state changes (accordion open/close, card expand/collapse, navigation transitions)
+- Page transitions: subtle fade (150ms) between route changes, no sliding or bouncing
+- Loading states: gentle pulsing opacity on skeleton elements (not spinning loaders)
+- Scroll behavior: smooth scroll for anchor links, no parallax effects
 
 ### Accessibility Considerations
 
-**Color Accessibility:**
+**Color Contrast:**
 
-- All text/background combinations meet WCAG 2.1 AA minimum contrast ratios: 4.5:1 for normal text (< 18px), 3:1 for large text (>= 18px bold or >= 24px regular)
-- Domain colors are never used as the sole indicator — always paired with text labels or icons (color should not be the only means of conveying information)
-- Interactive elements (links, buttons) have visible focus indicators using the primary emerald with a 2px offset outline
-- Data visualizations use patterns/shapes in addition to color for accessibility (evaluation score charts, reward trajectory)
+- All text meets WCAG 2.1 AA standards minimum (4.5:1 for body text, 3:1 for large text)
+- `brand.primary` (#2D3B45) on `surface.base` (#FAFAF7) achieves 10.2:1 contrast ratio — well above AA
+- `brand.secondary` (#6B7B8D) on `surface.base` achieves 4.7:1 — meets AA for body text
+- Domain accent colors are never used as text on light backgrounds without meeting 4.5:1 — they are used for badges, borders, and background tints where the text remains in `brand.primary`
+- Semantic colors include both color and icon/label indicators — no information conveyed by color alone
 
 **Typography Accessibility:**
 
-- Minimum body text size: 16px (no text smaller than 12px anywhere in the interface)
-- Sufficient line height (1.5 for body) prevents text from feeling cramped for users with cognitive disabilities
-- Font choices (Inter, serif heading) are designed for screen readability at all sizes
-- No text embedded in images — all text is live HTML for screen reader access
+- Minimum body text size: 15px (interface), 17px (editorial) — both above the 14px minimum recommended for web readability
+- Line heights of 1.5-1.65 exceed the WCAG recommendation of 1.5 for body text
+- Paragraph spacing (24px minimum) exceeds the WCAG recommendation of 1.5x font size
+- Font choices prioritize high x-height and open letterforms for readability
 
 **Interaction Accessibility:**
 
-- All interactive elements have minimum 44x44px touch targets on mobile (per WCAG 2.5.5)
-- Keyboard focus order follows visual layout order — no focus traps
-- Skip navigation links for keyboard users on all pages
-- Reduced motion preference respected: `prefers-reduced-motion` media query disables all non-essential animations
+- All interactive elements have visible focus indicators (2px `brand.accent` outline with 2px offset)
+- Minimum touch target size: 44x44px (WCAG 2.1 AAA)
+- Keyboard navigation fully supported through Radix UI primitives
+- Screen reader announcements for dynamic content (evaluation loading, editorial feedback, status changes)
+- Reduced motion preference respected: `prefers-reduced-motion` disables all transitions and animations
+
+**Multi-Cultural Accessibility:**
+
+- Typefaces chosen for broad Unicode support (Latin, Cyrillic, Arabic, CJK character sets)
+- Right-to-left (RTL) layout support designed into the spacing and grid system
+- Color meanings avoid culturally specific associations (no red = danger universals assumed)
+- Iconography uses universal symbols where possible, avoids culturally narrow metaphors
+
+## Design Direction Decision
+
+### Design Directions Explored
+
+Eight design directions were generated, each showing a complete screen from one of Edin's four interface contexts. Together they demonstrate the unified design system across the full product surface:
+
+| Direction | Screen | Interface Context | Key Design Decisions Demonstrated |
+|---|---|---|---|
+| 1. The Publication Moment | Article reading page | Publication Platform | Serif typography, author/editor bylines, pull quotes, immersive reading with zero platform chrome, domain tag |
+| 2. The Evaluation Reveal | AI evaluation breakdown | Contributor Dashboard | Narrative card as hero element, progressive disclosure accordion for quality dimensions, organic trajectory visualization |
+| 3. Contributor Dashboard | Home/overview | Contributor Dashboard | Dark sidebar navigation, evaluation summary cards, chronological activity feed with domain-colored avatars, notification dot (not badge count) |
+| 4. Authoring Experience | Block editor | Publication Platform (authoring) | Distraction-free writing, slash command menu, domain accent tint, auto-save status, submit-for-review flow |
+| 5. Public Portal | Landing page | Public Portal | Institutional hero, community statistics, featured articles grid with domain tags, "Where Expertise Becomes Publication" positioning |
+| 6. Editorial Feedback | Article in review | Publication Platform (editorial) | Inline text highlighting with editor annotations, side panel comments, article status progression bar |
+| 7. Contributor Profile | Profile page | Contributor Dashboard / Public | Journey timeline with evaluation excerpts and publications interspersed, domain indicator, professional bio in serif |
+| 8. 72-Hour Ignition | Onboarding | Contributor Dashboard | Step indicator (not wizard), buddy assignment, meaningful first task, "no rush" pacing |
+
+### Chosen Direction
+
+**All eight directions represent a single unified design direction** — "Calm Confidence" — rather than competing visual approaches. The showcase demonstrates that the design system defined in Steps 6-8 produces a coherent visual language across all interface contexts. The direction is:
+
+**Editorial-First Calm Confidence** — A publication-quality design language where every screen is composed with the care of a magazine layout. Serif typography for editorial content, sans-serif for interface chrome, warm terracotta accent, organic visual metaphors, and generous breathing whitespace. The four domain accents (teal, amber, rose, violet) provide identity without hierarchy.
+
+### Design Rationale
+
+- **Typography-forward design** works across all contexts — article pages feel like The Economist, evaluation narratives feel like thoughtful reviews, contributor profiles feel like author biographies, and even the admin dashboard inherits editorial composure.
+- **The warm, paper-like color palette** (`#FAFAF7` base, `#C4956A` accent) creates the "calming, not nervous" emotional register the founder specified, while the muted domain accents maintain multi-domain equality.
+- **Progressive disclosure** (narrative card → expandable dimensions, summary cards → detail views) is the primary mechanism for achieving calm clarity with complex information.
+- **The dark sidebar** in the contributor dashboard creates a clear boundary between navigation chrome and content area, reinforcing the "content is the experience" principle while maintaining the brand presence.
+- **Zero-chrome reading mode** for articles and evaluations puts content first, borrowing from Aeon and The Economist's immersive reading tunnel.
+
+### Implementation Approach
+
+The HTML showcase (`ux-design-directions.html`) serves as a living reference for implementation:
+
+- All CSS custom properties map directly to the Tailwind design token configuration defined in the Visual Design Foundation
+- Component patterns (Narrative Card, Dimension Card, Activity Feed Item, Article Card, Editorial Comment, Profile Journey Item) map to the Edin Component Library architecture from the Design System Foundation
+- Interactive behaviors (scroll-based navigation highlight, dimension card click, editorial highlight selection, trajectory bar animation) demonstrate the motion principles: 200ms ease-out, no decorative animation
+- Responsive breakpoints at 900px (sidebar collapse, grid adaptation) and 600px (single column, stacked stats) demonstrate the mobile strategy
+
+## User Journey Flows
+
+### Journey 1: Daniel's Discovery to First Contribution (72-Hour Ignition)
+
+**Entry:** Daniel discovers Edin through a published article or community mention. Lands on the Public Portal.
+
+**Flow goal:** From anonymous visitor to completed first contribution within 72 hours.
+
+```mermaid
+flowchart TD
+    A[Lands on Public Portal] --> B{Reads articles / explores}
+    B --> C[Clicks 'Apply']
+    C --> D[Application Form - Profile + Domain + Micro-Task]
+    D --> E[Submission Confirmation - 'We'll review within 48h']
+    E --> F{Admin Review}
+    F -->|Accepted| G[Welcome Email + Dashboard Access]
+    F -->|Needs Info| H[Clarification Request]
+    H --> D
+    F -->|Declined| I[Graceful Decline with Reason]
+    G --> J[First Login - 72-Hour Ignition Begins]
+    J --> K[Buddy Assigned - Shown with photo + bio]
+    K --> L[Suggested First Task Presented]
+    L --> M[Works in Familiar Tools - GitHub/Docs]
+    M --> N[Edin Ingests Contribution Automatically]
+    N --> O[Evaluation Processing - 'Your work is being reviewed']
+    O --> P[First Evaluation Reveal]
+    P --> Q[Contribution Appears on Activity Feed]
+    Q --> R[72-Hour Ignition Complete]
+```
+
+**Key UX decisions:**
+
+- Application micro-task demonstrates competence without being a test — it's a small, real contribution
+- Buddy assignment shown immediately with a human face and bio, not a system notification
+- First task is pre-scoped to be achievable in hours, not days
+- Contribution ingestion is automatic — Daniel never "submits to Edin"
+- The Activity Feed appearance alongside senior contributors creates the "I belong here" moment
+
+### Journey 2: Lena's Contribution to Evaluation Reveal
+
+**Entry:** Lena pushes code to GitHub as part of her normal workflow. Edin ingests automatically.
+
+**Flow goal:** From contribution to reading a meaningful evaluation narrative.
+
+```mermaid
+flowchart TD
+    A[Lena pushes code to GitHub] --> B[Integration Layer detects changes]
+    B --> C[Contribution ingested + parsed]
+    C --> D[AI Evaluation Engine processes]
+    D --> E[Subtle notification dot on sidebar]
+    E --> F[Lena opens Evaluations]
+    F --> G[Narrative Card - 2-4 sentence summary]
+    G --> H{Wants more detail?}
+    H -->|Yes| I[Expands Quality Dimension Cards]
+    I --> J[Views detailed breakdown per dimension]
+    J --> K{Views trajectory?}
+    K -->|Yes| L[Organic growth curve visualization]
+    H -->|No| M[Returns to dashboard - satisfied]
+    K -->|No| M
+    L --> M
+```
+
+**Key UX decisions:**
+
+- Zero workflow disruption — Lena never leaves GitHub to contribute
+- Notification is a warm dot, not a badge count — no urgency
+- Narrative card is the hero element — she reads the insight before any score
+- Progressive disclosure: narrative → dimension cards → detailed breakdown → trajectory
+- No prompt to rate or share the evaluation — the experience stands on its own
+
+### Journey 3: Clara's Article from Draft to Publication
+
+**Entry:** Clara clicks "Write" in the sidebar navigation.
+
+**Flow goal:** From idea to beautifully published article with editorial support.
+
+```mermaid
+flowchart TD
+    A[Clicks 'Write' in sidebar] --> B[Clean editor opens - cursor blinking]
+    B --> C[Selects domain tag - subtle accent tint]
+    C --> D[Writes draft using block editor + slash commands]
+    D --> E[Auto-saves continuously]
+    E --> F[Clicks 'Submit for Review']
+    F --> G[Editor matched by domain expertise]
+    G --> H[Author sees: 'Assigned to Marcus' + bio]
+    H --> I[Marcus reads draft]
+    I --> J[Inline editorial annotations appear]
+    J --> K[Clara reads feedback in context]
+    K --> L[Clara revises in same editor]
+    L --> M[Clicks 'Ready for Review']
+    M --> N{Marcus reviews revision}
+    N -->|Needs more work| J
+    N -->|Approved| O[Publication preview shown]
+    O --> P[Clara clicks 'Publish']
+    P --> Q[Article live on Publication Platform]
+    Q --> R[Dashboard notification: 'Your article is live']
+    R --> S[Metrics available after 48h]
+```
+
+**Key UX decisions:**
+
+- "Write" is a verb, not "Create Article" — the invitation is to think, not to fill a form
+- Domain tag tints the editor subtly — ambient awareness of editorial context
+- Editor assignment feels human — photo, bio, domain expertise shown
+- Inline annotations keep feedback in context (not a separate panel on mobile)
+- Publication preview is the "Publication Moment" — first sight of the beautiful layout
+- Metrics delayed 48 hours to prevent refresh-checking anxiety
+
+### Journey 4: Marcus's Editorial Workflow
+
+**Entry:** Marcus receives notification that an article has been assigned to him.
+
+**Flow goal:** Shape a contributor's draft into publication-quality content through structured feedback.
+
+```mermaid
+flowchart TD
+    A[Notification: new article assigned] --> B[Opens editorial view]
+    B --> C[Reads full draft]
+    C --> D[Highlights passages + adds inline comments]
+    D --> E[Adds overall editorial note]
+    E --> F[Clicks 'Send Feedback']
+    F --> G[Author notified - revision requested]
+    G --> H[Author revises]
+    H --> I[Marcus reviews revision]
+    I --> J{Quality sufficient?}
+    J -->|Yes| K[Clicks 'Approve for Publication']
+    J -->|No| D
+    K --> L[Editor credit shown on published article]
+    L --> M[20% reward allocated to Marcus]
+```
+
+**Key UX decisions:**
+
+- Editorial view shows article with annotation tools — feels like a professional editing environment
+- Inline highlighting + side comments pattern (from Google Docs), not a separate feedback form
+- The editorial arc (draft → feedback → revision → approval) is visible as a status progression
+- Editor credit is prominently displayed alongside author on published article
+- Reward allocation is automatic and visible — editorial work is valued
+
+### Journey 5: Amir's Non-Code Contribution
+
+**Entry:** Amir uploads a financial analysis document through the Web Portal.
+
+**Flow goal:** Contribute a Fintech domain analysis and receive AI evaluation with equal visual dignity to code contributions.
+
+```mermaid
+flowchart TD
+    A[Amir opens Dashboard] --> B[Navigates to Contributions]
+    B --> C[Uploads document via Web Portal interface]
+    C --> D[Document parsed + domain classified]
+    D --> E[AI Evaluation processes - same engine as code]
+    E --> F[Notification: Evaluation ready]
+    F --> G[Narrative Card with Fintech domain accent]
+    G --> H[Evaluation uses financial domain vocabulary]
+    H --> I[Quality dimensions: analytical rigor, market insight, data quality]
+    I --> J[Appears on Activity Feed with Fintech domain color]
+    J --> K[Equal visual weight to Lena's code contribution above]
+```
+
+**Key UX decisions:**
+
+- Document upload is a first-class contribution path — not buried under "other"
+- AI evaluation uses domain-specific vocabulary (not code-centric language)
+- Fintech amber accent gives domain identity on the evaluation card
+- Activity Feed displays Amir's contribution with identical visual weight to code contributions
+- Quality dimensions are domain-appropriate: analytical rigor, not code quality
+
+### Journey 6: Henrik's Investor Due Diligence
+
+**Entry:** Henrik receives a link to Edin's Public Portal from a Rose ecosystem contact.
+
+**Flow goal:** Assess Edin's community health and traction quality without authentication.
+
+```mermaid
+flowchart TD
+    A[Lands on Public Portal] --> B[Sees institutional hero + community stats]
+    B --> C{Explores}
+    C -->|Publication| D[Reads featured articles]
+    C -->|Contributors| E[Browses contributor profiles]
+    C -->|About| F[Reads platform methodology]
+    D --> G[Sees article quality + author/editor credits]
+    E --> H[Sees professional profiles + domain expertise]
+    F --> I[Understands AI evaluation + reward model]
+    G --> J[Impression: 'This community produces real intellectual output']
+    H --> J
+    I --> J
+    J --> K[Leaves with confidence in community quality]
+```
+
+**Key UX decisions:**
+
+- Public Portal has zero authentication requirement — Henrik sees everything through SSR pages
+- Published articles are the primary evidence of community quality — not vanity metrics
+- Contributor profiles look like professional portfolios, not social media cards
+- Community stats are presented with institutional authority (serif typography, restrained design)
+- No "Sign up!" CTAs interrupting the investor experience — the content builds credibility silently
+
+### Journey Patterns
+
+**Common patterns extracted across all journeys:**
+
+**Progressive Disclosure Pattern:**
+Used in: Evaluation Reveal (narrative → dimensions → detail), Dashboard (cards → expanded views), Profile (timeline → contribution detail). Implementation: Radix Accordion + expandable cards. Always show summary first, detail on demand.
+
+**Status Communication Pattern:**
+Used in: Contribution processing, Editorial workflow, Application review. States: submitted → processing → ready/complete. Implementation: Warm-toned status indicators with descriptive text ("Your work is being reviewed"), never countdown timers or percentage progress.
+
+**Domain Identity Pattern:**
+Used in: Evaluation cards, Activity Feed items, Article pages, Contributor profiles. Implementation: Domain accent color (teal/amber/rose/violet) applied as badge, border accent, or subtle background tint. Never as text color on light backgrounds (accessibility).
+
+**Human-First Assignment Pattern:**
+Used in: Buddy assignment (onboarding), Editor assignment (publication), Peer feedback assignment. Implementation: Show the person's photo, name, bio, and domain expertise — not "Assigned to User #47."
+
+**Calm Notification Pattern:**
+Used in: All notification triggers. Implementation: Warm-toned dot indicator in sidebar (not badge count). Dashboard greeting mentions what's new in natural language. No push notifications, no urgency signals, no "X items need attention."
+
+### Flow Optimization Principles
+
+1. **Minimize steps to emotional payoff** — The Evaluation Reveal is 2 clicks from notification to narrative. The Publication Moment is visible immediately on editor approval. Onboarding buddy appears on first login. Every journey front-loads the moment that creates emotional connection.
+
+2. **Automate the mechanical, humanize the meaningful** — Contribution ingestion is automatic. Editor matching is automatic. Reward calculation is automatic. But editorial feedback is personal. Buddy welcome is personal. Evaluation narrative is AI-generated but reads as personal attention.
+
+3. **Never make the user chase status** — Every process communicates its state proactively: "Your contribution is being evaluated," "Your article is with Marcus," "Your application is under review." The user never wonders what happened.
+
+4. **Equal paths, domain-appropriate content** — Every journey (code contribution, document upload, governance proposal) follows the same flow structure (contribute → evaluate → reveal) but uses domain-appropriate vocabulary and evaluation criteria. The experience is equal; the content is contextual.
+
+5. **Graceful degradation, not error walls** — When things go wrong (ingestion fails, evaluation delayed, editor unavailable), the system takes responsibility with clear language and automatic retry. "We're having trouble processing your contribution — we'll try again shortly" not "Error: Ingestion Failed."
+
+## Component Strategy
+
+### Design System Components
+
+**Radix UI Primitives — Available Foundation:**
+
+| Radix Primitive | Edin Usage | Styling Approach |
+|---|---|---|
+| `Accordion` | Evaluation dimension expansion, FAQ, progressive disclosure | Warm border, smooth 300ms expand, domain accent on active |
+| `Dialog` | Confirmations (publish, submit for review), detail overlays | Centered modal, `surface-overlay` backdrop, 16px radius |
+| `DropdownMenu` | Domain tag selection, user menu, sort/filter options | Warm card style, 12px radius, subtle shadow |
+| `NavigationMenu` | Public portal navigation, publication section nav | Serif for portal, sans for dashboard |
+| `Tabs` | Contributor profile sections, admin view switching | Underline style with brand accent indicator |
+| `Tooltip` | Information hints on evaluation dimensions, icon explanations | Warm dark background, 8px radius, concise text |
+| `ScrollArea` | Activity Feed, editorial sidebar, long content areas | Thin warm-toned scrollbar, auto-hide |
+| `Select` | Form dropdowns, domain filters, role selection | Styled to match input fields, warm focus ring |
+| `Switch` | Settings toggles, notification preferences | Brand accent when active, smooth transition |
+| `Toast` | Status confirmations ("Saved," "Published," "Feedback sent") | Bottom-right, warm background, auto-dismiss 4s |
+| `Avatar` | Contributor photos, editor credits, buddy display | Circular, domain-colored fallback with initials |
+| `Popover` | Slash command menu, contextual actions | Card-style with shadow, appears below trigger |
+| `Separator` | Content section breaks, sidebar grouping | Warm border color, generous margin |
+| `VisuallyHidden` | Accessible labels for icons and indicators | Screen-reader only content |
+
+### Custom Components
+
+**1. NarrativeCard**
+
+- **Purpose:** The hero component for AI evaluation display. Shows the narrative summary of what the AI recognized about a contribution.
+- **Content:** 2-4 sentence evaluation narrative (serif typography), contribution reference (title, repo, files changed), evaluation timestamp, domain accent stripe.
+- **States:** Default (warm background tint, subtle shadow), loading (skeleton with gentle pulse), expanded (when used inline on dashboard).
+- **Accessibility:** `role="article"`, `aria-label="AI evaluation for [contribution name]"`. Narrative text readable by screen readers as continuous prose.
+- **Variants:** Full (standalone page), compact (dashboard summary card), inline (activity feed item).
+
+**2. DimensionCard**
+
+- **Purpose:** Progressive disclosure card for evaluation quality dimensions. Shows summary label + descriptor, expands to reveal detailed breakdown.
+- **Content:** Dimension label (e.g., "Architectural Clarity"), descriptive value (e.g., "Strong"), subtle progress indicator bar (domain-colored), expandable detail text.
+- **States:** Collapsed (default), hover (warm border, slight shadow lift), expanded (detail section visible with transition), loading.
+- **Actions:** Click to expand/collapse. No other interactive elements.
+- **Accessibility:** Built on Radix Accordion. `aria-expanded` state, keyboard Enter/Space to toggle. Dimension value announced by screen reader.
+
+**3. TrajectoryVisualization**
+
+- **Purpose:** Organic growth curve showing contributor's reward/contribution trajectory over time. The "your garden is growing" visual.
+- **Content:** SVG growth curve with organic bezier curves (not angular line charts), data points at contribution milestones, current position indicator, optional annotation.
+- **States:** Default (animated draw-in on scroll intersection), hover (tooltip on data points showing contribution summaries).
+- **Accessibility:** `role="img"`, `aria-label` describing trajectory summary in text. Data table alternative available via toggle.
+- **Implementation:** Custom SVG component with D3 or Recharts for curve calculation, styled with Tailwind and design tokens.
+
+**4. ArticlePage**
+
+- **Purpose:** Full publication layout for reading articles. The "modern Economist" experience.
+- **Content:** Hero image/gradient with domain tag, article title (display serif), author/editor bylines with avatars, reading time, domain tag, article body (serif with pull quotes, code blocks, images), related articles.
+- **States:** Default (immersive reading), loading (skeleton with article structure), error (graceful message).
+- **Variants:** Full page (SSR, Publication Platform), preview (in authoring flow before publish), card (article grid items on portal).
+- **Accessibility:** Semantic HTML article structure (`<article>`, `<header>`, `<aside>` for pull quotes). Reading mode with optimal contrast. Skip links for navigation.
+
+**5. AuthorByline**
+
+- **Purpose:** Author and editor credit display — the byline that makes articles feel like a real publication.
+- **Content:** Author avatar + name (primary), editor avatar + name (secondary, "Edited by"), reading time, publication date, domain tag.
+- **States:** Default, hover on author/editor name (link to profile).
+- **Variants:** Full (article page), compact (article card), minimal (activity feed).
+- **Accessibility:** Links to author/editor profiles with descriptive labels.
+
+**6. BlockEditor**
+
+- **Purpose:** Distraction-free writing environment for Publication Platform authoring.
+- **Content:** Title input (display serif, placeholder "Untitled"), body blocks (paragraph, heading, quote, code, image, data viz embed), slash command menu.
+- **States:** Editing (cursor active, minimal chrome), previewing (publication layout preview), submitted (read-only with status).
+- **Actions:** Slash commands (/ triggers contextual menu), block reordering (drag handles), inline formatting (bold, italic, link).
+- **Accessibility:** Full keyboard navigation between blocks, screen reader announcements for block type changes, ARIA live regions for auto-save status.
+- **Implementation:** Built on TipTap (ProseMirror-based) or similar block editor framework, styled to match Edin typography.
+
+**7. EditorialFeedback**
+
+- **Purpose:** Inline editorial annotation system for the author-editor workflow.
+- **Content:** Text highlight markers in article body, editor comments in side panel (desktop) or expandable below highlight (mobile), editor avatar + name + role.
+- **States:** Highlight dormant (subtle warm underline), highlight active (warm background + connected to comment), comment resolved (faded).
+- **Actions:** Click highlight to focus comment, reply to comment, resolve comment, navigate between comments.
+- **Accessibility:** `role="complementary"` for sidebar, `aria-describedby` linking highlights to comments. Keyboard navigation between highlights (Tab).
+
+**8. ActivityFeedItem**
+
+- **Purpose:** Individual item in the community Activity Feed — contribution, publication, evaluation, or community event.
+- **Content:** Contributor avatar (domain-colored fallback), descriptive text (sans-serif), domain dot, timestamp, optional contribution/article reference.
+- **States:** Default, hover (subtle background tint), new (warm accent indicator for unread items).
+- **Variants:** Contribution (standard), publication (article link), community event (welcome, milestone), evaluation (private to contributor).
+- **Accessibility:** `role="listitem"` within feed list. Timestamps as `<time>` elements. Links to referenced content.
+
+**9. DomainBadge**
+
+- **Purpose:** Domain identity indicator used across all contexts.
+- **Content:** Domain name (Technology, Fintech, Impact, Governance), domain accent color.
+- **States:** Default (filled pill), muted (outline only for secondary contexts).
+- **Variants:** Pill (rounded, text + color), dot (8px colored circle for compact contexts), tint (background color wash for cards/sections).
+- **Accessibility:** Semantic label "Domain: [name]". Color never sole indicator — always paired with text or accessible label.
+
+**10. ContributorProfile**
+
+- **Purpose:** Professional portfolio view showing contributor's journey, evaluations, and publications.
+- **Content:** Avatar, name, role, bio (serif), domain tags, journey timeline (chronological with evaluation excerpts and publications interspersed), "Your Fingerprints" summary.
+- **States:** Own profile (editable bio, full journey), public profile (read-only, curated view), compact (card in contributor grid).
+- **Accessibility:** Semantic heading hierarchy, timeline as ordered list, links to individual contributions and articles.
+
+### Component Implementation Strategy
+
+**Build Order — Priority by Journey Criticality:**
+
+| Priority | Component | Needed For | Dependencies |
+|---|---|---|---|
+| P0 — MVP Critical | NarrativeCard | Evaluation Reveal (Journey 2) | Radix Accordion |
+| P0 — MVP Critical | ArticlePage | Publication Moment (Journey 3, 6) | BlockEditor output |
+| P0 — MVP Critical | BlockEditor | Authoring Experience (Journey 3) | TipTap/ProseMirror |
+| P0 — MVP Critical | ActivityFeedItem | Dashboard (Journey 2, 3, 5) | Radix ScrollArea |
+| P0 — MVP Critical | DomainBadge | All journeys | None |
+| P1 — MVP Important | DimensionCard | Evaluation detail (Journey 2) | Radix Accordion |
+| P1 — MVP Important | AuthorByline | Article pages (Journey 3, 6) | Radix Avatar |
+| P1 — MVP Important | EditorialFeedback | Editorial workflow (Journey 3, 4) | Radix Popover |
+| P1 — MVP Important | ContributorProfile | Profile views (Journey 1, 6) | TrajectoryVisualization |
+| P2 — MVP Enhancement | TrajectoryVisualization | Reward trajectory (Journey 2) | D3/Recharts |
+
+### Implementation Roadmap
+
+**Phase 1 — Core Experience (MVP):**
+
+Build the components that enable the two defining interactions (Evaluation Reveal + Publication Moment) and the contributor dashboard:
+
+- NarrativeCard + DimensionCard (Evaluation Reveal flow)
+- BlockEditor + ArticlePage + AuthorByline (Publication authoring + reading flow)
+- ActivityFeedItem + DomainBadge (Dashboard and cross-cutting identity)
+- Layout shells: DashboardLayout (sidebar + content), PublicationLayout (immersive reading), PublicLayout (SSR portal)
+
+**Phase 2 — Editorial & Depth:**
+
+Build the components that enable the editorial workflow and deeper engagement:
+
+- EditorialFeedback (inline annotations for author-editor workflow)
+- ContributorProfile (full journey view with timeline)
+- TrajectoryVisualization (organic growth curves)
+- Onboarding flow components (step indicator, buddy card, first task card)
+
+**Phase 3 — Polish & Admin:**
+
+Build the components that serve admin workflows and enhance existing experiences:
+
+- Admin data tables (editorially designed, not generic dashboard pattern)
+- Advanced filtering and search components
+- Publication metrics display (delayed 48h, editorial analytics style)
+- Notification preferences and settings components
+
+## UX Consistency Patterns
+
+### Button Hierarchy
+
+**Primary Action** (`btn-primary`):
+
+- **Visual:** Solid `brand.accent` (#C4956A) background, white text, 8px radius, 500 font-weight
+- **Usage:** One per context. The single most important action: "Publish," "Submit for Review," "Apply," "View Task Details"
+- **States:** Default → hover (darken 8%) → active (darken 12%) → disabled (40% opacity, no pointer)
+- **Rule:** Never more than one primary button visible in the same view. If two actions compete, one becomes secondary.
+
+**Secondary Action** (`btn-secondary`):
+
+- **Visual:** Transparent background, `brand.accent` border + text, 8px radius
+- **Usage:** Important but not primary: "Preview," "Save Draft," "Cancel"
+- **States:** Default → hover (8% accent background tint) → active (12% tint)
+
+**Tertiary / Text Action:**
+
+- **Visual:** No background, no border, `brand.accent` text with underline on hover
+- **Usage:** Navigational or supplementary: "View all articles," "See detail," "Edit profile"
+- **States:** Default → hover (underline appears) → active (darken text)
+
+**Destructive Action:**
+
+- **Visual:** `semantic.error` (#A85A5A) border + text (outline style), never solid red background
+- **Usage:** Rare. Withdraw application, delete draft. Always requires confirmation dialog.
+- **Rule:** Destructive actions are never primary-styled. They are always secondary or tertiary to prevent accidental activation.
+
+### Feedback Patterns
+
+**Success Feedback:**
+
+- **Mechanism:** Toast notification (bottom-right), auto-dismiss after 4 seconds
+- **Visual:** `surface.raised` background with `semantic.success` left border accent, sans-serif text
+- **Tone:** Factual and brief. "Article published." "Contribution saved." "Feedback sent." No exclamation marks, no celebration language, no confetti.
+- **When:** After successful user actions (publish, submit, save)
+
+**Error Feedback:**
+
+- **Mechanism:** Inline message near the error source (not toast). Persistent until resolved.
+- **Visual:** `semantic.error` left border, warm background tint, clear explanatory text
+- **Tone:** System takes responsibility. "We couldn't process your contribution — we'll try again shortly." Never blame the user. Never show technical error codes.
+- **Recovery:** Always include either automatic retry or a clear action ("Try again," "Contact support")
+
+**Status / Progress Feedback:**
+
+- **Mechanism:** Inline status indicator within the relevant context (not a global notification)
+- **Visual:** Warm-toned descriptive text with subtle icon. "Your work is being evaluated" with gentle pulsing indicator.
+- **Rule:** Never use percentage progress bars (they create anxiety). Never use countdown timers. Use descriptive states: "Submitted," "In review," "Evaluated."
+
+**Empty States:**
+
+- **Visual:** Centered in content area, muted text, optional subtle illustration (organic, not cartoon)
+- **Tone:** Informative and dignified. Explain what will appear here and what conditions produce content. "Your evaluations will appear here as contributions are processed." Never: "Nothing here yet! Start contributing!"
+- **Action:** If appropriate, include a single text-action link to the relevant flow. Never a primary button in an empty state.
+
+**Loading States:**
+
+- **Mechanism:** Skeleton screens that mirror the shape of incoming content
+- **Visual:** Gentle pulsing opacity (0.4 → 0.7 → 0.4) on warm grey rectangles matching content layout. 2s cycle.
+- **Rule:** Never use spinning loaders. Never show "Loading..." text. The skeleton conveys that content is arriving and what shape it will take.
+
+### Form Patterns
+
+**Input Fields:**
+
+- **Visual:** 8px radius, `#D8D4CE` border, warm off-white background. On focus: border transitions to `brand.accent`, subtle warm shadow ring.
+- **Labels:** Above the field (never floating/inside). Sans-serif, 13px, 500 weight, `brand.secondary` color.
+- **Validation:** Inline, below the field, appears on blur (not on keystroke). Error text in `semantic.error` with field border changing to match. Success is invisible — no green checkmarks.
+- **Accessibility:** `aria-describedby` linking to error/help text. Focus visible with 2px accent outline.
+
+**Text Areas (long-form input):**
+
+- **Visual:** Same as input fields but with auto-grow behavior. No fixed height with scrollbar.
+- **Usage:** Bio editing, editorial notes, application responses. Never for article authoring (use BlockEditor).
+
+**Select / Dropdown:**
+
+- **Visual:** Styled to match input fields. Dropdown menu uses Radix Select with warm card styling.
+- **Usage:** Domain selection, role filters, sort options. Always include a clear default or placeholder.
+
+**Form Layout:**
+
+- **Single column** for all forms. Never side-by-side fields (reduces cognitive load and works on mobile).
+- **Generous spacing:** `space.lg` (24px) between field groups, `space.md` (16px) between label and input.
+- **Progressive disclosure:** Long forms broken into logical sections with clear headings. Application form shows one section at a time, not a scrolling wall of fields.
+
+### Navigation Patterns
+
+**Sidebar Navigation (Authenticated Dashboard):**
+
+- **Visual:** Dark (`brand.primary`) sidebar, 240px width. Brand logo at top, nav items with icons, user profile at bottom.
+- **Behavior:** Fixed position on desktop. Collapses to bottom tab bar on mobile (5 primary items max).
+- **Active state:** Warm accent background tint on active item. Subtle notification dot (not badge count) for items with updates.
+- **Collapse behavior on writing/reading:** When in BlockEditor or reading an article, sidebar collapses to icon-only (48px width) or hides entirely to maximize content space.
+
+**Top Navigation (Public Portal):**
+
+- **Visual:** Clean horizontal bar with logo left, nav links center-left, sign-in button right.
+- **Behavior:** Sticky on scroll with subtle shadow on separation. Minimal items: Publication, Contributors, About, Apply.
+- **Typography:** Serif for portal brand, sans-serif for nav links.
+
+**Breadcrumb / Context:**
+
+- **Not used.** Edin's information architecture is flat enough that breadcrumbs add visual noise without navigation value. Context is communicated through section titles, sidebar active state, and page headings.
+
+**Back Navigation:**
+
+- **Visual:** Text link with left arrow ("← Dashboard") in toolbar areas (authoring, evaluation detail).
+- **Behavior:** Returns to the previous logical context, not browser history. Always visible when the user is "inside" a specific item (article, evaluation, profile).
+
+### Content Display Patterns
+
+**Card Pattern:**
+
+- **Visual:** `surface.raised` background, `border-light`, 12px radius, `shadow-card`. Content with `space.lg` padding.
+- **Hover:** Subtle shadow lift (`shadow-hover`) + optional `translateY(-2px)` for clickable cards.
+- **Usage:** Dashboard summary cards, article grid cards, contributor cards. Never for primary content — cards are summaries that link to full views.
+
+**Narrative Content Pattern:**
+
+- **Visual:** Serif typography, 17px body text, 1.65 line height, max-width 720px. No card wrapper — narrative content lives directly on the page background.
+- **Usage:** Article reading, evaluation narratives, contributor bios. This is the "publication quality" layer.
+- **Rule:** Narrative content never appears inside a card. Cards are for summaries; narrative content gets the full editorial treatment.
+
+**Data Display Pattern:**
+
+- **Visual:** Sans-serif typography, 15px text. Tables with warm borders, generous row height (48px minimum). No zebra striping (it creates visual noise).
+- **Usage:** Admin data tables, contribution lists, reward breakdowns.
+- **Rule:** Data is always accompanied by context. A number alone is never displayed — it always has a label and ideally a brief description of what it means.
+
+**Timeline Pattern:**
+
+- **Visual:** Vertical timeline with domain-colored dots, date labels left-aligned, content right of the dot. Serif for titles, sans for descriptions.
+- **Usage:** Contributor profile journey, editorial revision history, contribution history.
+- **Spacing:** `space.lg` between timeline items, `border-light` separators.
+
+### Modal & Overlay Patterns
+
+**Confirmation Dialog:**
+
+- **Visual:** Centered modal, 16px radius, `shadow-modal`. Semi-transparent overlay. Max-width 480px.
+- **Content:** Clear question ("Publish this article?"), brief context, two buttons (primary action + cancel). No title bar or close X.
+- **Tone:** Direct and calm. "This will make your article visible on the Publication Platform." Not "Are you sure?"
+
+**Detail Overlay:**
+
+- **Visual:** Larger modal (max-width 640px) or slide-in panel from right (for editorial feedback, evaluation detail).
+- **Behavior:** Close on overlay click, Escape key, or explicit close button. Focus trapped within.
+- **Rule:** Never use modals for primary content. If the content deserves reading attention, it gets its own page.
+
+### Interaction Micro-Patterns
+
+**Hover:** 200ms ease-out transition. Hover effects provide affordance (clickable) without distraction. Subtle shadow lift or border color change — never color inversion or dramatic scale changes.
+
+**Focus:** 2px `brand.accent` outline with 2px offset on all interactive elements. Visible on keyboard navigation, hidden on mouse click (`:focus-visible`).
+
+**Transitions:** All state changes use 200ms ease-out. Layout changes (accordion, expand/collapse) use 300ms ease-out. Page transitions use 150ms fade. No spring animations, no bounce, no overshoot.
+
+**Scroll:** Smooth scrolling for anchor navigation. Content loads immediately on scroll — no infinite scroll with loading spinners. Pagination for long lists (articles, contributions) with clear page indicators.
+
+## Responsive Design & Accessibility
+
+### Responsive Strategy
+
+**Design philosophy:** Content-first responsive design. Each interface context adapts based on how users actually use it on different devices, not based on generic breakpoint rules.
+
+**Per-Context Device Strategy:**
+
+| Interface Context | Primary Device | Secondary Device | Adaptation Approach |
+|---|---|---|---|
+| **Article Reading** | Mobile (shared links) | Desktop | Mobile-first. Fluid typography (clamp), single column, optimal measure (60-75 chars). Desktop adds generous side margins. |
+| **Publication Browsing** | Mobile + Desktop (equal) | Tablet | Mobile-first. Article grid collapses from 3-col → 2-col → 1-col. Cards stack vertically. |
+| **Contributor Dashboard** | Desktop | Mobile (check-in) | Desktop-first. Sidebar collapses to bottom tab bar on mobile. Cards stack, grid simplifies. |
+| **Authoring / Writing** | Desktop | Mobile (review only) | Desktop-first. Full editor desktop only. Mobile shows read-only view of draft + editorial feedback. |
+| **Editorial Feedback** | Desktop | Mobile (review comments) | Desktop-first. Side panel becomes expandable section below highlights on mobile. |
+| **Admin Dashboard** | Desktop | Mobile (monitoring) | Desktop-only for full operations. Mobile shows simplified status cards, no data tables. |
+| **Onboarding / Application** | Mobile + Desktop (equal) | Tablet | Mobile-first. Single column forms, generous touch targets, progressive sections. |
+| **Public Portal** | Mobile + Desktop (equal) | Tablet | Mobile-first. Hero stacks, stats flow to single column, nav becomes hamburger. |
+
+### Breakpoint Strategy
+
+**Tailwind-aligned breakpoints:**
+
+| Breakpoint | Width | Name | Key Adaptations |
+|---|---|---|---|
+| **Mobile** | < 640px | `sm` | Single column everything. Bottom tab nav. Stacked cards. Touch-optimized targets (48px min). |
+| **Tablet** | 640px - 1023px | `md` | 2-column article grids. Sidebar as overlay (not persistent). Form layout remains single column. |
+| **Desktop** | 1024px - 1439px | `lg` | Full sidebar (240px). 3-column article grids. Side-by-side editorial view (content + comments). |
+| **Wide Desktop** | ≥ 1440px | `xl` | Max-width containers prevent content stretching. Extra whitespace on sides. Admin tables can use full width. |
+
+**Fluid Typography (clamp-based):**
+
+```
+--text-display: clamp(2rem, 4vw, 2.5rem);      /* 32px → 40px */
+--text-h1: clamp(1.5rem, 3vw, 2rem);            /* 24px → 32px */
+--text-h2: clamp(1.25rem, 2.5vw, 1.5rem);       /* 20px → 24px */
+--text-body: clamp(1rem, 1.5vw, 1.0625rem);     /* 16px → 17px */
+--text-body-interface: clamp(0.875rem, 1.2vw, 0.9375rem); /* 14px → 15px */
+```
+
+Article body text on mobile drops to 16px (still above minimum) with 1.6 line-height. The measure naturally tightens on small screens, maintaining readability.
+
+### Accessibility Strategy
+
+**Compliance Target: WCAG 2.1 AA** with AAA aspirations for key interactions.
+
+**AA Compliance (mandatory for all interfaces):**
+
+- Color contrast: 4.5:1 for body text, 3:1 for large text (18px+ bold or 24px+ regular)
+- Keyboard navigation: all interactive elements reachable and operable via keyboard
+- Screen reader compatibility: semantic HTML, ARIA labels, live regions for dynamic content
+- Touch targets: minimum 44x44px (AAA target; AA requires 24x24px but we exceed)
+- Focus indicators: visible on all interactive elements during keyboard navigation
+- Text resizing: content remains usable at 200% zoom
+
+**AAA Aspirations (for key content):**
+
+- Enhanced contrast (7:1) for article body text — already achieved with `brand.primary` on `surface.base` (10.2:1)
+- Sign language interpretation: not applicable (text-based platform)
+- Timing: no time-dependent interactions in the core experience (no session timeouts during writing)
+
+**Edin-Specific Accessibility Considerations:**
+
+| Concern | Approach |
+|---|---|
+| Evaluation narratives are the primary content | Narratives are plain semantic text, fully accessible to screen readers. No information locked in visual-only presentations. |
+| Trajectory visualizations (SVG charts) | `role="img"` with comprehensive `aria-label` describing the trajectory. Toggle to data table alternative. |
+| Domain colors carry identity | Color is never the sole indicator. Domain badges always include text labels. Accent colors are always paired with text. |
+| Block editor for authoring | Full keyboard navigation between blocks. ARIA live regions announce block type changes. Slash command menu accessible via keyboard. |
+| Editorial highlights in articles | Highlights use `aria-describedby` to link to corresponding editor comments. Keyboard Tab navigates between highlights. |
+| Activity Feed is real-time | New items announced via `aria-live="polite"` region. No auto-scrolling that disrupts screen reader flow. |
+
+### Testing Strategy
+
+**Automated Testing (CI/CD integrated):**
+
+- **axe-core** accessibility scanner on all pages — runs in CI, blocks deployment on AA violations
+- **Lighthouse** accessibility audit — target score 95+
+- **Color contrast checker** integrated into design token build — validates all text/background combinations at build time
+
+**Manual Testing Cadence:**
+
+| Test Type | Frequency | Scope |
+|---|---|---|
+| Keyboard-only navigation | Every PR touching interactive components | Full journey completion without mouse |
+| Screen reader testing (VoiceOver + NVDA) | Bi-weekly during active development | All 6 user journeys end-to-end |
+| Mobile device testing (real devices) | Weekly | Article reading on iOS Safari + Android Chrome. Dashboard on both. |
+| Touch target audit | Every PR touching buttons/links | 44x44px minimum verification |
+| Reduced motion testing | Every PR touching animation | `prefers-reduced-motion` disables all transitions |
+
+**Browser Support Matrix:**
+
+| Browser | Version | Priority |
+|---|---|---|
+| Chrome (desktop + mobile) | Last 2 versions | P0 |
+| Safari (desktop + iOS) | Last 2 versions | P0 (primary mobile reading browser) |
+| Firefox (desktop) | Last 2 versions | P1 |
+| Edge (desktop) | Last 2 versions | P1 |
+| Samsung Internet | Last 2 versions | P2 |
+
+### Implementation Guidelines
+
+**Responsive Development Rules:**
+
+1. **Mobile-first media queries** — Base styles target mobile, `min-width` breakpoints add desktop features. Exception: Dashboard and admin use desktop-first with `max-width` breakpoints for mobile simplification.
+2. **Relative units everywhere** — `rem` for typography, `%` or `fr` for layouts, `clamp()` for fluid sizing. Fixed `px` only for borders, shadows, and small spacing tokens.
+3. **Container queries where appropriate** — Components like NarrativeCard and ArticleCard should adapt based on their container width, not the viewport. This enables consistent behavior whether the card is in a sidebar, a grid, or full-width.
+4. **Touch-friendly by default** — All interactive elements have 44x44px minimum touch area (padding if needed). Hover states supplemented with `:active` states for touch feedback.
+5. **No horizontal scroll** — Content wraps, truncates with ellipsis, or is hidden at narrow widths. Tables in admin use horizontal scroll as the single exception.
+
+**Accessibility Development Rules:**
+
+1. **Semantic HTML first, ARIA second** — Use `<article>`, `<nav>`, `<main>`, `<aside>`, `<header>`, `<footer>`, `<section>` before reaching for ARIA roles. ARIA supplements what HTML cannot express.
+2. **Every image has alt text** — Article images have descriptive alt text. Decorative images (domain gradient headers) use `alt=""`. SVG visualizations use `aria-label`.
+3. **Focus management on route changes** — When navigating between pages (SPA), focus moves to the main content area heading. Radix Dialog handles focus trapping automatically.
+4. **Skip links** — "Skip to main content" link as first focusable element on every page. Hidden visually, visible on keyboard focus.
+5. **Prefers-reduced-motion** — Wrap all CSS transitions and animations in `@media (prefers-reduced-motion: no-preference)`. At reduced motion, all transitions are instant (0ms).
+6. **Prefers-color-scheme** — Not in MVP (dark mode deferred). But structural readiness: color tokens defined with semantic names, not literal values, enabling future dark mode without component changes.
+7. **Language attributes** — `lang="en"` on `<html>`. Articles may include `lang` attributes on foreign-language passages for correct screen reader pronunciation.
