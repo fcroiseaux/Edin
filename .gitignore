@@ -43,6 +43,7 @@ playwright-report/
 
 # Prisma
 apps/api/node_modules/.prisma/
+apps/api/generated/
 
 # Docker volumes
 postgres-data/

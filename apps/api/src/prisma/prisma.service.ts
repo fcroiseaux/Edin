@@ -1,18 +1,33 @@
 import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaClient } from '../../generated/prisma/client/client.js';
 
-/**
- * Prisma service shell — full implementation in Story 1.2.
- * PrismaClient will be initialized once schema and migrations are configured.
- */
 @Injectable()
-export class PrismaService implements OnModuleInit, OnModuleDestroy {
+export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(PrismaService.name);
 
-  onModuleInit() {
-    this.logger.log('Prisma service initialized (shell — schema in Story 1.2)');
+  constructor(configService: ConfigService) {
+    const databaseUrl = configService.get<string>('DATABASE_URL');
+
+    if (!databaseUrl || databaseUrl.trim().length === 0) {
+      throw new Error('DATABASE_URL is required for PrismaService');
+    }
+
+    const adapter = new PrismaPg({ connectionString: databaseUrl });
+
+    super({ adapter });
   }
 
-  onModuleDestroy() {
-    this.logger.log('Prisma service disconnected');
+  async onModuleInit() {
+    this.logger.log('Connecting to database...');
+    await this.$connect();
+    this.logger.log('Database connection established');
+  }
+
+  async onModuleDestroy() {
+    this.logger.log('Disconnecting from database...');
+    await this.$disconnect();
+    this.logger.log('Database connection closed');
   }
 }

@@ -43,7 +43,7 @@ development_status:
   # Epic 1: Project Foundation & Contributor Authentication
   epic-1: in-progress
   1-1-initialize-monorepo-and-development-environment: done
-  1-2-database-schema-foundation-and-prisma-configuration: backlog
+  1-2-database-schema-foundation-and-prisma-configuration: done
   1-3-github-oauth-authentication: backlog
   1-4-role-based-access-control-rbac: backlog
   1-5-founding-contributor-designation: backlog
