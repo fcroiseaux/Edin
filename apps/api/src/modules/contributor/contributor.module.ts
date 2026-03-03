@@ -3,10 +3,11 @@ import { CaslModule } from '../auth/casl/casl.module.js';
 import { AbilityGuard } from '../../common/guards/ability.guard.js';
 import { ContributorService } from './contributor.service.js';
 import { ContributorController } from './contributor.controller.js';
+import { ProfileController } from './profile.controller.js';
 
 @Module({
   imports: [CaslModule],
-  controllers: [ContributorController],
+  controllers: [ProfileController, ContributorController],
   providers: [ContributorService, AbilityGuard],
   exports: [ContributorService],
 })

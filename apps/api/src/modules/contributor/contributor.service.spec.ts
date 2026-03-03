@@ -23,7 +23,10 @@ describe('ContributorService', () => {
     githubId: 12345,
     name: 'Test Contributor',
     email: 'test@example.com',
+    bio: 'A test contributor bio',
     avatarUrl: 'https://avatars.githubusercontent.com/u/12345',
+    domain: 'Technology',
+    skillAreas: ['TypeScript', 'NestJS'],
     role: 'CONTRIBUTOR',
     isActive: true,
     createdAt: new Date(),
@@ -281,6 +284,212 @@ describe('ContributorService', () => {
       expect(caughtError).toBeInstanceOf(DomainException);
       expect(caughtError!.errorCode).toBe('CONTRIBUTOR_NOT_FOUND');
       expect(caughtError!.getStatus()).toBe(404);
+    });
+  });
+
+  describe('getPublicProfile', () => {
+    it('returns only public fields (excludes email, githubId, isActive, updatedAt)', async () => {
+      const publicFields = {
+        id: 'contributor-uuid-1',
+        name: 'Test Contributor',
+        avatarUrl: 'https://avatars.githubusercontent.com/u/12345',
+        bio: 'A test contributor bio',
+        domain: 'Technology',
+        skillAreas: ['TypeScript', 'NestJS'],
+        role: 'CONTRIBUTOR',
+        createdAt: mockContributor.createdAt,
+      };
+      mockPrisma.contributor.findUnique.mockResolvedValueOnce(publicFields);
+
+      const result = await service.getPublicProfile('contributor-uuid-1');
+
+      expect(result).toEqual(publicFields);
+      expect(result).not.toHaveProperty('email');
+      expect(result).not.toHaveProperty('githubId');
+      expect(result).not.toHaveProperty('isActive');
+      expect(result).not.toHaveProperty('updatedAt');
+      expect(mockPrisma.contributor.findUnique).toHaveBeenCalledWith({
+        where: { id: 'contributor-uuid-1' },
+        select: {
+          id: true,
+          name: true,
+          avatarUrl: true,
+          bio: true,
+          domain: true,
+          skillAreas: true,
+          role: true,
+          createdAt: true,
+        },
+      });
+    });
+
+    it('throws CONTRIBUTOR_NOT_FOUND when contributor does not exist', async () => {
+      mockPrisma.contributor.findUnique.mockResolvedValueOnce(null);
+
+      let caughtError: DomainException | undefined;
+      try {
+        await service.getPublicProfile('nonexistent-uuid');
+      } catch (e) {
+        caughtError = e as DomainException;
+      }
+
+      expect(caughtError).toBeInstanceOf(DomainException);
+      expect(caughtError!.errorCode).toBe('CONTRIBUTOR_NOT_FOUND');
+      expect(caughtError!.getStatus()).toBe(404);
+    });
+
+    it('includes role field for Founding Contributor badge display', async () => {
+      const foundingPublicFields = {
+        id: 'contributor-uuid-1',
+        name: 'Test Contributor',
+        avatarUrl: 'https://avatars.githubusercontent.com/u/12345',
+        bio: 'A test contributor bio',
+        domain: 'Technology',
+        skillAreas: ['TypeScript', 'NestJS'],
+        role: 'FOUNDING_CONTRIBUTOR',
+        createdAt: mockContributor.createdAt,
+      };
+      mockPrisma.contributor.findUnique.mockResolvedValueOnce(foundingPublicFields);
+
+      const result = await service.getPublicProfile('contributor-uuid-1');
+
+      expect(result.role).toBe('FOUNDING_CONTRIBUTOR');
+    });
+  });
+
+  describe('getProfile', () => {
+    it('returns contributor data when found', async () => {
+      mockPrisma.contributor.findUnique.mockResolvedValueOnce(mockContributor);
+
+      const result = await service.getProfile('contributor-uuid-1');
+
+      expect(result).toEqual(mockContributor);
+      expect(mockPrisma.contributor.findUnique).toHaveBeenCalledWith({
+        where: { id: 'contributor-uuid-1' },
+      });
+    });
+
+    it('throws CONTRIBUTOR_NOT_FOUND when contributor does not exist', async () => {
+      mockPrisma.contributor.findUnique.mockResolvedValueOnce(null);
+
+      let caughtError: DomainException | undefined;
+      try {
+        await service.getProfile('nonexistent-uuid');
+      } catch (e) {
+        caughtError = e as DomainException;
+      }
+
+      expect(caughtError).toBeInstanceOf(DomainException);
+      expect(caughtError!.errorCode).toBe('CONTRIBUTOR_NOT_FOUND');
+      expect(caughtError!.getStatus()).toBe(404);
+    });
+  });
+
+  describe('updateProfile', () => {
+    it('updates contributor bio and creates audit log with changedFields', async () => {
+      const updatedContributor = { ...mockContributor, bio: 'Updated bio' };
+      mockPrisma.contributor.findUnique.mockResolvedValueOnce(mockContributor);
+      mockPrisma.contributor.update.mockResolvedValueOnce(updatedContributor);
+      mockPrisma.auditLog.create.mockResolvedValueOnce({});
+
+      const result = await service.updateProfile(
+        'contributor-uuid-1',
+        { bio: 'Updated bio' },
+        'corr-profile-1',
+      );
+
+      expect(result.bio).toBe('Updated bio');
+      expect(mockPrisma.contributor.update).toHaveBeenCalledWith({
+        where: { id: 'contributor-uuid-1' },
+        data: { bio: 'Updated bio' },
+      });
+      expect(mockPrisma.auditLog.create).toHaveBeenCalledWith({
+        data: {
+          actorId: 'contributor-uuid-1',
+          action: 'PROFILE_UPDATED',
+          entityType: 'contributor',
+          entityId: 'contributor-uuid-1',
+          details: { changedFields: ['bio'], actorId: 'contributor-uuid-1' },
+          correlationId: 'corr-profile-1',
+        },
+      });
+    });
+
+    it('updates multiple fields and audit log reflects all changed fields', async () => {
+      const updatedContributor = {
+        ...mockContributor,
+        bio: 'New bio',
+        domain: 'Fintech',
+        skillAreas: ['React', 'GraphQL'],
+      };
+      mockPrisma.contributor.findUnique.mockResolvedValueOnce(mockContributor);
+      mockPrisma.contributor.update.mockResolvedValueOnce(updatedContributor);
+      mockPrisma.auditLog.create.mockResolvedValueOnce({});
+
+      const result = await service.updateProfile(
+        'contributor-uuid-1',
+        { bio: 'New bio', domain: 'Fintech', skillAreas: ['React', 'GraphQL'] },
+        'corr-multi-1',
+      );
+
+      expect(result.bio).toBe('New bio');
+      expect(result.domain).toBe('Fintech');
+      expect(mockPrisma.auditLog.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          details: {
+            changedFields: ['bio', 'domain', 'skillAreas'],
+            actorId: 'contributor-uuid-1',
+          },
+        }),
+      });
+    });
+
+    it('throws CONTRIBUTOR_NOT_FOUND when contributor does not exist', async () => {
+      mockPrisma.contributor.findUnique.mockResolvedValueOnce(null);
+
+      let caughtError: DomainException | undefined;
+      try {
+        await service.updateProfile('nonexistent-uuid', { bio: 'test' });
+      } catch (e) {
+        caughtError = e as DomainException;
+      }
+
+      expect(caughtError).toBeInstanceOf(DomainException);
+      expect(caughtError!.errorCode).toBe('CONTRIBUTOR_NOT_FOUND');
+      expect(caughtError!.getStatus()).toBe(404);
+    });
+
+    it('sends only changed fields to Prisma update', async () => {
+      mockPrisma.contributor.findUnique.mockResolvedValueOnce(mockContributor);
+      mockPrisma.contributor.update.mockResolvedValueOnce(mockContributor);
+      mockPrisma.auditLog.create.mockResolvedValueOnce({});
+
+      // Send same bio as current — should not appear in update data
+      await service.updateProfile('contributor-uuid-1', {
+        bio: 'A test contributor bio',
+        name: 'New Name',
+      });
+
+      expect(mockPrisma.contributor.update).toHaveBeenCalledWith({
+        where: { id: 'contributor-uuid-1' },
+        data: { name: 'New Name' },
+      });
+    });
+
+    it('skips database update and audit log when no fields changed', async () => {
+      mockPrisma.contributor.findUnique.mockResolvedValueOnce(mockContributor);
+
+      const result = await service.updateProfile('contributor-uuid-1', {
+        name: mockContributor.name,
+        bio: mockContributor.bio ?? undefined,
+        domain: mockContributor.domain ?? undefined,
+        avatarUrl: mockContributor.avatarUrl ?? undefined,
+        skillAreas: [...mockContributor.skillAreas],
+      });
+
+      expect(result).toEqual(mockContributor);
+      expect(mockPrisma.contributor.update).not.toHaveBeenCalled();
+      expect(mockPrisma.auditLog.create).not.toHaveBeenCalled();
     });
   });
 });

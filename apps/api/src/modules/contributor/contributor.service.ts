@@ -1,5 +1,6 @@
 import { Injectable, Logger, HttpStatus } from '@nestjs/common';
 import { ERROR_CODES } from '@edin/shared';
+import type { UpdateContributorDto } from '@edin/shared';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { DomainException } from '../../common/exceptions/domain.exception.js';
 import type { UpdateRoleDto } from './dto/update-role.dto.js';
@@ -9,6 +10,121 @@ export class ContributorService {
   private readonly logger = new Logger(ContributorService.name);
 
   constructor(private readonly prisma: PrismaService) {}
+
+  async getPublicProfile(contributorId: string) {
+    const contributor = await this.prisma.contributor.findUnique({
+      where: { id: contributorId },
+      select: {
+        id: true,
+        name: true,
+        avatarUrl: true,
+        bio: true,
+        domain: true,
+        skillAreas: true,
+        role: true,
+        createdAt: true,
+      },
+    });
+
+    if (!contributor) {
+      throw new DomainException(
+        ERROR_CODES.CONTRIBUTOR_NOT_FOUND,
+        'Contributor not found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return contributor;
+  }
+
+  async getProfile(contributorId: string) {
+    const contributor = await this.prisma.contributor.findUnique({
+      where: { id: contributorId },
+    });
+
+    if (!contributor) {
+      throw new DomainException(
+        ERROR_CODES.CONTRIBUTOR_NOT_FOUND,
+        'Contributor not found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return contributor;
+  }
+
+  async updateProfile(contributorId: string, dto: UpdateContributorDto, correlationId?: string) {
+    const contributor = await this.prisma.contributor.findUnique({
+      where: { id: contributorId },
+    });
+
+    if (!contributor) {
+      throw new DomainException(
+        ERROR_CODES.CONTRIBUTOR_NOT_FOUND,
+        'Contributor not found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const changedFields: string[] = [];
+    const updateData: Record<string, unknown> = {};
+
+    if (dto.name !== undefined && dto.name !== contributor.name) {
+      updateData.name = dto.name;
+      changedFields.push('name');
+    }
+    if (dto.bio !== undefined && dto.bio !== contributor.bio) {
+      updateData.bio = dto.bio;
+      changedFields.push('bio');
+    }
+    if (dto.domain !== undefined && dto.domain !== contributor.domain) {
+      updateData.domain = dto.domain;
+      changedFields.push('domain');
+    }
+    if (dto.avatarUrl !== undefined && dto.avatarUrl !== contributor.avatarUrl) {
+      updateData.avatarUrl = dto.avatarUrl;
+      changedFields.push('avatarUrl');
+    }
+    if (
+      dto.skillAreas !== undefined &&
+      JSON.stringify(dto.skillAreas) !== JSON.stringify(contributor.skillAreas)
+    ) {
+      updateData.skillAreas = dto.skillAreas;
+      changedFields.push('skillAreas');
+    }
+
+    if (changedFields.length === 0) {
+      this.logger.log('Contributor profile update skipped (no changes)', {
+        contributorId,
+        correlationId,
+      });
+      return contributor;
+    }
+
+    const updated = await this.prisma.contributor.update({
+      where: { id: contributorId },
+      data: updateData,
+    });
+
+    await this.prisma.auditLog.create({
+      data: {
+        actorId: contributorId,
+        action: 'PROFILE_UPDATED',
+        entityType: 'contributor',
+        entityId: contributorId,
+        details: { changedFields, actorId: contributorId },
+        correlationId,
+      },
+    });
+
+    this.logger.log('Contributor profile updated', {
+      contributorId,
+      changedFields,
+      correlationId,
+    });
+
+    return updated;
+  }
 
   async updateRole(
     contributorId: string,

@@ -42,8 +42,16 @@ export const updateContributorSchema = z
     name: z.string().min(1).optional(),
     bio: z.string().max(MAX_BIO_LENGTH).optional(),
     domain: domainEnum.optional(),
-    avatar_url: z.string().url().optional(),
+    avatarUrl: z.string().url().optional(),
+    skillAreas: z
+      .array(z.string().trim().min(1, 'Tag cannot be empty').max(50, 'Tag too long'))
+      .max(10, 'Maximum 10 skill areas')
+      .optional(),
   })
   .strict();
+
+export const contributorProfileSchema = updateContributorSchema;
+
+export type UpdateContributorDto = z.infer<typeof updateContributorSchema>;
 
 export { domainEnum, roleEnum, MAX_BIO_LENGTH };

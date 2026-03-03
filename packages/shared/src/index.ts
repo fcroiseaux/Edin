@@ -9,13 +9,19 @@ export type { ErrorCode } from './constants/error-codes.js';
 
 export {
   createContributorSchema,
+  contributorProfileSchema,
   updateContributorSchema,
   domainEnum,
   roleEnum,
   MAX_BIO_LENGTH,
 } from './schemas/contributor.schema.js';
+export type { UpdateContributorDto } from './schemas/contributor.schema.js';
 
-export type { CreateContributorInput, UpdateContributorInput } from './types/contributor.types.js';
+export type {
+  CreateContributorInput,
+  UpdateContributorInput,
+  PublicContributorProfile,
+} from './types/contributor.types.js';
 
 export type {
   PaginationMeta,

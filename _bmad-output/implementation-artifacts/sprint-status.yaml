@@ -50,9 +50,9 @@ development_status:
   epic-1-retrospective: optional
 
   # Epic 2: Contributor Profiles & Public Showcase
-  epic-2: backlog
-  2-1-contributor-profile-creation-and-editing: backlog
-  2-2-public-and-private-contributor-profile-views: backlog
+  epic-2: in-progress
+  2-1-contributor-profile-creation-and-editing: done
+  2-2-public-and-private-contributor-profile-views: done
   2-3-public-project-showcase-page: backlog
   2-4-domain-manifestos-and-contributor-roster: backlog
   2-5-public-platform-metrics-and-reward-methodology: backlog

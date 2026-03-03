@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../hooks/use-auth';
+import { ToastProvider } from '../../components/ui/toast';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -18,5 +19,5 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     return null;
   }
 
-  return <>{children}</>;
+  return <ToastProvider>{children}</ToastProvider>;
 }

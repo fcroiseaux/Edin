@@ -129,8 +129,8 @@ describe('updateContributorSchema', () => {
     expect(result.success).toBe(true);
   });
 
-  it('accepts valid partial update with avatar_url', () => {
-    const result = updateContributorSchema.safeParse({ avatar_url: 'https://new-avatar.png' });
+  it('accepts valid partial update with avatarUrl', () => {
+    const result = updateContributorSchema.safeParse({ avatarUrl: 'https://new-avatar.png' });
     expect(result.success).toBe(true);
   });
 
