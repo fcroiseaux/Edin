@@ -12,6 +12,7 @@ const mockPrisma = {
   auditLog: {
     create: vi.fn(),
   },
+  $transaction: vi.fn((callback: (tx: any) => unknown) => callback(mockPrisma)),
 };
 
 describe('ContributorService', () => {
@@ -161,6 +162,125 @@ describe('ContributorService', () => {
           }),
         }),
       );
+    });
+
+    it('throws FOUNDING_STATUS_PERMANENT when changing founding contributor role', async () => {
+      const foundingContributor = { ...mockContributor, role: 'FOUNDING_CONTRIBUTOR' };
+      mockPrisma.contributor.findUnique.mockResolvedValueOnce(foundingContributor);
+
+      let caughtError: DomainException | undefined;
+      try {
+        await service.updateRole(
+          'contributor-uuid-1',
+          { role: 'CONTRIBUTOR' },
+          'admin-uuid-1',
+          'corr-perm-1',
+        );
+      } catch (e) {
+        caughtError = e as DomainException;
+      }
+
+      expect(caughtError).toBeInstanceOf(DomainException);
+      expect(caughtError!.errorCode).toBe('FOUNDING_STATUS_PERMANENT');
+      expect(caughtError!.getStatus()).toBe(422);
+      expect(mockPrisma.contributor.update).not.toHaveBeenCalled();
+    });
+
+    it('returns FOUNDING_STATUS_PERMANENT (422) before same-role check for founding contributors', async () => {
+      const foundingContributor = { ...mockContributor, role: 'FOUNDING_CONTRIBUTOR' };
+      mockPrisma.contributor.findUnique.mockResolvedValueOnce(foundingContributor);
+
+      let caughtError: DomainException | undefined;
+      try {
+        await service.updateRole(
+          'contributor-uuid-1',
+          { role: 'FOUNDING_CONTRIBUTOR' },
+          'admin-uuid-1',
+        );
+      } catch (e) {
+        caughtError = e as DomainException;
+      }
+
+      expect(caughtError).toBeInstanceOf(DomainException);
+      expect(caughtError!.errorCode).toBe('FOUNDING_STATUS_PERMANENT');
+      expect(caughtError!.getStatus()).toBe(422);
+    });
+  });
+
+  describe('designateFoundingContributor', () => {
+    it('designates contributor as founding and creates audit log', async () => {
+      const updatedContributor = { ...mockContributor, role: 'FOUNDING_CONTRIBUTOR' };
+      mockPrisma.contributor.findUnique.mockResolvedValueOnce(mockContributor);
+      mockPrisma.contributor.update.mockResolvedValueOnce(updatedContributor);
+      mockPrisma.auditLog.create.mockResolvedValueOnce({});
+
+      const result = await service.designateFoundingContributor(
+        'contributor-uuid-1',
+        'Outstanding early contribution to project foundation',
+        'admin-uuid-1',
+        'corr-founding-1',
+      );
+
+      expect(result.role).toBe('FOUNDING_CONTRIBUTOR');
+      expect(mockPrisma.contributor.update).toHaveBeenCalledWith({
+        where: { id: 'contributor-uuid-1' },
+        data: { role: 'FOUNDING_CONTRIBUTOR' },
+      });
+      expect(mockPrisma.auditLog.create).toHaveBeenCalledWith({
+        data: {
+          actorId: 'admin-uuid-1',
+          action: 'FOUNDING_DESIGNATED',
+          entityType: 'contributor',
+          entityId: 'contributor-uuid-1',
+          details: {
+            previousRole: 'CONTRIBUTOR',
+            reason: 'Outstanding early contribution to project foundation',
+            actorId: 'admin-uuid-1',
+          },
+          correlationId: 'corr-founding-1',
+        },
+      });
+    });
+
+    it('throws CONTRIBUTOR_ALREADY_EXISTS when contributor is already founding', async () => {
+      const foundingContributor = { ...mockContributor, role: 'FOUNDING_CONTRIBUTOR' };
+      mockPrisma.contributor.findUnique.mockResolvedValueOnce(foundingContributor);
+
+      let caughtError: DomainException | undefined;
+      try {
+        await service.designateFoundingContributor(
+          'contributor-uuid-1',
+          'Trying to designate again',
+          'admin-uuid-1',
+        );
+      } catch (e) {
+        caughtError = e as DomainException;
+      }
+
+      expect(caughtError).toBeInstanceOf(DomainException);
+      expect(caughtError!.errorCode).toBe('CONTRIBUTOR_ALREADY_EXISTS');
+      expect(caughtError!.getStatus()).toBe(409);
+      expect(mockPrisma.contributor.update).not.toHaveBeenCalled();
+      expect(mockPrisma.auditLog.create).not.toHaveBeenCalled();
+    });
+
+    it('throws CONTRIBUTOR_NOT_FOUND when contributor does not exist', async () => {
+      mockPrisma.contributor.findUnique.mockResolvedValueOnce(null);
+
+      let caughtError: DomainException | undefined;
+      try {
+        await service.designateFoundingContributor(
+          'nonexistent-uuid',
+          'Reason for designation',
+          'admin-uuid-1',
+        );
+      } catch (e) {
+        caughtError = e as DomainException;
+      }
+
+      expect(caughtError).toBeInstanceOf(DomainException);
+      expect(caughtError!.errorCode).toBe('CONTRIBUTOR_NOT_FOUND');
+      expect(caughtError!.getStatus()).toBe(404);
     });
   });
 });
