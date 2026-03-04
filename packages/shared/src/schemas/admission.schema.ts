@@ -73,3 +73,71 @@ export const listApplicationsQuerySchema = z.object({
 });
 
 export type ListApplicationsQueryDto = z.infer<typeof listApplicationsQuerySchema>;
+
+// --- Micro-task admin schemas (Story 3-3) ---
+
+export const createMicroTaskSchema = z.object({
+  domain: domainEnum,
+  title: z.string().min(1, 'Title is required').max(200, 'Title must be 200 characters or less'),
+  description: z
+    .string()
+    .min(1, 'Description is required')
+    .max(5000, 'Description must be 5000 characters or less'),
+  expectedDeliverable: z
+    .string()
+    .min(1, 'Expected deliverable is required')
+    .max(1000, 'Expected deliverable must be 1000 characters or less'),
+  estimatedEffort: z
+    .string()
+    .min(1, 'Estimated effort is required')
+    .max(100, 'Estimated effort must be 100 characters or less'),
+  submissionFormat: z
+    .string()
+    .min(1, 'Submission format is required')
+    .max(200, 'Submission format must be 200 characters or less'),
+});
+
+export type CreateMicroTaskInput = z.infer<typeof createMicroTaskSchema>;
+
+export const updateMicroTaskSchema = z.object({
+  title: z
+    .string()
+    .min(1, 'Title is required')
+    .max(200, 'Title must be 200 characters or less')
+    .optional(),
+  description: z
+    .string()
+    .min(1, 'Description is required')
+    .max(5000, 'Description must be 5000 characters or less')
+    .optional(),
+  expectedDeliverable: z
+    .string()
+    .min(1, 'Expected deliverable is required')
+    .max(1000, 'Expected deliverable must be 1000 characters or less')
+    .optional(),
+  estimatedEffort: z
+    .string()
+    .min(1, 'Estimated effort is required')
+    .max(100, 'Estimated effort must be 100 characters or less')
+    .optional(),
+  submissionFormat: z
+    .string()
+    .min(1, 'Submission format is required')
+    .max(200, 'Submission format must be 200 characters or less')
+    .optional(),
+  isActive: z.boolean().optional(),
+});
+
+export type UpdateMicroTaskInput = z.infer<typeof updateMicroTaskSchema>;
+
+export const listMicroTasksQuerySchema = z.object({
+  domain: z.enum(['Technology', 'Fintech', 'Impact', 'Governance']).optional(),
+  isActive: z
+    .enum(['true', 'false'])
+    .transform((val) => val === 'true')
+    .optional(),
+  cursor: z.string().uuid().optional(),
+  limit: z.coerce.number().int().min(1).max(100).default(50),
+});
+
+export type ListMicroTasksQuery = z.infer<typeof listMicroTasksQuerySchema>;

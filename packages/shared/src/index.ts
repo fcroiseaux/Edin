@@ -81,6 +81,9 @@ export {
   updateApplicationStatusSchema,
   assignReviewerSchema,
   listApplicationsQuerySchema,
+  createMicroTaskSchema,
+  updateMicroTaskSchema,
+  listMicroTasksQuerySchema,
 } from './schemas/admission.schema.js';
 export type {
   CreateApplicationDto,
@@ -88,6 +91,9 @@ export type {
   UpdateApplicationStatusDto,
   AssignReviewerDto,
   ListApplicationsQueryDto,
+  CreateMicroTaskInput,
+  UpdateMicroTaskInput,
+  ListMicroTasksQuery,
 } from './schemas/admission.schema.js';
 
 export type {
@@ -101,5 +107,8 @@ export type {
   SubmitReviewInput,
   UpdateApplicationStatusInput,
   AssignReviewerInput,
-  ListApplicationsQuery,
+  ListApplicationsQuery as ListApplicationsQueryType,
+  CreateMicroTaskInput as CreateMicroTaskInputType,
+  UpdateMicroTaskInput as UpdateMicroTaskInputType,
+  ListMicroTasksQueryInput,
 } from './types/admission.types.js';

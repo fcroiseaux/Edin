@@ -21,6 +21,11 @@ const mockPrisma = {
   },
   microTask: {
     findFirst: vi.fn(),
+    findUnique: vi.fn(),
+    findMany: vi.fn(),
+    create: vi.fn(),
+    update: vi.fn(),
+    count: vi.fn(),
   },
   contributor: {
     findUnique: vi.fn(),
@@ -673,6 +678,253 @@ describe('AdmissionService', () => {
         expect.objectContaining({
           where: { reviewerId: 'reviewer-1' },
         }),
+      );
+    });
+  });
+
+  // ─── Story 3-3 Micro-task Admin Tests ─────────────────────────
+
+  describe('listMicroTasks', () => {
+    it('returns paginated micro-tasks ordered by domain then createdAt', async () => {
+      const tasks = [
+        { ...mockMicroTask, id: 'mt-1', domain: 'Fintech' },
+        { ...mockMicroTask, id: 'mt-2', domain: 'Technology' },
+      ];
+      mockPrisma.microTask.findMany.mockResolvedValueOnce(tasks);
+      mockPrisma.microTask.count.mockResolvedValueOnce(2);
+
+      const result = await service.listMicroTasks({ limit: 50 }, 'corr-list-mt');
+
+      expect(result.items).toHaveLength(2);
+      expect(result.pagination.hasMore).toBe(false);
+      expect(result.pagination.total).toBe(2);
+    });
+
+    it('filters by domain and isActive', async () => {
+      mockPrisma.microTask.findMany.mockResolvedValueOnce([]);
+      mockPrisma.microTask.count.mockResolvedValueOnce(0);
+
+      await service.listMicroTasks(
+        { domain: 'Technology', isActive: true, limit: 50 },
+        'corr-filter-mt',
+      );
+
+      expect(mockPrisma.microTask.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { domain: 'Technology', isActive: true },
+        }),
+      );
+    });
+  });
+
+  describe('createMicroTask', () => {
+    const createDto = {
+      domain: 'Technology' as const,
+      title: 'New Task',
+      description: 'Task description',
+      expectedDeliverable: 'Deliverable',
+      estimatedEffort: '2-4 hours',
+      submissionFormat: 'GitHub repo',
+    };
+
+    it('creates micro-task and auto-deactivates previous active task for same domain', async () => {
+      const existingActive = { ...mockMicroTask, id: 'old-active' };
+      mockPrisma.microTask.findFirst.mockResolvedValueOnce(existingActive);
+      mockPrisma.microTask.update.mockResolvedValueOnce({});
+      mockPrisma.microTask.create.mockResolvedValueOnce({
+        id: 'new-task',
+        ...createDto,
+        isActive: true,
+      });
+      mockPrisma.auditLog.create.mockResolvedValueOnce({});
+
+      const result = await service.createMicroTask(createDto, 'admin-1', 'corr-create-mt');
+
+      expect(result.id).toBe('new-task');
+      expect(mockPrisma.microTask.update).toHaveBeenCalledWith({
+        where: { id: 'old-active' },
+        data: { isActive: false, deactivatedAt: expect.any(Date) },
+      });
+      expect(mockPrisma.auditLog.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          action: 'admission.microtask.created',
+          entityType: 'MicroTask',
+        }),
+      });
+      expect(mockEventEmitter.emit).toHaveBeenCalledWith(
+        'admission.microtask.created',
+        expect.any(Object),
+      );
+    });
+
+    it('creates micro-task without deactivating when no existing active task', async () => {
+      mockPrisma.microTask.findFirst.mockResolvedValueOnce(null);
+      mockPrisma.microTask.create.mockResolvedValueOnce({
+        id: 'new-task',
+        ...createDto,
+        isActive: true,
+      });
+      mockPrisma.auditLog.create.mockResolvedValueOnce({});
+
+      await service.createMicroTask(createDto, 'admin-1', 'corr-create-mt-new');
+
+      expect(mockPrisma.microTask.update).not.toHaveBeenCalled();
+    });
+
+    it('throws MICRO_TASK_DOMAIN_ACTIVE_EXISTS when active-domain unique constraint is hit', async () => {
+      mockPrisma.microTask.findFirst.mockResolvedValueOnce(null);
+      mockPrisma.microTask.create.mockRejectedValueOnce({
+        code: 'P2002',
+        meta: { target: 'micro_tasks_one_active_per_domain' },
+      });
+
+      await expect(service.createMicroTask(createDto, 'admin-1', 'corr-unique')).rejects.toThrow(
+        DomainException,
+      );
+    });
+  });
+
+  describe('updateMicroTask', () => {
+    it('updates micro-task fields', async () => {
+      mockPrisma.microTask.findUnique.mockResolvedValueOnce({
+        ...mockMicroTask,
+        id: 'mt-1',
+        isActive: true,
+      });
+      mockPrisma.microTask.update.mockResolvedValueOnce({
+        ...mockMicroTask,
+        id: 'mt-1',
+        title: 'Updated Title',
+      });
+      mockPrisma.auditLog.create.mockResolvedValueOnce({});
+
+      const result = await service.updateMicroTask(
+        'mt-1',
+        { title: 'Updated Title' },
+        'admin-1',
+        'corr-update-mt',
+      );
+
+      expect(result.title).toBe('Updated Title');
+      expect(mockPrisma.auditLog.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          action: 'admission.microtask.updated',
+        }),
+      });
+      expect(mockEventEmitter.emit).toHaveBeenCalledWith(
+        'admission.microtask.updated',
+        expect.any(Object),
+      );
+    });
+
+    it('auto-deactivates current active task when activating an inactive task', async () => {
+      mockPrisma.microTask.findUnique.mockResolvedValueOnce({
+        ...mockMicroTask,
+        id: 'mt-inactive',
+        isActive: false,
+      });
+      const currentActive = { ...mockMicroTask, id: 'mt-current-active' };
+      mockPrisma.microTask.findFirst.mockResolvedValueOnce(currentActive);
+      mockPrisma.microTask.update
+        .mockResolvedValueOnce({}) // deactivate current
+        .mockResolvedValueOnce({ ...mockMicroTask, id: 'mt-inactive', isActive: true }); // activate target
+      mockPrisma.auditLog.create.mockResolvedValueOnce({});
+
+      await service.updateMicroTask('mt-inactive', { isActive: true }, 'admin-1', 'corr-activate');
+
+      expect(mockPrisma.microTask.update).toHaveBeenCalledWith({
+        where: { id: 'mt-current-active' },
+        data: { isActive: false, deactivatedAt: expect.any(Date) },
+      });
+    });
+
+    it('throws MICRO_TASK_NOT_FOUND when task does not exist', async () => {
+      mockPrisma.microTask.findUnique.mockResolvedValueOnce(null);
+
+      await expect(
+        service.updateMicroTask('nonexistent', { title: 'Test' }, 'admin-1', 'corr-nf'),
+      ).rejects.toThrow(DomainException);
+    });
+
+    it('throws MICRO_TASK_DOMAIN_ACTIVE_EXISTS when activation conflicts on unique index', async () => {
+      mockPrisma.microTask.findUnique.mockResolvedValueOnce({
+        ...mockMicroTask,
+        id: 'mt-inactive',
+        isActive: false,
+      });
+      mockPrisma.microTask.findFirst.mockResolvedValueOnce(null);
+      mockPrisma.microTask.update.mockRejectedValueOnce({
+        code: 'P2002',
+        meta: { target: 'micro_tasks_one_active_per_domain' },
+      });
+
+      await expect(
+        service.updateMicroTask('mt-inactive', { isActive: true }, 'admin-1', 'corr-conflict'),
+      ).rejects.toThrow(DomainException);
+    });
+  });
+
+  describe('deactivateMicroTask', () => {
+    it('deactivates an active micro-task with audit log', async () => {
+      mockPrisma.microTask.findUnique.mockResolvedValueOnce({
+        ...mockMicroTask,
+        id: 'mt-1',
+        isActive: true,
+      });
+      mockPrisma.microTask.update.mockResolvedValueOnce({
+        ...mockMicroTask,
+        id: 'mt-1',
+        isActive: false,
+      });
+      mockPrisma.auditLog.create.mockResolvedValueOnce({});
+
+      const result = await service.deactivateMicroTask('mt-1', 'admin-1', 'corr-deact');
+
+      expect(result.isActive).toBe(false);
+      expect(mockPrisma.auditLog.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          action: 'admission.microtask.deactivated',
+        }),
+      });
+      expect(mockEventEmitter.emit).toHaveBeenCalledWith(
+        'admission.microtask.deactivated',
+        expect.any(Object),
+      );
+    });
+
+    it('returns unchanged task when already inactive', async () => {
+      const inactiveTask = { ...mockMicroTask, id: 'mt-1', isActive: false };
+      mockPrisma.microTask.findUnique.mockResolvedValueOnce(inactiveTask);
+
+      const result = await service.deactivateMicroTask('mt-1', 'admin-1', 'corr-already');
+
+      expect(result).toEqual(inactiveTask);
+      expect(mockPrisma.$transaction).not.toHaveBeenCalled();
+    });
+
+    it('throws MICRO_TASK_NOT_FOUND when task does not exist', async () => {
+      mockPrisma.microTask.findUnique.mockResolvedValueOnce(null);
+
+      await expect(
+        service.deactivateMicroTask('nonexistent', 'admin-1', 'corr-nf'),
+      ).rejects.toThrow(DomainException);
+    });
+  });
+
+  describe('getMicroTaskById', () => {
+    it('returns micro-task by ID', async () => {
+      mockPrisma.microTask.findUnique.mockResolvedValueOnce(mockMicroTask);
+
+      const result = await service.getMicroTaskById('task-uuid-1', 'corr-get-mt');
+
+      expect(result).toEqual(mockMicroTask);
+    });
+
+    it('throws MICRO_TASK_NOT_FOUND when not found', async () => {
+      mockPrisma.microTask.findUnique.mockResolvedValueOnce(null);
+
+      await expect(service.getMicroTaskById('nonexistent', 'corr-nf')).rejects.toThrow(
+        DomainException,
       );
     });
   });

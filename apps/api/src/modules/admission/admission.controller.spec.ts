@@ -24,6 +24,11 @@ const mockAdmissionService = {
   requestMoreInfo: vi.fn(),
   listAvailableReviewers: vi.fn(),
   getMyReviews: vi.fn(),
+  listMicroTasks: vi.fn(),
+  createMicroTask: vi.fn(),
+  updateMicroTask: vi.fn(),
+  deactivateMicroTask: vi.fn(),
+  getMicroTaskById: vi.fn(),
 };
 
 describe('AdmissionController', () => {
@@ -538,6 +543,122 @@ describe('AdmissionController', () => {
 
       expect(result).toEqual(reviews);
       expect(mockAdmissionService.getMyReviews).toHaveBeenCalledWith('reviewer-1', 'corr-my');
+    });
+  });
+
+  // ─── Story 3-3 Micro-task Admin Controller Tests ─────────────
+
+  describe('GET /api/v1/admission/micro-tasks (admin list)', () => {
+    it('calls listMicroTasks with parsed query params', async () => {
+      const listResult = {
+        items: [mockMicroTask],
+        pagination: { cursor: null, hasMore: false, total: 1 },
+      };
+      mockAdmissionService.listMicroTasks.mockResolvedValueOnce(listResult);
+
+      const mockReq = { correlationId: 'corr-list-mt' } as any;
+      const result = await controller.listMicroTasks({ limit: '50' }, mockReq);
+
+      expect(result).toHaveProperty('data');
+      expect(result).toHaveProperty('meta');
+      expect(mockAdmissionService.listMicroTasks).toHaveBeenCalledWith(
+        expect.objectContaining({ limit: 50 }),
+        'corr-list-mt',
+      );
+    });
+
+    it('accepts domain and isActive filters', async () => {
+      const listResult = { items: [], pagination: { cursor: null, hasMore: false, total: 0 } };
+      mockAdmissionService.listMicroTasks.mockResolvedValueOnce(listResult);
+
+      const mockReq = { correlationId: 'corr-filter-mt' } as any;
+      await controller.listMicroTasks(
+        { domain: 'Technology', isActive: 'true', limit: '50' },
+        mockReq,
+      );
+
+      expect(mockAdmissionService.listMicroTasks).toHaveBeenCalledWith(
+        expect.objectContaining({ domain: 'Technology', isActive: true }),
+        'corr-filter-mt',
+      );
+    });
+  });
+
+  describe('POST /api/v1/admission/micro-tasks (admin create)', () => {
+    it('creates micro-task with valid data', async () => {
+      const newTask = { ...mockMicroTask, id: 'new-mt-1' };
+      mockAdmissionService.createMicroTask.mockResolvedValueOnce(newTask);
+
+      const mockReq = { correlationId: 'corr-create-mt' } as any;
+      const mockUser = { id: 'admin-1', role: 'ADMIN' } as any;
+      const body = {
+        domain: 'Technology',
+        title: 'New Task',
+        description: 'Task description text',
+        expectedDeliverable: 'A deliverable',
+        estimatedEffort: '2-4 hours',
+        submissionFormat: 'GitHub repo',
+      };
+
+      const result = await controller.createMicroTask(body, mockUser, mockReq);
+
+      expect(result).toHaveProperty('data');
+      expect(mockAdmissionService.createMicroTask).toHaveBeenCalledWith(
+        expect.objectContaining({ domain: 'Technology', title: 'New Task' }),
+        'admin-1',
+        'corr-create-mt',
+      );
+    });
+
+    it('rejects invalid micro-task data', async () => {
+      const mockReq = { correlationId: 'corr-invalid-mt' } as any;
+      const mockUser = { id: 'admin-1', role: 'ADMIN' } as any;
+
+      await expect(controller.createMicroTask({ title: '' }, mockUser, mockReq)).rejects.toThrow();
+    });
+  });
+
+  describe('PATCH /api/v1/admission/micro-tasks/:id (admin update)', () => {
+    it('updates micro-task with valid data', async () => {
+      const updated = { ...mockMicroTask, title: 'Updated Title' };
+      mockAdmissionService.updateMicroTask.mockResolvedValueOnce(updated);
+
+      const mockReq = { correlationId: 'corr-update-mt' } as any;
+      const mockUser = { id: 'admin-1', role: 'ADMIN' } as any;
+
+      const result = await controller.updateMicroTask(
+        'task-uuid-1',
+        { title: 'Updated Title' },
+        mockUser,
+        mockReq,
+      );
+
+      expect(result).toHaveProperty('data');
+      expect(mockAdmissionService.updateMicroTask).toHaveBeenCalledWith(
+        'task-uuid-1',
+        expect.objectContaining({ title: 'Updated Title' }),
+        'admin-1',
+        'corr-update-mt',
+      );
+    });
+  });
+
+  describe('DELETE /api/v1/admission/micro-tasks/:id/deactivate', () => {
+    it('deactivates micro-task', async () => {
+      const deactivated = { ...mockMicroTask, isActive: false };
+      mockAdmissionService.deactivateMicroTask.mockResolvedValueOnce(deactivated);
+
+      const mockReq = { correlationId: 'corr-deact-mt' } as any;
+      const mockUser = { id: 'admin-1', role: 'ADMIN' } as any;
+
+      const result = await controller.deactivateMicroTask('task-uuid-1', mockUser, mockReq);
+
+      expect(result).toHaveProperty('data');
+      expect(mockAdmissionService.deactivateMicroTask).toHaveBeenCalledWith(
+        'task-uuid-1',
+        'admin-1',
+        'corr-deact-mt',
+      );
     });
   });
 });

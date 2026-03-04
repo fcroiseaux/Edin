@@ -3,6 +3,7 @@ import {
   Post,
   Get,
   Patch,
+  Delete,
   Param,
   Body,
   Query,
@@ -26,6 +27,9 @@ import { submitReviewSchema } from './dto/submit-review.dto.js';
 import { updateApplicationStatusSchema } from './dto/update-application-status.dto.js';
 import { assignReviewerSchema } from './dto/assign-reviewer.dto.js';
 import { listApplicationsQuerySchema } from './dto/list-applications-query.dto.js';
+import { createMicroTaskSchema } from './dto/create-micro-task.dto.js';
+import { updateMicroTaskSchema } from './dto/update-micro-task.dto.js';
+import { listMicroTasksQuerySchema } from './dto/list-micro-tasks-query.dto.js';
 import { createSuccessResponse } from '../../common/types/api-response.type.js';
 
 @Controller({ path: 'admission', version: '1' })
@@ -235,5 +239,107 @@ export class AdmissionController {
   @CheckAbility((ability) => ability.can(Action.Create, 'ApplicationReview'))
   async getMyReviews(@CurrentUser() user: CurrentUserPayload, @Req() req: Request) {
     return this.admissionService.getMyReviews(user.id, req.correlationId);
+  }
+
+  // ─── Micro-task admin endpoints (Story 3-3) ────────────────────────────
+
+  @Get('micro-tasks')
+  @UseGuards(JwtAuthGuard, AbilityGuard)
+  @CheckAbility((ability) => ability.can(Action.Manage, 'MicroTask'))
+  async listMicroTasks(@Query() query: unknown, @Req() req: Request) {
+    const parsed = listMicroTasksQuerySchema.safeParse(query);
+
+    if (!parsed.success) {
+      throw new DomainException(
+        ERROR_CODES.VALIDATION_ERROR,
+        'Invalid query parameters',
+        HttpStatus.BAD_REQUEST,
+        parsed.error.errors.map((e) => ({
+          field: e.path.join('.'),
+          message: e.message,
+        })),
+      );
+    }
+
+    const result = await this.admissionService.listMicroTasks(parsed.data, req.correlationId);
+
+    return createSuccessResponse(result.items, req.correlationId || 'unknown', result.pagination);
+  }
+
+  @Post('micro-tasks')
+  @UseGuards(JwtAuthGuard, AbilityGuard)
+  @CheckAbility((ability) => ability.can(Action.Manage, 'MicroTask'))
+  async createMicroTask(
+    @Body() body: unknown,
+    @CurrentUser() user: CurrentUserPayload,
+    @Req() req: Request,
+  ) {
+    const parsed = createMicroTaskSchema.safeParse(body);
+
+    if (!parsed.success) {
+      throw new DomainException(
+        ERROR_CODES.VALIDATION_ERROR,
+        'Invalid micro-task data',
+        HttpStatus.BAD_REQUEST,
+        parsed.error.errors.map((e) => ({
+          field: e.path.join('.'),
+          message: e.message,
+        })),
+      );
+    }
+
+    const result = await this.admissionService.createMicroTask(
+      parsed.data,
+      user.id,
+      req.correlationId,
+    );
+
+    return createSuccessResponse(result, req.correlationId || 'unknown');
+  }
+
+  @Patch('micro-tasks/:id')
+  @UseGuards(JwtAuthGuard, AbilityGuard)
+  @CheckAbility((ability) => ability.can(Action.Manage, 'MicroTask'))
+  async updateMicroTask(
+    @Param('id') id: string,
+    @Body() body: unknown,
+    @CurrentUser() user: CurrentUserPayload,
+    @Req() req: Request,
+  ) {
+    const parsed = updateMicroTaskSchema.safeParse(body);
+
+    if (!parsed.success) {
+      throw new DomainException(
+        ERROR_CODES.VALIDATION_ERROR,
+        'Invalid micro-task update data',
+        HttpStatus.BAD_REQUEST,
+        parsed.error.errors.map((e) => ({
+          field: e.path.join('.'),
+          message: e.message,
+        })),
+      );
+    }
+
+    const result = await this.admissionService.updateMicroTask(
+      id,
+      parsed.data,
+      user.id,
+      req.correlationId,
+    );
+
+    return createSuccessResponse(result, req.correlationId || 'unknown');
+  }
+
+  @Delete('micro-tasks/:id/deactivate')
+  @UseGuards(JwtAuthGuard, AbilityGuard)
+  @CheckAbility((ability) => ability.can(Action.Manage, 'MicroTask'))
+  async deactivateMicroTask(
+    @Param('id') id: string,
+    @CurrentUser() user: CurrentUserPayload,
+    @Req() req: Request,
+  ) {
+    const result = await this.admissionService.deactivateMicroTask(id, user.id, req.correlationId);
+
+    return createSuccessResponse(result, req.correlationId || 'unknown');
   }
 }

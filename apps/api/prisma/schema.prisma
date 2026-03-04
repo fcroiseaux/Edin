@@ -123,13 +123,14 @@ model ApplicationReview {
 
 model MicroTask {
   id                  String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  domain              ContributorDomain @unique
+  domain              ContributorDomain
   title               String
   description         String
   expectedDeliverable String            @map("expected_deliverable")
   estimatedEffort     String            @map("estimated_effort")
   submissionFormat    String            @map("submission_format")
   isActive            Boolean           @default(true) @map("is_active")
+  deactivatedAt       DateTime?         @map("deactivated_at")
   createdAt           DateTime          @default(now()) @map("created_at")
   updatedAt           DateTime          @updatedAt @map("updated_at")
 

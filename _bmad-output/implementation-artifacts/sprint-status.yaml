@@ -63,7 +63,7 @@ development_status:
   epic-3: in-progress
   3-1-contributor-application-with-micro-task: done
   3-2-application-review-and-admission-queue: done
-  3-3-admin-micro-task-configuration: backlog
+  3-3-admin-micro-task-configuration: done
   3-4-buddy-assignment-and-first-task-recommendation: backlog
   3-5-72-hour-ignition-onboarding-tracking: backlog
   epic-3-retrospective: optional

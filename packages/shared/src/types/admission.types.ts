@@ -5,6 +5,9 @@ import type {
   updateApplicationStatusSchema,
   assignReviewerSchema,
   listApplicationsQuerySchema,
+  createMicroTaskSchema,
+  updateMicroTaskSchema,
+  listMicroTasksQuerySchema,
 } from '../schemas/admission.schema.js';
 
 export type ApplicationStatus = 'PENDING' | 'UNDER_REVIEW' | 'APPROVED' | 'DECLINED';
@@ -51,6 +54,7 @@ export interface MicroTask {
   estimatedEffort: string;
   submissionFormat: string;
   isActive: boolean;
+  deactivatedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -72,3 +76,6 @@ export type SubmitReviewInput = z.infer<typeof submitReviewSchema>;
 export type UpdateApplicationStatusInput = z.infer<typeof updateApplicationStatusSchema>;
 export type AssignReviewerInput = z.infer<typeof assignReviewerSchema>;
 export type ListApplicationsQuery = z.infer<typeof listApplicationsQuerySchema>;
+export type CreateMicroTaskInput = z.infer<typeof createMicroTaskSchema>;
+export type UpdateMicroTaskInput = z.infer<typeof updateMicroTaskSchema>;
+export type ListMicroTasksQueryInput = z.infer<typeof listMicroTasksQuerySchema>;

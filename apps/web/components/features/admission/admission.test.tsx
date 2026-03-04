@@ -229,6 +229,7 @@ describe('MicroTaskDisplay', () => {
     estimatedEffort: '2-4 hours',
     submissionFormat: 'GitHub repository',
     isActive: true,
+    deactivatedAt: null,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
@@ -252,6 +253,21 @@ describe('MicroTaskDisplay', () => {
     render(<MicroTaskDisplay microTask={mockTask} />);
 
     expect(screen.getByLabelText('Micro-task assignment')).toBeInTheDocument();
+  });
+
+  it('renders markdown formatting in description as rich text', () => {
+    render(
+      <MicroTaskDisplay
+        microTask={{
+          ...mockTask,
+          description: '**Bold** intro\n- first item\n- second item',
+        }}
+      />,
+    );
+
+    expect(screen.getByText('Bold')).toBeInTheDocument();
+    expect(screen.getByText('first item')).toBeInTheDocument();
+    expect(screen.getByText('second item')).toBeInTheDocument();
   });
 });
 

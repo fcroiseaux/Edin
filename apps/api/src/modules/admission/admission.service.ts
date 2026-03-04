@@ -12,6 +12,9 @@ import { DomainException } from '../../common/exceptions/domain.exception.js';
 import type { CreateApplicationDto } from './dto/create-application.dto.js';
 import type { SubmitReviewDto } from './dto/submit-review.dto.js';
 import type { ListApplicationsQueryDto } from './dto/list-applications-query.dto.js';
+import type { CreateMicroTaskDto } from './dto/create-micro-task.dto.js';
+import type { UpdateMicroTaskDto } from './dto/update-micro-task.dto.js';
+import type { ListMicroTasksQueryDto } from './dto/list-micro-tasks-query.dto.js';
 
 @Injectable()
 export class AdmissionService {
@@ -761,6 +764,329 @@ export class AdmissionService {
 
       return a.name.localeCompare(b.name);
     });
+  }
+
+  // ─── Micro-task admin methods (Story 3-3) ─────────────────────────────
+
+  async listMicroTasks(filters: ListMicroTasksQueryDto, correlationId?: string) {
+    this.logger.log('Listing micro-tasks', {
+      domain: filters.domain,
+      isActive: filters.isActive,
+      cursor: filters.cursor,
+      limit: filters.limit,
+      correlationId,
+    });
+
+    const where: Prisma.MicroTaskWhereInput = {};
+    if (filters.domain) {
+      where.domain = filters.domain as ContributorDomain;
+    }
+    if (filters.isActive !== undefined) {
+      where.isActive = filters.isActive;
+    }
+
+    const take = filters.limit + 1;
+
+    const findManyArgs: Prisma.MicroTaskFindManyArgs = {
+      where,
+      take,
+      orderBy: [{ domain: 'asc' }, { createdAt: 'desc' }],
+    };
+
+    if (filters.cursor) {
+      findManyArgs.cursor = { id: filters.cursor };
+      findManyArgs.skip = 1;
+    }
+
+    const microTasks = await this.prisma.microTask.findMany(findManyArgs);
+
+    const hasMore = microTasks.length > filters.limit;
+    const items = hasMore ? microTasks.slice(0, filters.limit) : microTasks;
+    const nextCursor = hasMore ? items[items.length - 1].id : null;
+
+    const total = await this.prisma.microTask.count({ where });
+
+    return {
+      items,
+      pagination: {
+        cursor: nextCursor,
+        hasMore,
+        total,
+      },
+    };
+  }
+
+  async createMicroTask(dto: CreateMicroTaskDto, adminId: string, correlationId?: string) {
+    this.logger.log('Creating micro-task', {
+      domain: dto.domain,
+      adminId,
+      correlationId,
+    });
+
+    let result;
+    try {
+      result = await this.prisma.$transaction(async (tx) => {
+        // Auto-deactivate existing active task for same domain
+        const existingActive = await tx.microTask.findFirst({
+          where: { domain: dto.domain as ContributorDomain, isActive: true },
+        });
+
+        if (existingActive) {
+          await tx.microTask.update({
+            where: { id: existingActive.id },
+            data: { isActive: false, deactivatedAt: new Date() },
+          });
+
+          this.logger.log('Auto-deactivated previous active micro-task', {
+            deactivatedId: existingActive.id,
+            domain: dto.domain,
+            correlationId,
+          });
+        }
+
+        const created = await tx.microTask.create({
+          data: {
+            domain: dto.domain as ContributorDomain,
+            title: dto.title,
+            description: dto.description,
+            expectedDeliverable: dto.expectedDeliverable,
+            estimatedEffort: dto.estimatedEffort,
+            submissionFormat: dto.submissionFormat,
+            isActive: true,
+          },
+        });
+
+        await tx.auditLog.create({
+          data: {
+            actorId: adminId,
+            action: 'admission.microtask.created',
+            entityType: 'MicroTask',
+            entityId: created.id,
+            details: {
+              domain: dto.domain,
+              title: dto.title,
+              previousActiveDeactivated: existingActive?.id ?? null,
+            },
+            correlationId,
+          },
+        });
+
+        return created;
+      });
+    } catch (error) {
+      if (this.isUniqueConstraintViolation(error, 'micro_tasks_one_active_per_domain')) {
+        throw new DomainException(
+          ERROR_CODES.MICRO_TASK_DOMAIN_ACTIVE_EXISTS,
+          `An active micro-task already exists for domain ${dto.domain}`,
+          HttpStatus.CONFLICT,
+        );
+      }
+      throw error;
+    }
+
+    this.eventEmitter.emit('admission.microtask.created', {
+      microTaskId: result.id,
+      domain: dto.domain,
+      adminId,
+      correlationId,
+    });
+
+    this.logger.log('Micro-task created successfully', {
+      microTaskId: result.id,
+      domain: dto.domain,
+      correlationId,
+    });
+
+    return result;
+  }
+
+  async updateMicroTask(
+    id: string,
+    dto: UpdateMicroTaskDto,
+    adminId: string,
+    correlationId?: string,
+  ) {
+    this.logger.log('Updating micro-task', {
+      microTaskId: id,
+      adminId,
+      correlationId,
+    });
+
+    const existing = await this.prisma.microTask.findUnique({ where: { id } });
+    if (!existing) {
+      throw new DomainException(
+        ERROR_CODES.MICRO_TASK_NOT_FOUND,
+        'Micro-task not found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    let result;
+    try {
+      result = await this.prisma.$transaction(async (tx) => {
+        // If activating, auto-deactivate existing active task for same domain
+        if (dto.isActive === true && !existing.isActive) {
+          const currentActive = await tx.microTask.findFirst({
+            where: {
+              domain: existing.domain,
+              isActive: true,
+              id: { not: id },
+            },
+          });
+
+          if (currentActive) {
+            await tx.microTask.update({
+              where: { id: currentActive.id },
+              data: { isActive: false, deactivatedAt: new Date() },
+            });
+
+            this.logger.log('Auto-deactivated previous active micro-task during update', {
+              deactivatedId: currentActive.id,
+              domain: existing.domain,
+              correlationId,
+            });
+          }
+        }
+
+        const updateData: Prisma.MicroTaskUpdateInput = {};
+        if (dto.title !== undefined) updateData.title = dto.title;
+        if (dto.description !== undefined) updateData.description = dto.description;
+        if (dto.expectedDeliverable !== undefined)
+          updateData.expectedDeliverable = dto.expectedDeliverable;
+        if (dto.estimatedEffort !== undefined) updateData.estimatedEffort = dto.estimatedEffort;
+        if (dto.submissionFormat !== undefined) updateData.submissionFormat = dto.submissionFormat;
+        if (dto.isActive !== undefined) {
+          updateData.isActive = dto.isActive;
+          if (!dto.isActive) {
+            updateData.deactivatedAt = new Date();
+          } else if (dto.isActive && !existing.isActive) {
+            updateData.deactivatedAt = null;
+          }
+        }
+
+        const updated = await tx.microTask.update({
+          where: { id },
+          data: updateData,
+        });
+
+        await tx.auditLog.create({
+          data: {
+            actorId: adminId,
+            action: 'admission.microtask.updated',
+            entityType: 'MicroTask',
+            entityId: id,
+            details: {
+              changedFields: Object.keys(dto),
+            },
+            correlationId,
+          },
+        });
+
+        return updated;
+      });
+    } catch (error) {
+      if (this.isUniqueConstraintViolation(error, 'micro_tasks_one_active_per_domain')) {
+        throw new DomainException(
+          ERROR_CODES.MICRO_TASK_DOMAIN_ACTIVE_EXISTS,
+          `An active micro-task already exists for domain ${existing.domain}`,
+          HttpStatus.CONFLICT,
+        );
+      }
+      throw error;
+    }
+
+    this.eventEmitter.emit('admission.microtask.updated', {
+      microTaskId: id,
+      adminId,
+      correlationId,
+    });
+
+    this.logger.log('Micro-task updated successfully', {
+      microTaskId: id,
+      correlationId,
+    });
+
+    return result;
+  }
+
+  async deactivateMicroTask(id: string, adminId: string, correlationId?: string) {
+    this.logger.log('Deactivating micro-task', {
+      microTaskId: id,
+      adminId,
+      correlationId,
+    });
+
+    const existing = await this.prisma.microTask.findUnique({ where: { id } });
+    if (!existing) {
+      throw new DomainException(
+        ERROR_CODES.MICRO_TASK_NOT_FOUND,
+        'Micro-task not found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    if (!existing.isActive) {
+      return existing;
+    }
+
+    const result = await this.prisma.$transaction(async (tx) => {
+      const updated = await tx.microTask.update({
+        where: { id },
+        data: {
+          isActive: false,
+          deactivatedAt: new Date(),
+        },
+      });
+
+      await tx.auditLog.create({
+        data: {
+          actorId: adminId,
+          action: 'admission.microtask.deactivated',
+          entityType: 'MicroTask',
+          entityId: id,
+          details: {
+            domain: existing.domain,
+          },
+          correlationId,
+        },
+      });
+
+      return updated;
+    });
+
+    this.eventEmitter.emit('admission.microtask.deactivated', {
+      microTaskId: id,
+      domain: existing.domain,
+      adminId,
+      correlationId,
+    });
+
+    this.logger.log('Micro-task deactivated', {
+      microTaskId: id,
+      domain: existing.domain,
+      correlationId,
+    });
+
+    return result;
+  }
+
+  async getMicroTaskById(id: string, correlationId?: string) {
+    this.logger.log('Fetching micro-task by ID', {
+      microTaskId: id,
+      correlationId,
+    });
+
+    const microTask = await this.prisma.microTask.findUnique({ where: { id } });
+
+    if (!microTask) {
+      throw new DomainException(
+        ERROR_CODES.MICRO_TASK_NOT_FOUND,
+        'Micro-task not found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return microTask;
   }
 
   private isUniqueConstraintViolation(error: unknown, constraintName?: string): boolean {

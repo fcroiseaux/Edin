@@ -37,7 +37,7 @@ async function main() {
   });
   console.log(`Upserted test contributor: ${contributor.id}`);
 
-  // Seed micro-tasks for each domain
+  // Seed micro-tasks for each domain (conditional: create only if no active task exists)
   const microTasks = [
     {
       domain: 'Technology' as const,
@@ -82,22 +82,21 @@ async function main() {
   ];
 
   for (const task of microTasks) {
-    const microTask = await prisma.microTask.upsert({
-      where: { domain: task.domain },
-      update: {
-        title: task.title,
-        description: task.description,
-        expectedDeliverable: task.expectedDeliverable,
-        estimatedEffort: task.estimatedEffort,
-        submissionFormat: task.submissionFormat,
-        isActive: true,
-      },
-      create: {
-        ...task,
-        isActive: true,
-      },
+    const existing = await prisma.microTask.findFirst({
+      where: { domain: task.domain, isActive: true },
     });
-    console.log(`Upserted micro-task for ${task.domain}: ${microTask.id}`);
+
+    if (!existing) {
+      const microTask = await prisma.microTask.create({
+        data: {
+          ...task,
+          isActive: true,
+        },
+      });
+      console.log(`Created micro-task for ${task.domain}: ${microTask.id}`);
+    } else {
+      console.log(`Micro-task for ${task.domain} already exists: ${existing.id}`);
+    }
   }
 
   console.log('Seeding complete.');
