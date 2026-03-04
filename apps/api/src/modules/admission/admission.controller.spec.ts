@@ -1,10 +1,13 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Test } from '@nestjs/testing';
+import { Reflector } from '@nestjs/core';
 import { VersioningType, HttpStatus } from '@nestjs/common';
 import { ThrottlerModule } from '@nestjs/throttler';
 import request from 'supertest';
 import { AdmissionController } from './admission.controller.js';
 import { AdmissionService } from './admission.service.js';
+import { CaslAbilityFactory } from '../auth/casl/ability.factory.js';
+import { AbilityGuard } from '../../common/guards/ability.guard.js';
 import { ResponseWrapperInterceptor } from '../../common/interceptors/response-wrapper.interceptor.js';
 import { GlobalExceptionFilter } from '../../common/filters/global-exception.filter.js';
 
@@ -12,6 +15,15 @@ const mockAdmissionService = {
   createApplication: vi.fn(),
   getApplicationById: vi.fn(),
   getActiveMicroTaskByDomain: vi.fn(),
+  listApplications: vi.fn(),
+  getApplicationFull: vi.fn(),
+  assignReviewer: vi.fn(),
+  submitReview: vi.fn(),
+  approveApplication: vi.fn(),
+  declineApplication: vi.fn(),
+  requestMoreInfo: vi.fn(),
+  listAvailableReviewers: vi.fn(),
+  getMyReviews: vi.fn(),
 };
 
 describe('AdmissionController', () => {
@@ -68,6 +80,9 @@ describe('AdmissionController', () => {
           provide: AdmissionService,
           useValue: mockAdmissionService,
         },
+        CaslAbilityFactory,
+        Reflector,
+        AbilityGuard,
       ],
     }).compile();
 
@@ -145,6 +160,9 @@ describe('AdmissionController', () => {
             provide: AdmissionService,
             useValue: mockAdmissionService,
           },
+          CaslAbilityFactory,
+          Reflector,
+          AbilityGuard,
         ],
       }).compile();
 
@@ -177,6 +195,9 @@ describe('AdmissionController', () => {
             provide: AdmissionService,
             useValue: mockAdmissionService,
           },
+          CaslAbilityFactory,
+          Reflector,
+          AbilityGuard,
         ],
       }).compile();
 
@@ -231,6 +252,9 @@ describe('AdmissionController', () => {
             provide: AdmissionService,
             useValue: mockAdmissionService,
           },
+          CaslAbilityFactory,
+          Reflector,
+          AbilityGuard,
         ],
       }).compile();
 
@@ -277,6 +301,9 @@ describe('AdmissionController', () => {
             provide: AdmissionService,
             useValue: mockAdmissionService,
           },
+          CaslAbilityFactory,
+          Reflector,
+          AbilityGuard,
         ],
       }).compile();
 
@@ -295,6 +322,222 @@ describe('AdmissionController', () => {
       expect(response.body).toHaveProperty('meta');
 
       await app.close();
+    });
+  });
+
+  // ─── Story 3-2 Controller Tests ────────────────────────────
+
+  describe('GET /api/v1/admission/applications (list)', () => {
+    it('calls listApplications with parsed query params', async () => {
+      const listResult = { items: [], pagination: { cursor: null, hasMore: false, total: 0 } };
+      mockAdmissionService.listApplications.mockResolvedValueOnce(listResult);
+
+      const mockReq = { correlationId: 'corr-list' } as any;
+      const result = await controller.listApplications({ limit: '20' }, mockReq);
+
+      expect(result).toHaveProperty('data');
+      expect(result).toHaveProperty('meta');
+      expect(mockAdmissionService.listApplications).toHaveBeenCalledWith(
+        expect.objectContaining({ limit: 20 }),
+        'corr-list',
+      );
+    });
+
+    it('rejects invalid query parameters', async () => {
+      const mockReq = { correlationId: 'corr-bad' } as any;
+
+      await expect(
+        controller.listApplications({ status: 'INVALID_STATUS' }, mockReq),
+      ).rejects.toThrow();
+    });
+  });
+
+  describe('GET /api/v1/admission/applications/:id/full', () => {
+    it('returns full application detail', async () => {
+      const fullApp = { ...mockApplication, reviews: [], contributor: null, reviewedBy: null };
+      mockAdmissionService.getApplicationFull.mockResolvedValueOnce(fullApp);
+
+      const mockReq = { correlationId: 'corr-full' } as any;
+      const result = await controller.getApplicationFull('app-uuid-1', mockReq);
+
+      expect(result).toEqual(fullApp);
+      expect(mockAdmissionService.getApplicationFull).toHaveBeenCalledWith(
+        'app-uuid-1',
+        'corr-full',
+        undefined,
+        undefined,
+      );
+    });
+  });
+
+  describe('POST /api/v1/admission/applications/:id/reviewers', () => {
+    it('assigns reviewer with valid data', async () => {
+      mockAdmissionService.assignReviewer.mockResolvedValueOnce({ id: 'review-1' });
+
+      const mockReq = { correlationId: 'corr-assign' } as any;
+      const mockUser = { id: 'admin-1', role: 'ADMIN' } as any;
+      const result = await controller.assignReviewer(
+        'app-uuid-1',
+        { contributorId: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11' },
+        mockUser,
+        mockReq,
+      );
+
+      expect(result).toEqual({ id: 'review-1' });
+    });
+
+    it('rejects invalid contributor ID', async () => {
+      const mockReq = { correlationId: 'corr-invalid' } as any;
+      const mockUser = { id: 'admin-1', role: 'ADMIN' } as any;
+
+      await expect(
+        controller.assignReviewer('app-uuid-1', { contributorId: 'not-a-uuid' }, mockUser, mockReq),
+      ).rejects.toThrow();
+    });
+  });
+
+  describe('POST /api/v1/admission/applications/:id/reviews', () => {
+    it('submits review with valid data', async () => {
+      const reviewResult = {
+        id: 'review-1',
+        recommendation: 'APPROVE',
+        feedback: 'Good candidate',
+      };
+      mockAdmissionService.submitReview.mockResolvedValueOnce(reviewResult);
+
+      const mockReq = { correlationId: 'corr-review' } as any;
+      const mockUser = { id: 'reviewer-1', role: 'CONTRIBUTOR' } as any;
+      const result = await controller.submitReview(
+        'app-uuid-1',
+        { recommendation: 'APPROVE', feedback: 'Good candidate' },
+        mockUser,
+        mockReq,
+      );
+
+      expect(result).toEqual(reviewResult);
+    });
+
+    it('rejects review with too short feedback', async () => {
+      const mockReq = { correlationId: 'corr-short' } as any;
+      const mockUser = { id: 'reviewer-1', role: 'CONTRIBUTOR' } as any;
+
+      await expect(
+        controller.submitReview(
+          'app-uuid-1',
+          { recommendation: 'APPROVE', feedback: 'Short' },
+          mockUser,
+          mockReq,
+        ),
+      ).rejects.toThrow();
+    });
+  });
+
+  describe('PATCH /api/v1/admission/applications/:id/status', () => {
+    it('approves application', async () => {
+      mockAdmissionService.approveApplication.mockResolvedValueOnce({
+        ...mockApplication,
+        status: 'APPROVED',
+      });
+
+      const mockReq = { correlationId: 'corr-approve' } as any;
+      const mockUser = { id: 'admin-1', role: 'ADMIN' } as any;
+      const result = await controller.updateApplicationStatus(
+        'app-uuid-1',
+        { status: 'APPROVED' },
+        mockUser,
+        mockReq,
+      );
+
+      expect(result.status).toBe('APPROVED');
+      expect(mockAdmissionService.approveApplication).toHaveBeenCalledWith(
+        'app-uuid-1',
+        'admin-1',
+        undefined,
+        'corr-approve',
+      );
+    });
+
+    it('declines application with reason', async () => {
+      mockAdmissionService.declineApplication.mockResolvedValueOnce({
+        ...mockApplication,
+        status: 'DECLINED',
+      });
+
+      const mockReq = { correlationId: 'corr-decline' } as any;
+      const mockUser = { id: 'admin-1', role: 'ADMIN' } as any;
+      const result = await controller.updateApplicationStatus(
+        'app-uuid-1',
+        { status: 'DECLINED', reason: 'Insufficient experience' },
+        mockUser,
+        mockReq,
+      );
+
+      expect(result.status).toBe('DECLINED');
+      expect(mockAdmissionService.declineApplication).toHaveBeenCalledWith(
+        'app-uuid-1',
+        'admin-1',
+        'Insufficient experience',
+        'corr-decline',
+      );
+    });
+
+    it('requests more info with reason', async () => {
+      mockAdmissionService.requestMoreInfo = vi.fn().mockResolvedValueOnce({
+        ...mockApplication,
+        status: 'UNDER_REVIEW',
+      });
+
+      const mockReq = { correlationId: 'corr-request-info' } as any;
+      const mockUser = { id: 'admin-1', role: 'ADMIN' } as any;
+      const result = await controller.updateApplicationStatus(
+        'app-uuid-1',
+        { status: 'REQUEST_MORE_INFO', reason: 'Please add implementation details' },
+        mockUser,
+        mockReq,
+      );
+
+      expect(result.status).toBe('UNDER_REVIEW');
+      expect(mockAdmissionService.requestMoreInfo).toHaveBeenCalledWith(
+        'app-uuid-1',
+        'admin-1',
+        'Please add implementation details',
+        'corr-request-info',
+      );
+    });
+
+    it('rejects decline without reason', async () => {
+      const mockReq = { correlationId: 'corr-no-reason' } as any;
+      const mockUser = { id: 'admin-1', role: 'ADMIN' } as any;
+
+      await expect(
+        controller.updateApplicationStatus('app-uuid-1', { status: 'DECLINED' }, mockUser, mockReq),
+      ).rejects.toThrow();
+    });
+  });
+
+  describe('GET /api/v1/admission/reviewers', () => {
+    it('returns available reviewers', async () => {
+      const reviewers = [{ id: 'r-1', name: 'Alice', domain: 'Technology', avatarUrl: null }];
+      mockAdmissionService.listAvailableReviewers.mockResolvedValueOnce(reviewers);
+
+      const mockReq = { correlationId: 'corr-reviewers' } as any;
+      const result = await controller.listReviewers(undefined, mockReq);
+
+      expect(result).toEqual(reviewers);
+    });
+  });
+
+  describe('GET /api/v1/admission/my-reviews', () => {
+    it('returns reviews for current user', async () => {
+      const reviews = [{ id: 'review-1', application: { id: 'app-1' } }];
+      mockAdmissionService.getMyReviews.mockResolvedValueOnce(reviews);
+
+      const mockReq = { correlationId: 'corr-my' } as any;
+      const mockUser = { id: 'reviewer-1', role: 'CONTRIBUTOR' } as any;
+      const result = await controller.getMyReviews(mockUser, mockReq);
+
+      expect(result).toEqual(reviews);
+      expect(mockAdmissionService.getMyReviews).toHaveBeenCalledWith('reviewer-1', 'corr-my');
     });
   });
 });

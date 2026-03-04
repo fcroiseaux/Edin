@@ -9,9 +9,23 @@ const mockPrisma = {
   application: {
     create: vi.fn(),
     findUnique: vi.fn(),
+    findMany: vi.fn(),
+    count: vi.fn(),
+    update: vi.fn(),
+  },
+  applicationReview: {
+    create: vi.fn(),
+    findFirst: vi.fn(),
+    findMany: vi.fn(),
+    update: vi.fn(),
   },
   microTask: {
     findFirst: vi.fn(),
+  },
+  contributor: {
+    findUnique: vi.fn(),
+    findMany: vi.fn(),
+    update: vi.fn(),
   },
   consentRecord: {
     create: vi.fn(),
@@ -210,7 +224,7 @@ describe('AdmissionService', () => {
       expect(result).toEqual(statusResult);
       expect(mockPrisma.application.findUnique).toHaveBeenCalledWith({
         where: { id: 'app-uuid-1' },
-        select: { id: true, status: true, createdAt: true },
+        select: { id: true, status: true, declineReason: true, createdAt: true },
       });
     });
 
@@ -255,6 +269,411 @@ describe('AdmissionService', () => {
       expect(caughtError).toBeInstanceOf(DomainException);
       expect(caughtError!.errorCode).toBe('DOMAIN_MICRO_TASK_NOT_FOUND');
       expect(caughtError!.getStatus()).toBe(404);
+    });
+  });
+
+  // ─── Story 3-2 Tests ───────────────────────────────────────────
+
+  describe('listApplications', () => {
+    it('returns paginated applications sorted oldest first', async () => {
+      const apps = [
+        {
+          id: 'app-1',
+          applicantName: 'Alice',
+          domain: 'Technology',
+          status: 'PENDING',
+          createdAt: new Date(),
+          reviews: [],
+        },
+        {
+          id: 'app-2',
+          applicantName: 'Bob',
+          domain: 'Fintech',
+          status: 'UNDER_REVIEW',
+          createdAt: new Date(),
+          reviews: [],
+        },
+      ];
+      mockPrisma.application.findMany.mockResolvedValueOnce(apps);
+      mockPrisma.application.count.mockResolvedValueOnce(2);
+
+      const result = await service.listApplications({ limit: 20 }, 'corr-list');
+
+      expect(result.items).toHaveLength(2);
+      expect(result.pagination.hasMore).toBe(false);
+      expect(result.pagination.total).toBe(2);
+    });
+
+    it('filters by domain and status', async () => {
+      mockPrisma.application.findMany.mockResolvedValueOnce([]);
+      mockPrisma.application.count.mockResolvedValueOnce(0);
+
+      await service.listApplications(
+        { domain: 'Technology', status: 'PENDING', limit: 20 },
+        'corr-filter',
+      );
+
+      expect(mockPrisma.application.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { domain: 'Technology', status: 'PENDING' },
+        }),
+      );
+    });
+
+    it('returns hasMore=true when more items exist', async () => {
+      const apps = Array.from({ length: 21 }, (_, i) => ({
+        id: `app-${i}`,
+        applicantName: `User ${i}`,
+        domain: 'Technology',
+        status: 'PENDING',
+        createdAt: new Date(),
+        reviews: [],
+      }));
+      mockPrisma.application.findMany.mockResolvedValueOnce(apps);
+      mockPrisma.application.count.mockResolvedValueOnce(50);
+
+      const result = await service.listApplications({ limit: 20 }, 'corr-more');
+
+      expect(result.items).toHaveLength(20);
+      expect(result.pagination.hasMore).toBe(true);
+      expect(result.pagination.cursor).toBe('app-19');
+    });
+  });
+
+  describe('getApplicationFull', () => {
+    it('returns full application with reviews', async () => {
+      const fullApp = {
+        ...mockApplication,
+        reviews: [],
+        contributor: null,
+        reviewedBy: null,
+      };
+      mockPrisma.application.findUnique.mockResolvedValueOnce(fullApp);
+
+      const result = await service.getApplicationFull('app-uuid-1', 'corr-full');
+
+      expect(result).toEqual(fullApp);
+    });
+
+    it('throws APPLICATION_NOT_FOUND when not found', async () => {
+      mockPrisma.application.findUnique.mockResolvedValueOnce(null);
+
+      await expect(service.getApplicationFull('nonexistent', 'corr-notfound')).rejects.toThrow(
+        DomainException,
+      );
+    });
+  });
+
+  describe('assignReviewer', () => {
+    it('assigns reviewer and transitions PENDING to UNDER_REVIEW', async () => {
+      mockPrisma.application.findUnique.mockResolvedValueOnce({
+        ...mockApplication,
+        status: 'PENDING',
+        reviews: [],
+      });
+      mockPrisma.contributor.findUnique.mockResolvedValueOnce({
+        id: 'reviewer-1',
+        name: 'Reviewer',
+      });
+      mockPrisma.applicationReview.create.mockResolvedValueOnce({ id: 'review-1' });
+      mockPrisma.application.update.mockResolvedValueOnce({});
+      mockPrisma.auditLog.create.mockResolvedValueOnce({});
+
+      const result = await service.assignReviewer(
+        'app-uuid-1',
+        'reviewer-1',
+        'admin-1',
+        'corr-assign',
+      );
+
+      expect(result).toEqual({ id: 'review-1' });
+      expect(mockPrisma.application.update).toHaveBeenCalledWith({
+        where: { id: 'app-uuid-1' },
+        data: { status: 'UNDER_REVIEW' },
+      });
+      expect(mockEventEmitter.emit).toHaveBeenCalledWith(
+        'admission.reviewer.assigned',
+        expect.any(Object),
+      );
+    });
+
+    it('throws REVIEWER_ALREADY_ASSIGNED for duplicate reviewer', async () => {
+      mockPrisma.application.findUnique.mockResolvedValueOnce({
+        ...mockApplication,
+        status: 'UNDER_REVIEW',
+        reviews: [{ reviewerId: 'reviewer-1' }],
+      });
+      mockPrisma.contributor.findUnique.mockResolvedValueOnce({ id: 'reviewer-1' });
+
+      await expect(
+        service.assignReviewer('app-uuid-1', 'reviewer-1', 'admin-1', 'corr-dup'),
+      ).rejects.toThrow(DomainException);
+    });
+
+    it('throws REVIEWER_NOT_FOUND for invalid contributor', async () => {
+      mockPrisma.application.findUnique.mockResolvedValueOnce({
+        ...mockApplication,
+        status: 'PENDING',
+        reviews: [],
+      });
+      mockPrisma.contributor.findUnique.mockResolvedValueOnce(null);
+
+      await expect(
+        service.assignReviewer('app-uuid-1', 'nonexistent', 'admin-1', 'corr-nf'),
+      ).rejects.toThrow(DomainException);
+    });
+
+    it('throws APPLICATION_NOT_REVIEWABLE for already-decided application', async () => {
+      mockPrisma.application.findUnique.mockResolvedValueOnce({
+        ...mockApplication,
+        status: 'APPROVED',
+        reviews: [],
+      });
+
+      await expect(
+        service.assignReviewer('app-uuid-1', 'reviewer-1', 'admin-1', 'corr-decided'),
+      ).rejects.toThrow(DomainException);
+    });
+  });
+
+  describe('submitReview', () => {
+    it('submits review for assigned reviewer', async () => {
+      mockPrisma.application.findUnique.mockResolvedValueOnce({
+        ...mockApplication,
+        status: 'UNDER_REVIEW',
+        reviews: [{ reviewerId: 'reviewer-1', feedback: '' }],
+      });
+      mockPrisma.applicationReview.findFirst.mockResolvedValueOnce({ id: 'review-1' });
+      mockPrisma.applicationReview.update.mockResolvedValueOnce({
+        id: 'review-1',
+        recommendation: 'APPROVE',
+        feedback: 'Great application',
+      });
+      mockPrisma.auditLog.create.mockResolvedValueOnce({});
+
+      const result = await service.submitReview(
+        'app-uuid-1',
+        'reviewer-1',
+        { recommendation: 'APPROVE', feedback: 'Great application' },
+        'corr-submit',
+      );
+
+      expect(result.recommendation).toBe('APPROVE');
+      expect(mockEventEmitter.emit).toHaveBeenCalledWith(
+        'admission.review.submitted',
+        expect.any(Object),
+      );
+    });
+
+    it('throws error for unauthorized reviewer', async () => {
+      mockPrisma.application.findUnique.mockResolvedValueOnce({
+        ...mockApplication,
+        status: 'UNDER_REVIEW',
+        reviews: [{ reviewerId: 'other-reviewer', feedback: '' }],
+      });
+
+      await expect(
+        service.submitReview(
+          'app-uuid-1',
+          'reviewer-1',
+          { recommendation: 'APPROVE', feedback: 'Test' },
+          'corr-unauth',
+        ),
+      ).rejects.toThrow(DomainException);
+    });
+
+    it('throws APPLICATION_ALREADY_REVIEWED for duplicate review', async () => {
+      mockPrisma.application.findUnique.mockResolvedValueOnce({
+        ...mockApplication,
+        status: 'UNDER_REVIEW',
+        reviews: [{ reviewerId: 'reviewer-1', feedback: 'Already reviewed' }],
+      });
+
+      await expect(
+        service.submitReview(
+          'app-uuid-1',
+          'reviewer-1',
+          { recommendation: 'APPROVE', feedback: 'Test' },
+          'corr-alr',
+        ),
+      ).rejects.toThrow(DomainException);
+    });
+  });
+
+  describe('approveApplication', () => {
+    it('approves application and promotes contributor role', async () => {
+      mockPrisma.application.findUnique.mockResolvedValueOnce({
+        ...mockApplication,
+        status: 'UNDER_REVIEW',
+        contributorId: 'contributor-1',
+      });
+      mockPrisma.application.update.mockResolvedValueOnce({
+        ...mockApplication,
+        status: 'APPROVED',
+      });
+      mockPrisma.contributor.update.mockResolvedValueOnce({});
+      mockPrisma.auditLog.create.mockResolvedValueOnce({});
+
+      const result = await service.approveApplication(
+        'app-uuid-1',
+        'admin-1',
+        'Good fit',
+        'corr-approve',
+      );
+
+      expect(result.status).toBe('APPROVED');
+      expect(mockPrisma.contributor.update).toHaveBeenCalledWith({
+        where: { id: 'contributor-1' },
+        data: { role: 'CONTRIBUTOR' },
+      });
+      expect(mockEventEmitter.emit).toHaveBeenCalledWith(
+        'admission.application.approved',
+        expect.any(Object),
+      );
+    });
+
+    it('throws INVALID_STATUS_TRANSITION for non-UNDER_REVIEW application', async () => {
+      mockPrisma.application.findUnique.mockResolvedValueOnce({
+        ...mockApplication,
+        status: 'PENDING',
+      });
+
+      await expect(
+        service.approveApplication('app-uuid-1', 'admin-1', undefined, 'corr-invalid'),
+      ).rejects.toThrow(DomainException);
+    });
+  });
+
+  describe('declineApplication', () => {
+    it('declines application with reason', async () => {
+      mockPrisma.application.findUnique.mockResolvedValueOnce({
+        ...mockApplication,
+        status: 'UNDER_REVIEW',
+      });
+      mockPrisma.application.update.mockResolvedValueOnce({
+        ...mockApplication,
+        status: 'DECLINED',
+        declineReason: 'Insufficient experience',
+      });
+      mockPrisma.auditLog.create.mockResolvedValueOnce({});
+
+      const result = await service.declineApplication(
+        'app-uuid-1',
+        'admin-1',
+        'Insufficient experience',
+        'corr-decline',
+      );
+
+      expect(result.status).toBe('DECLINED');
+      expect(mockEventEmitter.emit).toHaveBeenCalledWith(
+        'admission.application.declined',
+        expect.any(Object),
+      );
+    });
+
+    it('throws INVALID_STATUS_TRANSITION for non-UNDER_REVIEW application', async () => {
+      mockPrisma.application.findUnique.mockResolvedValueOnce({
+        ...mockApplication,
+        status: 'PENDING',
+      });
+
+      await expect(
+        service.declineApplication('app-uuid-1', 'admin-1', 'Reason', 'corr-invalid-dec'),
+      ).rejects.toThrow(DomainException);
+    });
+  });
+
+  describe('requestMoreInfo', () => {
+    it('creates audit log entry and keeps application under review', async () => {
+      mockPrisma.application.findUnique.mockResolvedValueOnce({
+        ...mockApplication,
+        status: 'UNDER_REVIEW',
+      });
+      mockPrisma.auditLog.create.mockResolvedValueOnce({});
+
+      const result = await service.requestMoreInfo(
+        'app-uuid-1',
+        'admin-1',
+        'Please clarify your micro-task approach',
+        'corr-info',
+      );
+
+      expect(result.status).toBe('UNDER_REVIEW');
+      expect(mockPrisma.auditLog.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          action: 'admission.application.info.requested',
+          entityId: 'app-uuid-1',
+        }),
+      });
+      expect(mockEventEmitter.emit).toHaveBeenCalledWith(
+        'admission.application.info.requested',
+        expect.any(Object),
+      );
+    });
+
+    it('throws INVALID_STATUS_TRANSITION for non-UNDER_REVIEW application', async () => {
+      mockPrisma.application.findUnique.mockResolvedValueOnce({
+        ...mockApplication,
+        status: 'PENDING',
+      });
+
+      await expect(
+        service.requestMoreInfo('app-uuid-1', 'admin-1', 'Need more info', 'corr-info-invalid'),
+      ).rejects.toThrow(DomainException);
+    });
+  });
+
+  describe('listAvailableReviewers', () => {
+    it('returns active contributors eligible for review', async () => {
+      const reviewers = [
+        { id: 'r-1', name: 'Alice', domain: 'Technology', avatarUrl: null },
+        { id: 'r-2', name: 'Bob', domain: 'Fintech', avatarUrl: null },
+      ];
+      mockPrisma.contributor.findMany.mockResolvedValueOnce(reviewers);
+
+      const result = await service.listAvailableReviewers(undefined, 'corr-reviewers');
+
+      expect(result).toHaveLength(2);
+      expect(mockPrisma.contributor.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            isActive: true,
+            role: {
+              in: ['CONTRIBUTOR', 'EDITOR', 'FOUNDING_CONTRIBUTOR', 'WORKING_GROUP_LEAD', 'ADMIN'],
+            },
+          }),
+        }),
+      );
+    });
+  });
+
+  describe('getMyReviews', () => {
+    it('returns reviews assigned to the given reviewer', async () => {
+      const reviews = [
+        {
+          id: 'review-1',
+          recommendation: 'APPROVE',
+          feedback: '',
+          createdAt: new Date(),
+          application: {
+            id: 'app-1',
+            applicantName: 'Test',
+            domain: 'Technology',
+            status: 'UNDER_REVIEW',
+            createdAt: new Date(),
+          },
+        },
+      ];
+      mockPrisma.applicationReview.findMany.mockResolvedValueOnce(reviews);
+
+      const result = await service.getMyReviews('reviewer-1', 'corr-my');
+
+      expect(result).toHaveLength(1);
+      expect(mockPrisma.applicationReview.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { reviewerId: 'reviewer-1' },
+        }),
+      );
     });
   });
 });

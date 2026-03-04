@@ -80,6 +80,7 @@ export class CaslAbilityFactory {
     can(Action.Read, 'Task');
     can(Action.Update, 'Task');
     can(Action.Create, 'Article');
+    can(Action.Create, 'ApplicationReview');
   }
 
   private addEditorPermissions(

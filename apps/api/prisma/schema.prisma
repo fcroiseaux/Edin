@@ -43,6 +43,14 @@ enum ApplicationStatus {
   @@schema("core")
 }
 
+enum ReviewRecommendation {
+  APPROVE
+  REQUEST_MORE_INFO
+  DECLINE
+
+  @@schema("core")
+}
+
 // ─── Core Schema ────────────────────────────────────────────────────────────
 
 model Contributor {
@@ -59,8 +67,10 @@ model Contributor {
   createdAt  DateTime          @default(now()) @map("created_at")
   updatedAt  DateTime          @updatedAt @map("updated_at")
 
-  auditLogs    AuditLog[]
-  applications Application[]
+  auditLogs              AuditLog[]
+  applications           Application[]    @relation("ApplicationContributor")
+  reviewedApplications   Application[]    @relation("ApplicationReviewer")
+  applicationReviews     ApplicationReview[] @relation("ReviewAuthor")
 
   @@map("contributors")
   @@schema("core")
@@ -79,13 +89,35 @@ model Application {
   gdprConsentedAt        DateTime          @map("gdpr_consented_at")
   status                 ApplicationStatus @default(PENDING)
   contributorId          String?           @map("contributor_id") @db.Uuid
+  reviewedById           String?           @map("reviewed_by_id") @db.Uuid
+  reviewedAt             DateTime?         @map("reviewed_at")
+  declineReason          String?           @map("decline_reason")
+  ignitionStartedAt      DateTime?         @map("ignition_started_at")
   createdAt              DateTime          @default(now()) @map("created_at")
   updatedAt              DateTime          @updatedAt @map("updated_at")
 
-  contributor            Contributor?      @relation(fields: [contributorId], references: [id])
+  contributor            Contributor?      @relation("ApplicationContributor", fields: [contributorId], references: [id])
+  reviewedBy             Contributor?      @relation("ApplicationReviewer", fields: [reviewedById], references: [id])
+  reviews                ApplicationReview[]
 
   @@map("applications")
   @@unique([applicantEmail], map: "applications_applicant_email_key")
+  @@schema("core")
+}
+
+model ApplicationReview {
+  id               String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  applicationId    String               @map("application_id") @db.Uuid
+  reviewerId       String               @map("reviewer_id") @db.Uuid
+  recommendation   ReviewRecommendation?
+  feedback         String?
+  submittedAt      DateTime?            @map("submitted_at")
+  createdAt        DateTime             @default(now()) @map("created_at")
+
+  application      Application          @relation(fields: [applicationId], references: [id])
+  reviewer         Contributor          @relation("ReviewAuthor", fields: [reviewerId], references: [id])
+
+  @@map("application_reviews")
   @@schema("core")
 }
 

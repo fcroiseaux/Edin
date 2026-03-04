@@ -75,13 +75,31 @@ export type {
 
 export { PROGRESSIVE_DECENTRALIZATION_ROADMAP } from './constants/governance-roadmap.js';
 
-export { createApplicationSchema } from './schemas/admission.schema.js';
-export type { CreateApplicationDto } from './schemas/admission.schema.js';
+export {
+  createApplicationSchema,
+  submitReviewSchema,
+  updateApplicationStatusSchema,
+  assignReviewerSchema,
+  listApplicationsQuerySchema,
+} from './schemas/admission.schema.js';
+export type {
+  CreateApplicationDto,
+  SubmitReviewDto,
+  UpdateApplicationStatusDto,
+  AssignReviewerDto,
+  ListApplicationsQueryDto,
+} from './schemas/admission.schema.js';
 
 export type {
   ApplicationStatus,
+  ReviewRecommendation,
   Application,
+  ApplicationReview,
   MicroTask,
   ConsentRecord,
   CreateApplicationInput,
+  SubmitReviewInput,
+  UpdateApplicationStatusInput,
+  AssignReviewerInput,
+  ListApplicationsQuery,
 } from './types/admission.types.js';

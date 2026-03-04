@@ -1,7 +1,15 @@
 import type { z } from 'zod';
-import type { createApplicationSchema } from '../schemas/admission.schema.js';
+import type {
+  createApplicationSchema,
+  submitReviewSchema,
+  updateApplicationStatusSchema,
+  assignReviewerSchema,
+  listApplicationsQuerySchema,
+} from '../schemas/admission.schema.js';
 
 export type ApplicationStatus = 'PENDING' | 'UNDER_REVIEW' | 'APPROVED' | 'DECLINED';
+
+export type ReviewRecommendation = 'APPROVE' | 'REQUEST_MORE_INFO' | 'DECLINE';
 
 export interface Application {
   id: string;
@@ -16,8 +24,22 @@ export interface Application {
   gdprConsentedAt: string;
   status: ApplicationStatus;
   contributorId: string | null;
+  reviewedById: string | null;
+  reviewedAt: string | null;
+  declineReason: string | null;
+  ignitionStartedAt: string | null;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface ApplicationReview {
+  id: string;
+  applicationId: string;
+  reviewerId: string;
+  recommendation: ReviewRecommendation | null;
+  feedback: string | null;
+  submittedAt: string | null;
+  createdAt: string;
 }
 
 export interface MicroTask {
@@ -46,3 +68,7 @@ export interface ConsentRecord {
 }
 
 export type CreateApplicationInput = z.infer<typeof createApplicationSchema>;
+export type SubmitReviewInput = z.infer<typeof submitReviewSchema>;
+export type UpdateApplicationStatusInput = z.infer<typeof updateApplicationStatusSchema>;
+export type AssignReviewerInput = z.infer<typeof assignReviewerSchema>;
+export type ListApplicationsQuery = z.infer<typeof listApplicationsQuerySchema>;

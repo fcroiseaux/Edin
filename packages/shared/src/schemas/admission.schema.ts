@@ -27,3 +27,49 @@ export const createApplicationSchema = z.object({
 });
 
 export type CreateApplicationDto = z.infer<typeof createApplicationSchema>;
+
+// --- Review workflow schemas (Story 3-2) ---
+
+const reviewRecommendationEnum = z.enum(['APPROVE', 'REQUEST_MORE_INFO', 'DECLINE']);
+
+export const submitReviewSchema = z.object({
+  recommendation: reviewRecommendationEnum,
+  feedback: z
+    .string()
+    .min(10, 'Feedback must be at least 10 characters')
+    .max(2000, 'Feedback must be 2000 characters or less'),
+});
+
+export type SubmitReviewDto = z.infer<typeof submitReviewSchema>;
+
+export const updateApplicationStatusSchema = z
+  .object({
+    status: z.enum(['APPROVED', 'DECLINED', 'REQUEST_MORE_INFO']),
+    reason: z.string().max(2000).optional(),
+  })
+  .refine(
+    (data) =>
+      !['DECLINED', 'REQUEST_MORE_INFO'].includes(data.status) ||
+      (data.reason && data.reason.trim().length > 0),
+    {
+      message: 'A reason is required when declining an application or requesting more information',
+      path: ['reason'],
+    },
+  );
+
+export type UpdateApplicationStatusDto = z.infer<typeof updateApplicationStatusSchema>;
+
+export const assignReviewerSchema = z.object({
+  contributorId: z.string().uuid('Contributor ID must be a valid UUID'),
+});
+
+export type AssignReviewerDto = z.infer<typeof assignReviewerSchema>;
+
+export const listApplicationsQuerySchema = z.object({
+  domain: z.enum(['Technology', 'Fintech', 'Impact', 'Governance']).optional(),
+  status: z.enum(['PENDING', 'UNDER_REVIEW', 'APPROVED', 'DECLINED']).optional(),
+  cursor: z.string().uuid().optional(),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+});
+
+export type ListApplicationsQueryDto = z.infer<typeof listApplicationsQuerySchema>;

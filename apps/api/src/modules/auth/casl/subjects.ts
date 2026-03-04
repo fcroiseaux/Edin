@@ -4,6 +4,7 @@ export type AppSubjects =
   | 'Article'
   | 'WorkingGroup'
   | 'Application'
+  | 'ApplicationReview'
   | 'Evaluation'
   | 'PeerFeedback'
   | 'Task'
