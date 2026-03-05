@@ -14,6 +14,8 @@ export const appConfigSchema = z.object({
   JWT_EXPIRATION: z.string().default('15m'),
   REFRESH_TOKEN_EXPIRATION: z.string().default('30d'),
   LOG_LEVEL: z.enum(['error', 'warn', 'info', 'debug']).default('info'),
+  GITHUB_APP_TOKEN: z.string().min(1).optional(),
+  INGESTION_WEBHOOK_BASE_URL: z.string().url().optional(),
   OTEL_SERVICE_NAME: z.string().default('edin-api'),
   OTEL_EXPORTER_OTLP_ENDPOINT: z.string().url().optional(),
 });

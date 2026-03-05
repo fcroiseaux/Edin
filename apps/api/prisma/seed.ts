@@ -183,6 +183,47 @@ async function main() {
     console.log(`Sample buddy assignment already exists: ${existingAssignment.id}`);
   }
 
+  // Seed sample monitored repositories
+  const existingRepo = await prisma.monitoredRepository.findFirst({
+    where: { fullName: 'edin-foundation/edin-core' },
+  });
+  if (!existingRepo) {
+    const repo = await prisma.monitoredRepository.create({
+      data: {
+        owner: 'edin-foundation',
+        repo: 'edin-core',
+        fullName: 'edin-foundation/edin-core',
+        webhookId: 12345,
+        webhookSecret: 'dev-seed-secret-do-not-use-in-production',
+        status: 'ACTIVE',
+        addedById: admin.id,
+      },
+    });
+    console.log(`Created sample monitored repository: ${repo.fullName}`);
+  } else {
+    console.log(`Sample monitored repository already exists: ${existingRepo.fullName}`);
+  }
+
+  const existingRepo2 = await prisma.monitoredRepository.findFirst({
+    where: { fullName: 'edin-foundation/edin-docs' },
+  });
+  if (!existingRepo2) {
+    const repo2 = await prisma.monitoredRepository.create({
+      data: {
+        owner: 'edin-foundation',
+        repo: 'edin-docs',
+        fullName: 'edin-foundation/edin-docs',
+        webhookSecret: 'dev-seed-secret-2-do-not-use-in-production',
+        status: 'PENDING',
+        statusMessage: 'Webhook registration pending',
+        addedById: admin.id,
+      },
+    });
+    console.log(`Created sample monitored repository: ${repo2.fullName}`);
+  } else {
+    console.log(`Sample monitored repository already exists: ${existingRepo2.fullName}`);
+  }
+
   console.log('Seeding complete.');
 }
 

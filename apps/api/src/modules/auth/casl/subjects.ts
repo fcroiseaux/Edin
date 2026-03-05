@@ -17,4 +17,5 @@ export type AppSubjects =
   | 'MicroTask'
   | 'BuddyAssignment'
   | 'OnboardingMilestone'
-  | 'EditorialFeedback';
+  | 'EditorialFeedback'
+  | 'MonitoredRepository';

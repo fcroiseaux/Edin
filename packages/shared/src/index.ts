@@ -139,3 +139,20 @@ export type {
   RecordMilestoneInput,
   ListOnboardingStatusQueryInput,
 } from './types/admission.types.js';
+
+export {
+  addRepositorySchema,
+  repositoryStatusEnum,
+  repositoryResponseSchema,
+  listRepositoriesQuerySchema,
+} from './schemas/ingestion.schema.js';
+export type { AddRepositoryDto, ListRepositoriesQueryDto } from './schemas/ingestion.schema.js';
+
+export type {
+  RepositoryStatus,
+  MonitoredRepository as MonitoredRepositoryType,
+  AddRepositoryInput,
+  ListRepositoriesQuery,
+  WebhookEventType,
+  WebhookEvent,
+} from './types/ingestion.types.js';

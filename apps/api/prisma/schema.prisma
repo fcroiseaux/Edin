@@ -61,6 +61,15 @@ enum OnboardingMilestoneType {
   @@schema("core")
 }
 
+enum RepositoryStatus {
+  ACTIVE
+  PENDING
+  ERROR
+  REMOVING
+
+  @@schema("core")
+}
+
 // ─── Core Schema ────────────────────────────────────────────────────────────
 
 model Contributor {
@@ -86,6 +95,7 @@ model Contributor {
   buddyAssignments       BuddyAssignment[] @relation("BuddyMentee")
   buddyMentees           BuddyAssignment[] @relation("BuddyMentor")
   onboardingMilestones   OnboardingMilestone[]
+  monitoredRepositories  MonitoredRepository[]
 
   @@map("contributors")
   @@schema("core")
@@ -180,6 +190,26 @@ model OnboardingMilestone {
 
   @@unique([contributorId, milestoneType], map: "onboarding_milestones_contributor_type_key")
   @@map("onboarding_milestones")
+  @@schema("core")
+}
+
+model MonitoredRepository {
+  id             String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  owner          String
+  repo           String
+  fullName       String           @unique @map("full_name")
+  webhookId      Int?             @map("webhook_id")
+  webhookSecret  String           @map("webhook_secret")
+  status         RepositoryStatus @default(PENDING)
+  statusMessage  String?          @map("status_message")
+  addedById      String           @map("added_by_id") @db.Uuid
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+
+  addedBy        Contributor      @relation(fields: [addedById], references: [id])
+
+  @@unique([owner, repo], map: "monitored_repositories_owner_repo_key")
+  @@map("monitored_repositories")
   @@schema("core")
 }
 

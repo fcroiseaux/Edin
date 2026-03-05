@@ -60,17 +60,17 @@ development_status:
   epic-2-retrospective: optional
 
   # Epic 3: Admission & Onboarding
-  epic-3: in-progress
+  epic-3: done
   3-1-contributor-application-with-micro-task: done
   3-2-application-review-and-admission-queue: done
   3-3-admin-micro-task-configuration: done
   3-4-buddy-assignment-and-first-task-recommendation: done
-  3-5-72-hour-ignition-onboarding-tracking: in-progress
+  3-5-72-hour-ignition-onboarding-tracking: done
   epic-3-retrospective: optional
 
   # Epic 4: GitHub Integration & Contribution Tracking
-  epic-4: backlog
-  4-1-github-repository-connection-and-webhook-configuration: backlog
+  epic-4: in-progress
+  4-1-github-repository-connection-and-webhook-configuration: in-progress
   4-2-contribution-ingestion-pipeline: backlog
   4-3-contribution-attribution-and-dashboard-display: backlog
   4-4-multi-contributor-collaboration-detection: backlog
