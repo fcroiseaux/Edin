@@ -72,7 +72,7 @@ development_status:
   epic-4: in-progress
   4-1-github-repository-connection-and-webhook-configuration: in-progress
   4-2-contribution-ingestion-pipeline: done
-  4-3-contribution-attribution-and-dashboard-display: backlog
+  4-3-contribution-attribution-and-dashboard-display: review
   4-4-multi-contributor-collaboration-detection: backlog
   epic-4-retrospective: optional
 

@@ -51,10 +51,9 @@ describe('DashboardPage', () => {
     render(<DashboardPage />);
 
     expect(
-      screen.getByText(
-        'Contributions will appear here once your GitHub repositories are connected.',
-      ),
+      screen.getByText('Track your contributions from connected GitHub repositories.'),
     ).toBeInTheDocument();
+    expect(screen.getByText('View Contributions')).toBeInTheDocument();
     expect(
       screen.getByText('Your evaluation journey will be displayed here as you contribute.'),
     ).toBeInTheDocument();

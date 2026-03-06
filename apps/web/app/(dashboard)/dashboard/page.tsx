@@ -92,12 +92,24 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Placeholder Sections */}
+        {/* Dashboard Sections */}
         <div className="mt-[var(--spacing-2xl)] space-y-[var(--spacing-lg)]">
-          <PlaceholderSection
-            title="Contribution History"
-            message="Contributions will appear here once your GitHub repositories are connected."
-          />
+          <section className="rounded-[var(--radius-lg)] border border-surface-border bg-surface-raised p-[var(--spacing-lg)] shadow-[var(--shadow-card)]">
+            <div className="flex items-center justify-between">
+              <h2 className="font-sans text-[16px] font-medium text-brand-primary">
+                Contribution History
+              </h2>
+              <Link
+                href="/dashboard/contributions"
+                className="inline-flex min-h-[44px] items-center rounded-[var(--radius-md)] border border-surface-border px-[var(--spacing-md)] font-sans text-[14px] font-medium text-brand-secondary transition-colors duration-[var(--transition-fast)] hover:bg-surface-sunken"
+              >
+                View Contributions
+              </Link>
+            </div>
+            <p className="mt-[var(--spacing-sm)] font-serif text-[15px] leading-[1.65] text-brand-secondary">
+              Track your contributions from connected GitHub repositories.
+            </p>
+          </section>
           <PlaceholderSection
             title="Evaluation Scores"
             message="Your evaluation journey will be displayed here as you contribute."

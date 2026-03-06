@@ -84,6 +84,7 @@ export class CaslAbilityFactory {
     can(Action.Read, 'BuddyAssignment');
     can(Action.Update, 'BuddyAssignment');
     can(Action.Read, 'OnboardingMilestone');
+    can(Action.Read, 'Contribution');
   }
 
   private addEditorPermissions(

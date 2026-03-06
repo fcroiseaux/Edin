@@ -18,4 +18,5 @@ export type AppSubjects =
   | 'BuddyAssignment'
   | 'OnboardingMilestone'
   | 'EditorialFeedback'
-  | 'MonitoredRepository';
+  | 'MonitoredRepository'
+  | 'Contribution';

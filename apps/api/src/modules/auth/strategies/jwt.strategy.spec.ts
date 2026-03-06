@@ -1,6 +1,7 @@
 import { JwtStrategy } from './jwt.strategy.js';
 import { DomainException } from '../../../common/exceptions/domain.exception.js';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ExtractJwt } from 'passport-jwt';
 
 describe('JwtStrategy', () => {
   let strategy: JwtStrategy;
@@ -82,6 +83,20 @@ describe('JwtStrategy', () => {
       };
 
       await expect(strategy.validate(payload)).rejects.toThrow(DomainException);
+    });
+  });
+
+  describe('SSE query token extractor', () => {
+    it('accepts a token passed as a query parameter', () => {
+      const extractor = ExtractJwt.fromExtractors([
+        ExtractJwt.fromAuthHeaderAsBearerToken(),
+        (request: { query?: Record<string, unknown> }) =>
+          typeof request.query?.token === 'string' ? request.query.token : null,
+      ]);
+
+      const token = extractor({ headers: {}, query: { token: 'sse-token' } } as never);
+
+      expect(token).toBe('sse-token');
     });
   });
 });

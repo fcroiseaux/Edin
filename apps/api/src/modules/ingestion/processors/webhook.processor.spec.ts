@@ -121,7 +121,9 @@ describe('WebhookProcessor', () => {
       mockPrisma.webhookDelivery.upsert.mockResolvedValue({});
       mockPrisma.webhookDelivery.update.mockResolvedValue({});
       mockPrisma.contributor.findUnique.mockResolvedValue(mockContributor);
-      mockPrisma.contribution.upsert.mockResolvedValue({});
+      mockPrisma.contribution.upsert
+        .mockResolvedValueOnce({ id: 'contribution-1' })
+        .mockResolvedValueOnce({ id: 'contribution-2' });
       mockPrisma.auditLog.create.mockResolvedValue({});
 
       const job = createMockJob({
@@ -150,6 +152,7 @@ describe('WebhookProcessor', () => {
       expect(mockEventEmitter.emit).toHaveBeenCalledWith(
         'contribution.commit.ingested',
         expect.objectContaining({
+          contributionId: 'contribution-1',
           contributionType: 'COMMIT',
           contributorId: 'contributor-uuid-1',
           repositoryId: 'repo-uuid-1',
@@ -218,7 +221,7 @@ describe('WebhookProcessor', () => {
       mockPrisma.webhookDelivery.upsert.mockResolvedValue({});
       mockPrisma.webhookDelivery.update.mockResolvedValue({});
       mockPrisma.contributor.findUnique.mockResolvedValue(mockContributor);
-      mockPrisma.contribution.upsert.mockResolvedValue({});
+      mockPrisma.contribution.upsert.mockResolvedValue({ id: 'contribution-pr-1' });
       mockPrisma.auditLog.create.mockResolvedValue({});
 
       const job = createMockJob({
@@ -242,6 +245,7 @@ describe('WebhookProcessor', () => {
       expect(mockEventEmitter.emit).toHaveBeenCalledWith(
         'contribution.pull_request.ingested',
         expect.objectContaining({
+          contributionId: 'contribution-pr-1',
           contributionType: 'PULL_REQUEST',
           correlationId: 'delivery-pr-1',
         }),
@@ -292,7 +296,7 @@ describe('WebhookProcessor', () => {
       mockPrisma.webhookDelivery.upsert.mockResolvedValue({});
       mockPrisma.webhookDelivery.update.mockResolvedValue({});
       mockPrisma.contributor.findUnique.mockResolvedValue({ id: 'reviewer-uuid' });
-      mockPrisma.contribution.upsert.mockResolvedValue({});
+      mockPrisma.contribution.upsert.mockResolvedValue({ id: 'contribution-review-1' });
       mockPrisma.auditLog.create.mockResolvedValue({});
 
       const job = createMockJob({
@@ -316,6 +320,7 @@ describe('WebhookProcessor', () => {
       expect(mockEventEmitter.emit).toHaveBeenCalledWith(
         'contribution.review.ingested',
         expect.objectContaining({
+          contributionId: 'contribution-review-1',
           contributionType: 'CODE_REVIEW',
           correlationId: 'delivery-review-1',
         }),

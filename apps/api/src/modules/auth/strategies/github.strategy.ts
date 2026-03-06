@@ -5,6 +5,7 @@ import { Strategy, type Profile } from 'passport-github2';
 
 export interface GithubProfile {
   githubId: number;
+  username: string | null;
   displayName: string;
   email: string | null;
   avatarUrl: string | null;
@@ -29,6 +30,7 @@ export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
 
     return {
       githubId: parseInt(profile.id, 10),
+      username: profile.username || null,
       displayName: profile.displayName || profile.username || 'Unknown',
       email: primaryEmail,
       avatarUrl,

@@ -6,6 +6,17 @@ import { ERROR_CODES } from '@edin/shared';
 import { PrismaService } from '../../../prisma/prisma.service.js';
 import { DomainException } from '../../../common/exceptions/domain.exception.js';
 import { HttpStatus } from '@nestjs/common';
+import type { Request } from 'express';
+
+function extractJwtFromSseQuery(request: Request): string | null {
+  const token = request.query.token;
+
+  if (typeof token === 'string' && token.length > 0) {
+    return token;
+  }
+
+  return null;
+}
 
 export interface JwtPayload {
   sub: string;
@@ -23,7 +34,10 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     private readonly prisma: PrismaService,
   ) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        ExtractJwt.fromAuthHeaderAsBearerToken(),
+        extractJwtFromSseQuery,
+      ]),
       ignoreExpiration: false,
       secretOrKey: configService.getOrThrow<string>('JWT_SECRET'),
     });

@@ -11,9 +11,9 @@ import {
   HttpStatus,
   HttpCode,
   UseGuards,
-  RawBodyRequest,
 } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
+import type { RawBodyRequest } from '@nestjs/common';
 import type { Request } from 'express';
 import { ERROR_CODES } from '@edin/shared';
 import { DomainException } from '../../common/exceptions/domain.exception.js';

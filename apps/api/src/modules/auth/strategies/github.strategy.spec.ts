@@ -24,6 +24,7 @@ describe('GithubStrategy', () => {
 
       expect(result).toEqual({
         githubId: 12345,
+        username: 'testuser',
         displayName: 'Test User',
         email: 'test@example.com',
         avatarUrl: 'https://avatars.githubusercontent.com/u/12345',

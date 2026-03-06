@@ -57,12 +57,14 @@ export class AuthService {
       where: { githubId: profile.githubId },
       create: {
         githubId: profile.githubId,
+        githubUsername: profile.username,
         name: profile.displayName,
         email: profile.email,
         avatarUrl: profile.avatarUrl,
         role: 'APPLICANT',
       },
       update: {
+        githubUsername: profile.username,
         name: profile.displayName,
         email: profile.email,
         avatarUrl: profile.avatarUrl,

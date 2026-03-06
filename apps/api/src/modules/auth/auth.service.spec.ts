@@ -24,6 +24,7 @@ describe('AuthService', () => {
   const mockContributor = {
     id: '550e8400-e29b-41d4-a716-446655440000',
     githubId: 12345,
+    githubUsername: 'testuser',
     name: 'Test User',
     email: 'test@example.com',
     avatarUrl: 'https://avatars.githubusercontent.com/u/12345',
@@ -83,6 +84,7 @@ describe('AuthService', () => {
   describe('validateGithubUser', () => {
     const githubProfile = {
       githubId: 12345,
+      username: 'testuser',
       displayName: 'Test User',
       email: 'test@example.com',
       avatarUrl: 'https://avatars.githubusercontent.com/u/12345',
@@ -101,10 +103,12 @@ describe('AuthService', () => {
         where: { githubId: 12345 },
         create: expect.objectContaining({
           githubId: 12345,
+          githubUsername: 'testuser',
           name: 'Test User',
           role: 'APPLICANT',
         }),
         update: expect.objectContaining({
+          githubUsername: 'testuser',
           name: 'Test User',
         }),
       });

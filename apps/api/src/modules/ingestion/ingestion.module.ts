@@ -7,6 +7,10 @@ import { IngestionController } from './ingestion.controller.js';
 import { IngestionService } from './ingestion.service.js';
 import { GitHubApiService } from './github-api.service.js';
 import { WebhookProcessor } from './processors/webhook.processor.js';
+import { ContributionAttributionService } from './services/contribution-attribution.service.js';
+import { ContributionController } from './contribution.controller.js';
+import { ContributionSseController } from './contribution-sse.controller.js';
+import { ContributionSseService } from './contribution-sse.service.js';
 import type { AppConfig } from '../../config/app.config.js';
 
 @Module({
@@ -47,8 +51,14 @@ import type { AppConfig } from '../../config/app.config.js';
       },
     }),
   ],
-  controllers: [IngestionController],
-  providers: [IngestionService, GitHubApiService, WebhookProcessor],
+  controllers: [IngestionController, ContributionController, ContributionSseController],
+  providers: [
+    IngestionService,
+    GitHubApiService,
+    WebhookProcessor,
+    ContributionAttributionService,
+    ContributionSseService,
+  ],
   exports: [IngestionService],
 })
 export class IngestionModule {}

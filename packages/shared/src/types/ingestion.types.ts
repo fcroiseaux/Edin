@@ -38,7 +38,7 @@ export type ContributionSource = 'GITHUB';
 
 export type ContributionType = 'COMMIT' | 'PULL_REQUEST' | 'CODE_REVIEW';
 
-export type ContributionStatus = 'INGESTED' | 'ATTRIBUTED' | 'EVALUATED';
+export type ContributionStatus = 'INGESTED' | 'ATTRIBUTED' | 'UNATTRIBUTED' | 'EVALUATED';
 
 export type WebhookDeliveryStatus = 'RECEIVED' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
 
@@ -75,4 +75,28 @@ export interface ContributionIngestedEvent {
   contributorId: string | null;
   repositoryId: string;
   correlationId: string;
+}
+
+export interface ContributionListQuery {
+  cursor?: string;
+  limit: number;
+  type?: ContributionType;
+}
+
+export interface ContributionWithRepository extends Contribution {
+  repositoryName: string;
+}
+
+export interface ContributionAttributedEvent {
+  contributionId: string;
+  contributionType: ContributionType;
+  contributorId: string;
+  repositoryId: string;
+  correlationId: string;
+}
+
+export interface ContributionSseEvent {
+  type: 'contribution.new';
+  contributionId: string;
+  contributionType: ContributionType;
 }

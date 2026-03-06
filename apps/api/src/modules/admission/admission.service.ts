@@ -1495,7 +1495,11 @@ export class AdmissionService {
         return best;
       }
 
-      return Math.abs(candidateHours - targetHours) < Math.abs(bestHours - targetHours)
+      const resolvedBestHours = bestHours as number;
+      const resolvedCandidateHours = candidateHours as number;
+
+      return Math.abs(resolvedCandidateHours - targetHours) <
+        Math.abs(resolvedBestHours - targetHours)
         ? candidate
         : best;
     });

@@ -91,4 +91,12 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
       }
     } while (cursor !== '0');
   }
+
+  async publish(channel: string, message: string): Promise<void> {
+    await this.client.publish(channel, message);
+  }
+
+  createSubscriber(): Redis {
+    return this.client.duplicate();
+  }
 }

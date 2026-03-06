@@ -15,6 +15,7 @@ export interface WebhookJobData {
 interface ExtractedCommit {
   sha: string;
   authorGithubId: number | null;
+  authorUsername: string | null;
   authorEmail: string | null;
   message: string;
   timestamp: string;
@@ -146,13 +147,14 @@ export class WebhookProcessor extends WorkerHost {
         });
       } else {
         // Persist contributions in transaction (Task 4.5)
-        await this.persistContributions(contributions, deliveryId);
+        const persistedContributions = await this.persistContributions(contributions, deliveryId);
 
         // Emit domain events (Task 4.6)
-        for (const contribution of contributions) {
+        for (const contribution of persistedContributions) {
           this.eventEmitter.emit(
             `contribution.${this.eventName(contribution.contributionType)}.ingested`,
             {
+              contributionId: contribution.id,
               contributionType: contribution.contributionType,
               contributorId: contribution.contributorId,
               repositoryId: contribution.repositoryId,
@@ -292,6 +294,7 @@ export class WebhookProcessor extends WorkerHost {
             extracted: {
               sha: extracted.sha,
               authorGithubId: extracted.authorGithubId,
+              authorUsername: extracted.authorUsername,
               authorEmail: extracted.authorEmail,
               timestamp: extracted.timestamp,
               filesChanged: {
@@ -403,6 +406,7 @@ export class WebhookProcessor extends WorkerHost {
     return {
       sha: (commit.id as string) || '',
       authorGithubId: sender?.id != null ? Number(sender.id) : null,
+      authorUsername: (sender?.login as string) || null,
       authorEmail: (author?.email as string) || null,
       message: (commit.message as string) || '',
       timestamp: (commit.timestamp as string) || new Date().toISOString(),
@@ -492,10 +496,12 @@ export class WebhookProcessor extends WorkerHost {
   private async persistContributions(
     contributions: NormalizedContribution[],
     deliveryId: string,
-  ): Promise<void> {
-    await this.prisma.$transaction(async (tx) => {
+  ): Promise<Array<NormalizedContribution & { id: string }>> {
+    const persistedContributions = await this.prisma.$transaction(async (tx) => {
+      const persistedContributions: Array<NormalizedContribution & { id: string }> = [];
+
       for (const contribution of contributions) {
-        await tx.contribution.upsert({
+        const persistedContribution = await tx.contribution.upsert({
           where: {
             source_repositoryId_sourceRef: {
               source: contribution.source,
@@ -522,6 +528,11 @@ export class WebhookProcessor extends WorkerHost {
             normalizedAt: new Date(),
           },
         });
+
+        persistedContributions.push({
+          ...contribution,
+          id: persistedContribution.id,
+        });
       }
 
       await tx.auditLog.create({
@@ -541,12 +552,16 @@ export class WebhookProcessor extends WorkerHost {
         where: { deliveryId },
         data: { status: 'COMPLETED', processedAt: new Date() },
       });
+
+      return persistedContributions;
     });
 
     this.logger.log('Contributions persisted', {
       count: contributions.length,
       deliveryId,
     });
+
+    return persistedContributions;
   }
 
   // Task 6: Rate limit detection

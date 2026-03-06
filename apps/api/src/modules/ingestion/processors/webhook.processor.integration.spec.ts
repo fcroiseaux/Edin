@@ -124,6 +124,7 @@ describe.runIf(hasDatabase)('WebhookProcessor integration', () => {
       expect(eventEmitter.emit).toHaveBeenCalledWith(
         'contribution.commit.ingested',
         expect.objectContaining({
+          contributionId: contribution?.id,
           contributionType: 'COMMIT',
           contributorId: contributor.id,
           repositoryId: repository.id,

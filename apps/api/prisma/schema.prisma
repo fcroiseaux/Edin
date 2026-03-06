@@ -87,6 +87,7 @@ enum ContributionType {
 enum ContributionStatus {
   INGESTED
   ATTRIBUTED
+  UNATTRIBUTED
   EVALUATED
 
   @@schema("core")
@@ -106,6 +107,7 @@ enum WebhookDeliveryStatus {
 model Contributor {
   id         String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   githubId   Int               @unique @map("github_id")
+  githubUsername String?       @unique @map("github_username")
   email      String?           @unique
   name       String
   bio        String?           @db.VarChar(500)

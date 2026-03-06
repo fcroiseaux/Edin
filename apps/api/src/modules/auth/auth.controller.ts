@@ -4,6 +4,7 @@ import type { Request, Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { ERROR_CODES } from '@edin/shared';
 import { AuthService } from './auth.service.js';
+import type { GithubProfile } from './strategies/github.strategy.js';
 import { DomainException } from '../../common/exceptions/domain.exception.js';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard.js';
 import { AbilityGuard } from '../../common/guards/ability.guard.js';
@@ -35,12 +36,7 @@ export class AuthController {
   @UseGuards(AuthGuard('github'))
   async githubCallback(@Req() req: Request, @Res() res: Response): Promise<void> {
     const correlationId = req.correlationId;
-    const githubProfile = req.user as {
-      githubId: number;
-      displayName: string;
-      email: string | null;
-      avatarUrl: string | null;
-    };
+    const githubProfile = req.user as GithubProfile;
 
     const { contributor } = await this.authService.validateGithubUser(githubProfile, correlationId);
 
