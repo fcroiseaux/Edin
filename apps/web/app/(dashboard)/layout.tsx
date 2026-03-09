@@ -14,6 +14,7 @@ const DASHBOARD_NAV_ITEMS = [
   { href: '/dashboard/contributions', label: 'Contributions' },
   { href: '/dashboard/tasks', label: 'Tasks' },
   { href: '/dashboard/activity', label: 'Activity' },
+  { href: '/dashboard/feedback', label: 'Feedback' },
   { href: '/dashboard/working-groups', label: 'Working Groups' },
   { href: '/dashboard/profile', label: 'Profile' },
 ];
@@ -21,6 +22,7 @@ const DASHBOARD_NAV_ITEMS = [
 const HREF_TO_CATEGORY: Record<string, NotificationCategory> = {
   '/dashboard/working-groups': 'working-groups',
   '/dashboard/tasks': 'tasks',
+  '/dashboard/feedback': 'feedback',
 };
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {

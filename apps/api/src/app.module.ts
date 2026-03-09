@@ -18,6 +18,7 @@ import { WorkingGroupModule } from './modules/working-group/working-group.module
 import { TaskModule } from './modules/task/task.module.js';
 import { ActivityModule } from './modules/activity/activity.module.js';
 import { NotificationModule } from './modules/notification/notification.module.js';
+import { FeedbackModule } from './modules/feedback/feedback.module.js';
 import { validateConfig } from './config/app.config.js';
 import type { AppConfig } from './config/app.config.js';
 
@@ -89,6 +90,7 @@ import type { AppConfig } from './config/app.config.js';
     TaskModule,
     ActivityModule,
     NotificationModule,
+    FeedbackModule,
   ],
 })
 export class AppModule {}

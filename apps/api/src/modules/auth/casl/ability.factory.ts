@@ -74,7 +74,8 @@ export class CaslAbilityFactory {
     can(Action.Read, 'Contributor');
     can(Action.Update, 'Contributor', { id: user.id });
     can(Action.Read, 'Evaluation');
-    can(Action.Read, 'PeerFeedback');
+    can(Action.Read, 'PeerFeedback', { reviewerId: user.id });
+    can(Action.Update, 'PeerFeedback', { reviewerId: user.id });
     can(Action.Read, 'WorkingGroup');
     can(Action.Create, 'WorkingGroup');
     can(Action.Delete, 'WorkingGroup');

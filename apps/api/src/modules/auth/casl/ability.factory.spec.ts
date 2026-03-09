@@ -157,9 +157,18 @@ describe('CaslAbilityFactory', () => {
       expect(ability.can(Action.Read, 'Evaluation')).toBe(true);
     });
 
-    it('can read peer feedback', () => {
-      const ability = factory.createForUser(makeUser('CONTRIBUTOR'));
-      expect(ability.can(Action.Read, 'PeerFeedback')).toBe(true);
+    it('can read own PeerFeedback', () => {
+      const ability = factory.createForUser(makeUser('CONTRIBUTOR', 'own-id'));
+      expect(
+        ability.can(Action.Read, subject('PeerFeedback', { reviewerId: 'own-id' }) as never),
+      ).toBe(true);
+    });
+
+    it('cannot read other contributor PeerFeedback', () => {
+      const ability = factory.createForUser(makeUser('CONTRIBUTOR', 'own-id'));
+      expect(
+        ability.can(Action.Read, subject('PeerFeedback', { reviewerId: 'other-id' }) as never),
+      ).toBe(false);
     });
 
     it('can read and join working groups', () => {
@@ -224,6 +233,20 @@ describe('CaslAbilityFactory', () => {
       const ability = factory.createForUser(makeUser('CONTRIBUTOR', 'own-id'));
       expect(
         ability.can(Action.Update, subject('Notification', { contributorId: 'other-id' }) as never),
+      ).toBe(false);
+    });
+
+    it('can update own PeerFeedback (where reviewerId matches)', () => {
+      const ability = factory.createForUser(makeUser('CONTRIBUTOR', 'own-id'));
+      expect(
+        ability.can(Action.Update, subject('PeerFeedback', { reviewerId: 'own-id' }) as never),
+      ).toBe(true);
+    });
+
+    it('cannot update other contributor PeerFeedback', () => {
+      const ability = factory.createForUser(makeUser('CONTRIBUTOR', 'own-id'));
+      expect(
+        ability.can(Action.Update, subject('PeerFeedback', { reviewerId: 'other-id' }) as never),
       ).toBe(false);
     });
   });
@@ -374,6 +397,11 @@ describe('CaslAbilityFactory', () => {
     it('can manage health metrics', () => {
       const ability = factory.createForUser(makeUser('ADMIN'));
       expect(ability.can(Action.Manage, 'HealthMetrics')).toBe(true);
+    });
+
+    it('can manage PeerFeedback', () => {
+      const ability = factory.createForUser(makeUser('ADMIN'));
+      expect(ability.can(Action.Manage, 'PeerFeedback')).toBe(true);
     });
   });
 

@@ -4,6 +4,7 @@ import { OnEvent } from '@nestjs/event-emitter';
 import type { Queue } from 'bullmq';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import type { NotificationType as PrismaNotificationType } from '../../../generated/prisma/client/enums.js';
+import type { FeedbackAssignmentEvent, FeedbackSubmittedEvent } from '@edin/shared';
 
 export interface NotificationJobData {
   contributorId: string;
@@ -255,6 +256,66 @@ export class NotificationService {
   @OnEvent('contribution.review.ingested')
   async handleReviewIngested(payload: ContributionIngestedPayload): Promise<void> {
     await this.notifyWgLeadOfContribution(payload);
+  }
+
+  @OnEvent('feedback.review.assigned')
+  async handleFeedbackReviewAssigned(event: FeedbackAssignmentEvent): Promise<void> {
+    try {
+      const typeLabel =
+        event.payload.contributionType === 'COMMIT'
+          ? 'commit'
+          : event.payload.contributionType === 'PULL_REQUEST'
+            ? 'pull request'
+            : 'code review';
+
+      await this.enqueueNotification({
+        contributorId: event.payload.reviewerId,
+        type: 'PEER_FEEDBACK_AVAILABLE',
+        title: "You've been asked to review a contribution",
+        description: `Review ${typeLabel}: ${event.payload.contributionTitle}`,
+        entityId: event.payload.peerFeedbackId,
+        category: 'feedback',
+        correlationId: event.correlationId,
+      });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      this.logger.error('Failed to process feedback review assigned notification', {
+        module: 'notification',
+        peerFeedbackId: event.payload.peerFeedbackId,
+        correlationId: event.correlationId,
+        error: message,
+      });
+    }
+  }
+
+  @OnEvent('feedback.review.submitted')
+  async handleFeedbackReviewSubmitted(event: FeedbackSubmittedEvent): Promise<void> {
+    try {
+      const typeLabel =
+        event.payload.contributionType === 'COMMIT'
+          ? 'commit'
+          : event.payload.contributionType === 'PULL_REQUEST'
+            ? 'pull request'
+            : 'code review';
+
+      await this.enqueueNotification({
+        contributorId: event.payload.contributorId,
+        type: 'PEER_FEEDBACK_RECEIVED',
+        title: "You've received feedback on your contribution",
+        description: `Feedback on ${typeLabel}: ${event.payload.contributionTitle}`,
+        entityId: event.payload.peerFeedbackId,
+        category: 'feedback',
+        correlationId: event.correlationId,
+      });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      this.logger.error('Failed to process feedback review submitted notification', {
+        module: 'notification',
+        peerFeedbackId: event.payload.peerFeedbackId,
+        correlationId: event.correlationId,
+        error: message,
+      });
+    }
   }
 
   private async notifyWgLeadOfContribution(payload: ContributionIngestedPayload): Promise<void> {

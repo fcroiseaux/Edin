@@ -5,7 +5,9 @@ export type ActivityEventType =
   | 'EVALUATION_COMPLETED'
   | 'ANNOUNCEMENT_CREATED'
   | 'MEMBER_JOINED'
-  | 'TASK_COMPLETED';
+  | 'TASK_COMPLETED'
+  | 'FEEDBACK_ASSIGNED'
+  | 'FEEDBACK_SUBMITTED';
 
 export interface ActivityEvent {
   id: string;

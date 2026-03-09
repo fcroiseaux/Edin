@@ -86,9 +86,9 @@ development_status:
   epic-5-retrospective: optional
 
   # Epic 6: Peer Feedback System
-  epic-6: backlog
-  6-1-peer-reviewer-assignment: backlog
-  6-2-structured-feedback-rubric-and-submission: backlog
+  epic-6: in-progress
+  6-1-peer-reviewer-assignment: done
+  6-2-structured-feedback-rubric-and-submission: done
   6-3-feedback-monitoring-and-tracking: backlog
   epic-6-retrospective: optional
 

@@ -410,6 +410,135 @@ describe('ActivityService', () => {
       );
     });
 
+    it('handles feedback.review.assigned event', async () => {
+      mockPrisma.activityEvent.create.mockResolvedValue({
+        id: 'event-6',
+        eventType: 'FEEDBACK_ASSIGNED',
+        title: 'Peer review assigned for Fix auth bug',
+        description: null,
+        contributorId: 'reviewer-1',
+        domain: 'Technology',
+        contributionType: null,
+        entityId: 'pf-1',
+        metadata: null,
+        createdAt: new Date(),
+        contributor: { id: 'reviewer-1', name: 'Reviewer', avatarUrl: null },
+      });
+
+      await service.handleFeedbackAssigned({
+        eventType: 'feedback.review.assigned',
+        timestamp: new Date().toISOString(),
+        correlationId: 'corr-7',
+        actorId: 'system',
+        payload: {
+          peerFeedbackId: 'pf-1',
+          contributionId: 'contrib-1',
+          reviewerId: 'reviewer-1',
+          contributionTitle: 'Fix auth bug',
+          contributionType: 'COMMIT',
+          domain: 'Technology',
+        },
+      });
+
+      expect(mockPrisma.activityEvent.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            eventType: 'FEEDBACK_ASSIGNED',
+            title: 'Peer review assigned for Fix auth bug',
+          }),
+        }),
+      );
+    });
+
+    it('creates FEEDBACK_SUBMITTED activity event on feedback.review.submitted', async () => {
+      mockPrisma.activityEvent.create.mockResolvedValue({
+        id: 'event-7',
+        eventType: 'FEEDBACK_SUBMITTED',
+        title: 'Peer feedback submitted for Fix auth bug',
+        description: null,
+        contributorId: 'reviewer-1',
+        domain: 'Technology',
+        contributionType: null,
+        entityId: 'pf-1',
+        metadata: null,
+        createdAt: new Date(),
+        contributor: { id: 'reviewer-1', name: 'Reviewer', avatarUrl: null },
+      });
+
+      await service.handleFeedbackSubmitted({
+        eventType: 'feedback.review.submitted',
+        timestamp: new Date().toISOString(),
+        correlationId: 'corr-8',
+        actorId: 'reviewer-1',
+        payload: {
+          peerFeedbackId: 'pf-1',
+          contributionId: 'contrib-1',
+          reviewerId: 'reviewer-1',
+          contributorId: 'author-1',
+          contributionTitle: 'Fix auth bug',
+          contributionType: 'COMMIT',
+          domain: 'Technology',
+        },
+      });
+
+      expect(mockPrisma.activityEvent.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            eventType: 'FEEDBACK_SUBMITTED',
+            title: 'Peer feedback submitted for Fix auth bug',
+          }),
+        }),
+      );
+    });
+
+    it('feedback submitted activity event has correct metadata', async () => {
+      mockPrisma.activityEvent.create.mockResolvedValue({
+        id: 'event-8',
+        eventType: 'FEEDBACK_SUBMITTED',
+        title: 'Peer feedback submitted for PR #42',
+        description: null,
+        contributorId: 'reviewer-2',
+        domain: 'Fintech',
+        contributionType: null,
+        entityId: 'pf-2',
+        metadata: {
+          contributionId: 'contrib-2',
+          contributionType: 'PULL_REQUEST',
+          peerFeedbackId: 'pf-2',
+        },
+        createdAt: new Date(),
+        contributor: { id: 'reviewer-2', name: 'Reviewer 2', avatarUrl: null },
+      });
+
+      await service.handleFeedbackSubmitted({
+        eventType: 'feedback.review.submitted',
+        timestamp: new Date().toISOString(),
+        correlationId: 'corr-9',
+        actorId: 'reviewer-2',
+        payload: {
+          peerFeedbackId: 'pf-2',
+          contributionId: 'contrib-2',
+          reviewerId: 'reviewer-2',
+          contributorId: 'author-2',
+          contributionTitle: 'PR #42',
+          contributionType: 'PULL_REQUEST',
+          domain: 'Fintech',
+        },
+      });
+
+      expect(mockPrisma.activityEvent.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            metadata: expect.objectContaining({
+              contributionId: 'contrib-2',
+              contributionType: 'PULL_REQUEST',
+              peerFeedbackId: 'pf-2',
+            }),
+          }),
+        }),
+      );
+    });
+
     it('ignores task status changes that are not COMPLETED', async () => {
       await service.handleTaskStatusChanged({
         eventType: 'task.status-changed',

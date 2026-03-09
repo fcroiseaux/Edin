@@ -329,5 +329,116 @@ describe('NotificationService', () => {
 
       expect(mockQueue.add).not.toHaveBeenCalled();
     });
+
+    it('enqueues notification for reviewer on feedback.review.assigned', async () => {
+      mockQueue.add.mockResolvedValue({ id: 'job-1' });
+
+      await service.handleFeedbackReviewAssigned({
+        eventType: 'feedback.review.assigned',
+        timestamp: new Date().toISOString(),
+        correlationId: 'corr-5',
+        actorId: 'system',
+        payload: {
+          peerFeedbackId: 'pf-1',
+          contributionId: 'contrib-1',
+          reviewerId: 'reviewer-1',
+          contributionTitle: 'Fix auth bug',
+          contributionType: 'COMMIT',
+          domain: 'Technology',
+        },
+      });
+
+      expect(mockQueue.add).toHaveBeenCalledWith(
+        'send-notification',
+        expect.objectContaining({
+          contributorId: 'reviewer-1',
+          type: 'PEER_FEEDBACK_AVAILABLE',
+          category: 'feedback',
+        }),
+        expect.any(Object),
+      );
+    });
+
+    it('enqueues notification for contribution author on feedback.review.submitted', async () => {
+      mockQueue.add.mockResolvedValue({ id: 'job-1' });
+
+      await service.handleFeedbackReviewSubmitted({
+        eventType: 'feedback.review.submitted',
+        timestamp: new Date().toISOString(),
+        correlationId: 'corr-10',
+        actorId: 'reviewer-1',
+        payload: {
+          peerFeedbackId: 'pf-1',
+          contributionId: 'contrib-1',
+          reviewerId: 'reviewer-1',
+          contributorId: 'author-1',
+          contributionTitle: 'Fix auth bug',
+          contributionType: 'COMMIT',
+          domain: 'Technology',
+        },
+      });
+
+      expect(mockQueue.add).toHaveBeenCalledWith(
+        'send-notification',
+        expect.objectContaining({
+          contributorId: 'author-1',
+          type: 'PEER_FEEDBACK_RECEIVED',
+          category: 'feedback',
+        }),
+        expect.any(Object),
+      );
+    });
+
+    it('feedback submitted notification has correct type and targets contribution author', async () => {
+      mockQueue.add.mockResolvedValue({ id: 'job-1' });
+
+      await service.handleFeedbackReviewSubmitted({
+        eventType: 'feedback.review.submitted',
+        timestamp: new Date().toISOString(),
+        correlationId: 'corr-11',
+        actorId: 'reviewer-2',
+        payload: {
+          peerFeedbackId: 'pf-2',
+          contributionId: 'contrib-2',
+          reviewerId: 'reviewer-2',
+          contributorId: 'author-2',
+          contributionTitle: 'Add payment flow',
+          contributionType: 'PULL_REQUEST',
+          domain: 'Fintech',
+        },
+      });
+
+      const callArgs = mockQueue.add.mock.calls[0][1];
+      expect(callArgs.type).toBe('PEER_FEEDBACK_RECEIVED');
+      expect(callArgs.category).toBe('feedback');
+      expect(callArgs.contributorId).toBe('author-2');
+      expect(callArgs.title).toBe("You've received feedback on your contribution");
+      expect(callArgs.description).toBe('Feedback on pull request: Add payment flow');
+    });
+
+    it('notification has correct type PEER_FEEDBACK_AVAILABLE and category feedback', async () => {
+      mockQueue.add.mockResolvedValue({ id: 'job-1' });
+
+      await service.handleFeedbackReviewAssigned({
+        eventType: 'feedback.review.assigned',
+        timestamp: new Date().toISOString(),
+        correlationId: 'corr-6',
+        actorId: 'system',
+        payload: {
+          peerFeedbackId: 'pf-2',
+          contributionId: 'contrib-2',
+          reviewerId: 'reviewer-2',
+          contributionTitle: 'Add payment flow',
+          contributionType: 'PULL_REQUEST',
+          domain: 'Fintech',
+        },
+      });
+
+      const callArgs = mockQueue.add.mock.calls[0][1];
+      expect(callArgs.type).toBe('PEER_FEEDBACK_AVAILABLE');
+      expect(callArgs.category).toBe('feedback');
+      expect(callArgs.title).toBe("You've been asked to review a contribution");
+      expect(callArgs.description).toBe('Review pull request: Add payment flow');
+    });
   });
 });

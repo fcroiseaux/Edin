@@ -2,7 +2,11 @@ import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { RedisService } from '../../common/redis/redis.service.js';
-import type { ActivityEventType } from '@edin/shared';
+import type {
+  ActivityEventType,
+  FeedbackAssignmentEvent,
+  FeedbackSubmittedEvent,
+} from '@edin/shared';
 import type {
   ContributionType as PrismaContributionType,
   ContributorDomain,
@@ -332,6 +336,57 @@ export class ActivityService {
         workingGroupName: workingGroup.name,
       },
     });
+  }
+
+  @OnEvent('feedback.review.assigned')
+  async handleFeedbackAssigned(event: FeedbackAssignmentEvent): Promise<void> {
+    try {
+      await this.createActivityEvent({
+        eventType: 'FEEDBACK_ASSIGNED',
+        title: `Peer review assigned for ${event.payload.contributionTitle}`,
+        contributorId: event.payload.reviewerId,
+        domain: (event.payload.domain as ContributorDomain) ?? ('Technology' as ContributorDomain),
+        entityId: event.payload.peerFeedbackId,
+        metadata: {
+          contributionId: event.payload.contributionId,
+          contributionType: event.payload.contributionType,
+        },
+      });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      this.logger.error('Failed to create feedback assigned activity event', {
+        module: 'activity',
+        peerFeedbackId: event.payload.peerFeedbackId,
+        correlationId: event.correlationId,
+        error: message,
+      });
+    }
+  }
+
+  @OnEvent('feedback.review.submitted')
+  async handleFeedbackSubmitted(event: FeedbackSubmittedEvent): Promise<void> {
+    try {
+      await this.createActivityEvent({
+        eventType: 'FEEDBACK_SUBMITTED',
+        title: `Peer feedback submitted for ${event.payload.contributionTitle}`,
+        contributorId: event.payload.reviewerId,
+        domain: (event.payload.domain as ContributorDomain) ?? ('Technology' as ContributorDomain),
+        entityId: event.payload.peerFeedbackId,
+        metadata: {
+          contributionId: event.payload.contributionId,
+          contributionType: event.payload.contributionType,
+          peerFeedbackId: event.payload.peerFeedbackId,
+        },
+      });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      this.logger.error('Failed to create feedback submitted activity event', {
+        module: 'activity',
+        peerFeedbackId: event.payload.peerFeedbackId,
+        correlationId: event.correlationId,
+        error: message,
+      });
+    }
   }
 
   @OnEvent('task.status-changed')

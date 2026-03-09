@@ -275,6 +275,45 @@ export type {
   NotificationSseEvent,
 } from './types/notification.types.js';
 
+export {
+  feedbackStatusEnum,
+  peerFeedbackSchema,
+  feedbackQuerySchema,
+  feedbackAssignmentSchema,
+  rubricResponseSchema,
+  feedbackSubmissionSchema,
+  feedbackDetailSchema,
+} from './schemas/feedback.schema.js';
+export type {
+  PeerFeedbackSchemaDto,
+  FeedbackQuerySchemaDto,
+  FeedbackAssignmentSchemaDto,
+  RubricResponseSchemaDto,
+  FeedbackSubmissionSchemaDto,
+  FeedbackDetailSchemaDto,
+} from './schemas/feedback.schema.js';
+
+export type {
+  FeedbackStatus,
+  PeerFeedbackDto,
+  FeedbackListResponse,
+  FeedbackAssignmentEvent,
+  RubricResponse,
+  FeedbackSubmissionDto,
+  RubricData,
+  FeedbackDetailDto,
+  FeedbackSubmittedEvent,
+  ReceivedFeedbackDto,
+} from './types/feedback.types.js';
+
+export {
+  MIN_COMMENT_LENGTH,
+  MAX_COMMENT_LENGTH,
+  RUBRIC_VERSION,
+  RATING_LABELS,
+  RUBRIC_QUESTIONS,
+} from './constants/feedback-rubric.js';
+
 export type {
   RepositoryStatus,
   MonitoredRepository as MonitoredRepositoryType,
