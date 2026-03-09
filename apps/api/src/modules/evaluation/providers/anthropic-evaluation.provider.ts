@@ -1,15 +1,18 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Anthropic from '@anthropic-ai/sdk';
-import type { EvaluationDimensionKey } from '@edin/shared';
+import type { EvaluationDimensionKey, DocEvaluationDimensionKey } from '@edin/shared';
 import { MAX_PATCH_LENGTH, MAX_EVALUATION_FILES } from '@edin/shared';
 import type {
   EvaluationProvider,
   CodeEvaluationInput,
   CodeEvaluationOutput,
+  DocEvaluationInput,
+  DocEvaluationOutput,
 } from './evaluation-provider.interface.js';
 
-const PROMPT_VERSION = 'code-eval-v1';
+const CODE_PROMPT_VERSION = 'code-eval-v1';
+const DOC_PROMPT_VERSION = 'doc-eval-v1';
 
 const SYSTEM_PROMPT = `You are a code quality evaluator for the Edin platform. Evaluate the following code contribution across 4 dimensions. Return a JSON object with scores (0-100) and brief explanations for each dimension.
 
@@ -30,11 +33,35 @@ Return ONLY valid JSON in this format:
   "narrative": "<2-4 sentence narrative>"
 }`;
 
+const DOC_SYSTEM_PROMPT = `You are a documentation quality evaluator for the Edin platform. Evaluate the following documentation contribution across 3 dimensions. Return a JSON object with scores (0-100) and brief explanations for each dimension.
+
+Evaluation Dimensions:
+1. Structural Completeness (0-100): Required sections present for the document type, logical organization, table of contents, proper heading hierarchy = higher score
+2. Readability (0-100): Appropriate reading level (Flesch-Kincaid grade), clear sentence structure, good paragraph organization, minimal jargon = higher score
+3. Reference Integrity (0-100): All links are valid, citations are complete, internal cross-references are accurate, no orphaned references = higher score
+
+Also provide a 2-4 sentence narrative summary describing the quality of the documentation.
+
+Return ONLY valid JSON in this format:
+{
+  "structuralCompleteness": { "score": <0-100>, "explanation": "<1-2 sentences>" },
+  "readability": { "score": <0-100>, "explanation": "<1-2 sentences>" },
+  "referenceIntegrity": { "score": <0-100>, "explanation": "<1-2 sentences>" },
+  "narrative": "<2-4 sentence narrative>"
+}`;
+
 interface EvaluationResponse {
   complexity: { score: number; explanation: string };
   maintainability: { score: number; explanation: string };
   testCoverage: { score: number; explanation: string };
   standardsAdherence: { score: number; explanation: string };
+  narrative: string;
+}
+
+interface DocEvaluationResponse {
+  structuralCompleteness: { score: number; explanation: string };
+  readability: { score: number; explanation: string };
+  referenceIntegrity: { score: number; explanation: string };
   narrative: string;
 }
 
@@ -53,8 +80,12 @@ export class AnthropicEvaluationProvider implements EvaluationProvider {
     );
   }
 
-  get promptVersion(): string {
-    return PROMPT_VERSION;
+  get codePromptVersion(): string {
+    return CODE_PROMPT_VERSION;
+  }
+
+  get docPromptVersion(): string {
+    return DOC_PROMPT_VERSION;
   }
 
   async evaluateCode(input: CodeEvaluationInput): Promise<CodeEvaluationOutput> {
@@ -136,6 +167,88 @@ export class AnthropicEvaluationProvider implements EvaluationProvider {
     return parts.join('\n');
   }
 
+  async evaluateDocumentation(input: DocEvaluationInput): Promise<DocEvaluationOutput> {
+    const userPrompt = this.buildDocUserPrompt(input);
+
+    this.logger.log('Calling Anthropic API for documentation evaluation', {
+      module: 'evaluation',
+      contributionId: input.contributionId,
+      modelId: this.modelId,
+      documentType: input.documentType,
+    });
+
+    const systemPrompt = input.rubricParameters
+      ? this.buildDocSystemPromptWithRubric(input.rubricParameters)
+      : DOC_SYSTEM_PROMPT;
+
+    const response = await this.client.messages.create({
+      model: this.modelId,
+      max_tokens: 2048,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userPrompt }],
+    });
+
+    const textBlock = response.content.find((block) => block.type === 'text');
+    const rawOutput = textBlock ? textBlock.text : '';
+
+    this.logger.log('Anthropic API response received for doc evaluation', {
+      module: 'evaluation',
+      contributionId: input.contributionId,
+      inputTokens: response.usage?.input_tokens,
+      outputTokens: response.usage?.output_tokens,
+    });
+
+    const parsed = this.parseDocResponse(rawOutput);
+
+    return {
+      dimensions: {
+        structuralCompleteness: parsed.structuralCompleteness,
+        readability: parsed.readability,
+        referenceIntegrity: parsed.referenceIntegrity,
+      },
+      narrative: parsed.narrative,
+      rawModelOutput: rawOutput,
+    };
+  }
+
+  private buildDocUserPrompt(input: DocEvaluationInput): string {
+    const parts: string[] = [];
+
+    parts.push(`Repository: ${input.repositoryName}`);
+    parts.push(`Document Title: ${input.documentTitle}`);
+
+    if (input.documentType) {
+      parts.push(`Document Type: ${input.documentType}`);
+    }
+
+    parts.push(`\nDocument Content:`);
+    parts.push(input.documentContent);
+
+    return parts.join('\n');
+  }
+
+  private buildDocSystemPromptWithRubric(rubric: DocEvaluationInput['rubricParameters']): string {
+    const rubricDetails: string[] = [];
+
+    if (rubric?.targetFleschKincaidRange) {
+      rubricDetails.push(
+        `Target Flesch-Kincaid grade level: ${rubric.targetFleschKincaidRange.min}-${rubric.targetFleschKincaidRange.max}`,
+      );
+    }
+    if (rubric?.requiredSections?.length) {
+      rubricDetails.push(`Required sections: ${rubric.requiredSections.join(', ')}`);
+    }
+    if (rubric?.maxSentenceLength) {
+      rubricDetails.push(`Maximum recommended sentence length: ${rubric.maxSentenceLength} words`);
+    }
+
+    const rubricSuffix = rubricDetails.length
+      ? `\n\nAdditional rubric parameters:\n${rubricDetails.join('\n')}`
+      : '';
+
+    return DOC_SYSTEM_PROMPT + rubricSuffix;
+  }
+
   private parseResponse(raw: string): EvaluationResponse {
     const jsonMatch = raw.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
@@ -163,6 +276,37 @@ export class AnthropicEvaluationProvider implements EvaluationProvider {
 
     if (!parsed.narrative || typeof parsed.narrative !== 'string') {
       parsed.narrative = 'Evaluation completed.';
+    }
+
+    return parsed;
+  }
+
+  private parseDocResponse(raw: string): DocEvaluationResponse {
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      this.logger.error('Failed to extract JSON from doc model response', {
+        module: 'evaluation',
+        rawLength: raw.length,
+      });
+      throw new Error('Model response did not contain valid JSON');
+    }
+
+    const parsed = JSON.parse(jsonMatch[0]) as DocEvaluationResponse;
+
+    const dimensionKeys: DocEvaluationDimensionKey[] = [
+      'structuralCompleteness',
+      'readability',
+      'referenceIntegrity',
+    ];
+    for (const key of dimensionKeys) {
+      if (!parsed[key] || typeof parsed[key].score !== 'number') {
+        throw new Error(`Missing or invalid dimension score: ${key}`);
+      }
+      parsed[key].score = Math.max(0, Math.min(100, Math.round(parsed[key].score)));
+    }
+
+    if (!parsed.narrative || typeof parsed.narrative !== 'string') {
+      parsed.narrative = 'Documentation evaluation completed.';
     }
 
     return parsed;

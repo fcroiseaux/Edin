@@ -80,6 +80,7 @@ enum ContributionType {
   COMMIT
   PULL_REQUEST
   CODE_REVIEW
+  DOCUMENTATION
 
   @@schema("core")
 }
@@ -628,7 +629,10 @@ model EvaluationModel {
   version     String
   provider    String
   config      Json?
+  configHash  String?               @map("config_hash")
   status      EvaluationModelStatus @default(ACTIVE)
+  deployedAt  DateTime?             @map("deployed_at")
+  retiredAt   DateTime?             @map("retired_at")
   createdAt   DateTime              @default(now()) @map("created_at")
 
   evaluations Evaluation[]
@@ -638,26 +642,44 @@ model EvaluationModel {
   @@schema("evaluation")
 }
 
-model Evaluation {
-  id              String           @id @db.Uuid
-  contributionId  String           @map("contribution_id") @db.Uuid
-  contributorId   String           @map("contributor_id") @db.Uuid
-  modelId         String?          @map("model_id") @db.Uuid
-  status          EvaluationStatus @default(PENDING)
-  compositeScore  Decimal?         @map("composite_score") @db.Decimal(5, 2)
-  dimensionScores Json?            @map("dimension_scores")
-  narrative       String?          @db.Text
-  formulaVersion  String?          @map("formula_version")
-  rawInputs       Json?            @map("raw_inputs")
-  metadata        Json?
-  startedAt       DateTime?        @map("started_at")
-  completedAt     DateTime?        @map("completed_at")
-  createdAt       DateTime         @default(now()) @map("created_at")
-  updatedAt       DateTime         @updatedAt @map("updated_at")
+model EvaluationRubric {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  evaluationType String   @map("evaluation_type")
+  documentType   String?  @map("document_type")
+  parameters     Json
+  version        String
+  isActive       Boolean  @default(true) @map("is_active")
+  createdAt      DateTime @default(now()) @map("created_at")
 
-  contribution    Contribution     @relation(fields: [contributionId], references: [id])
-  contributor     Contributor      @relation(fields: [contributorId], references: [id])
-  model           EvaluationModel? @relation(fields: [modelId], references: [id])
+  evaluations    Evaluation[]
+
+  @@index([evaluationType, isActive], map: "idx_rubrics_type_active")
+  @@map("evaluation_rubrics")
+  @@schema("evaluation")
+}
+
+model Evaluation {
+  id              String            @id @db.Uuid
+  contributionId  String            @map("contribution_id") @db.Uuid
+  contributorId   String            @map("contributor_id") @db.Uuid
+  modelId         String?           @map("model_id") @db.Uuid
+  rubricId        String?           @map("rubric_id") @db.Uuid
+  status          EvaluationStatus  @default(PENDING)
+  compositeScore  Decimal?          @map("composite_score") @db.Decimal(5, 2)
+  dimensionScores Json?             @map("dimension_scores")
+  narrative       String?           @db.Text
+  formulaVersion  String?           @map("formula_version")
+  rawInputs       Json?             @map("raw_inputs")
+  metadata        Json?
+  startedAt       DateTime?         @map("started_at")
+  completedAt     DateTime?         @map("completed_at")
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+
+  contribution    Contribution      @relation(fields: [contributionId], references: [id])
+  contributor     Contributor       @relation(fields: [contributorId], references: [id])
+  model           EvaluationModel?  @relation(fields: [modelId], references: [id])
+  rubric          EvaluationRubric? @relation(fields: [rubricId], references: [id])
 
   @@unique([contributionId])
   @@index([contributorId, createdAt], map: "idx_evaluations_contributor_created")

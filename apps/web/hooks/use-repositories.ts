@@ -39,6 +39,48 @@ export function useAddRepository() {
         body: JSON.stringify(data),
       });
     },
+    onMutate: async (newRepo) => {
+      await queryClient.cancelQueries({ queryKey: ['ingestion', 'repositories'] });
+
+      const previousData = queryClient.getQueryData<RepositoryListResponse>([
+        'ingestion',
+        'repositories',
+      ]);
+
+      const optimisticRepo: MonitoredRepositoryType = {
+        id: `optimistic-${Date.now()}`,
+        owner: newRepo.owner,
+        repo: newRepo.repo,
+        fullName: `${newRepo.owner}/${newRepo.repo}`,
+        webhookId: null,
+        status: 'PENDING',
+        statusMessage: null,
+        addedById: '',
+        addedByName: null,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      queryClient.setQueryData<RepositoryListResponse>(['ingestion', 'repositories'], (old) =>
+        old
+          ? { ...old, data: [optimisticRepo, ...old.data] }
+          : {
+              data: [optimisticRepo],
+              meta: {
+                timestamp: new Date().toISOString(),
+                correlationId: '',
+                pagination: { cursor: null, hasMore: false, total: 1 },
+              },
+            },
+      );
+
+      return { previousData };
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previousData) {
+        queryClient.setQueryData(['ingestion', 'repositories'], context.previousData);
+      }
+    },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['ingestion', 'repositories'] });
     },

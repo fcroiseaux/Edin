@@ -63,6 +63,9 @@ export function AddRepositoryForm({ open, onOpenChange }: AddRepositoryFormProps
             <Dialog.Title className="font-serif text-[20px] font-bold text-brand-primary">
               Add Repository
             </Dialog.Title>
+            <Dialog.Description className="sr-only">
+              Add a GitHub repository to monitor for contributor activity
+            </Dialog.Description>
             <Dialog.Close asChild>
               <button
                 type="button"

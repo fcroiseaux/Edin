@@ -78,12 +78,16 @@ describe('IngestionService', () => {
         webhookId: null,
       });
       mockGitHubApiService.createWebhook.mockResolvedValue({ webhookId: 12345 });
-      mockPrisma.monitoredRepository.update.mockResolvedValue(mockRepo);
+      mockPrisma.monitoredRepository.update.mockResolvedValue({
+        ...mockRepo,
+        addedBy: { name: 'Alice Admin' },
+      });
 
       const result = await service.addRepository(input, 'admin-uuid-1', 'test-corr');
 
       expect(result.fullName).toBe('edin-foundation/edin-core');
       expect(result.status).toBe('ACTIVE');
+      expect(result.addedByName).toBe('Alice Admin');
       expect(mockPrisma.auditLog.create).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({ action: 'ingestion.repository.added' }),
@@ -106,7 +110,7 @@ describe('IngestionService', () => {
       });
     });
 
-    it('should save with ERROR status when GitHub API fails', async () => {
+    it('should save with PENDING status when GitHub API fails', async () => {
       const input = { owner: 'edin-foundation', repo: 'edin-core' };
       mockPrisma.$transaction.mockImplementation((callback: (tx: any) => unknown) =>
         callback(mockPrisma),
@@ -123,14 +127,16 @@ describe('IngestionService', () => {
       mockPrisma.monitoredRepository.update.mockResolvedValue({
         ...mockRepo,
         id: 'repo-uuid-2',
-        status: 'ERROR',
+        status: 'PENDING',
         statusMessage: 'Insufficient permissions',
+        addedBy: { name: 'Alice Admin' },
       });
 
       const result = await service.addRepository(input, 'admin-uuid-1');
 
-      expect(result.status).toBe('ERROR');
+      expect(result.status).toBe('PENDING');
       expect(result.statusMessage).toBe('Insufficient permissions');
+      expect(result.addedByName).toBe('Alice Admin');
     });
   });
 
@@ -195,14 +201,17 @@ describe('IngestionService', () => {
   // ─── listRepositories ──────────────────────────────────────────────────
 
   describe('listRepositories', () => {
-    it('should return paginated repository list', async () => {
-      mockPrisma.monitoredRepository.findMany.mockResolvedValue([mockRepo]);
+    it('should return paginated repository list with addedByName', async () => {
+      mockPrisma.monitoredRepository.findMany.mockResolvedValue([
+        { ...mockRepo, addedBy: { name: 'Alice Admin' } },
+      ]);
       mockPrisma.monitoredRepository.count.mockResolvedValue(1);
 
       const result = await service.listRepositories({ limit: 20 });
 
       expect(result.items).toHaveLength(1);
       expect(result.items[0].fullName).toBe('edin-foundation/edin-core');
+      expect(result.items[0].addedByName).toBe('Alice Admin');
       expect(result.pagination.total).toBe(1);
       expect(result.pagination.hasMore).toBe(false);
     });
@@ -226,13 +235,17 @@ describe('IngestionService', () => {
   // ─── getRepository ─────────────────────────────────────────────────────
 
   describe('getRepository', () => {
-    it('should return repository by id', async () => {
-      mockPrisma.monitoredRepository.findUnique.mockResolvedValue(mockRepo);
+    it('should return repository by id with addedByName', async () => {
+      mockPrisma.monitoredRepository.findUnique.mockResolvedValue({
+        ...mockRepo,
+        addedBy: { name: 'Alice Admin' },
+      });
 
       const result = await service.getRepository('repo-uuid-1');
 
       expect(result.id).toBe('repo-uuid-1');
       expect(result.fullName).toBe('edin-foundation/edin-core');
+      expect(result.addedByName).toBe('Alice Admin');
     });
 
     it('should throw REPOSITORY_NOT_FOUND when not found', async () => {
@@ -256,12 +269,14 @@ describe('IngestionService', () => {
         status: 'ACTIVE',
         webhookId: 99999,
         statusMessage: null,
+        addedBy: { name: 'Alice Admin' },
       });
 
       const result = await service.retryWebhook('repo-uuid-1', 'admin-uuid-1');
 
       expect(result.status).toBe('ACTIVE');
       expect(result.webhookId).toBe(99999);
+      expect(result.addedByName).toBe('Alice Admin');
     });
 
     it('should throw when retrying non-error repository', async () => {

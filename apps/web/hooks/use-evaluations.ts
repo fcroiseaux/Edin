@@ -2,7 +2,13 @@
 
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import { apiClient } from '../lib/api-client';
-import type { EvaluationStatus, EvaluationWithContributionDto, PaginationMeta } from '@edin/shared';
+import type {
+  EvaluationStatus,
+  EvaluationWithContributionDto,
+  EvaluationDetailDto,
+  EvaluationHistoryItemDto,
+  PaginationMeta,
+} from '@edin/shared';
 
 interface EvaluationStatusResponse {
   data: { status: EvaluationStatus | null };
@@ -10,8 +16,13 @@ interface EvaluationStatusResponse {
 }
 
 interface EvaluationResponse {
-  data: EvaluationWithContributionDto;
+  data: EvaluationDetailDto;
   meta: { timestamp: string; correlationId: string };
+}
+
+interface EvaluationHistoryResponse {
+  data: EvaluationHistoryItemDto[];
+  meta: { timestamp: string; correlationId: string; pagination: PaginationMeta };
 }
 
 interface EvaluationListResponse {
@@ -88,6 +99,54 @@ export function useMyEvaluations() {
 
   return {
     evaluations,
+    isLoading,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  };
+}
+
+export function useEvaluationHistory(filters: {
+  contributionType?: string;
+  from?: string;
+  to?: string;
+}) {
+  const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useInfiniteQuery<EvaluationHistoryResponse>({
+      queryKey: ['evaluations', 'history', filters],
+      queryFn: async ({ pageParam }) => {
+        const params = new URLSearchParams();
+        params.set('limit', '20');
+        if (typeof pageParam === 'string' && pageParam.length > 0) {
+          params.set('cursor', pageParam);
+        }
+        if (filters.contributionType) {
+          params.set('contributionType', filters.contributionType);
+        }
+        if (filters.from) {
+          params.set('from', filters.from);
+        }
+        if (filters.to) {
+          params.set('to', filters.to);
+        }
+        const qs = params.toString();
+        return apiClient<EvaluationHistoryResponse>(
+          `/api/v1/evaluations/history${qs ? `?${qs}` : ''}`,
+        );
+      },
+      initialPageParam: '',
+      getNextPageParam: (lastPage) =>
+        lastPage.meta.pagination.hasMore
+          ? (lastPage.meta.pagination.cursor ?? undefined)
+          : undefined,
+      staleTime: 30_000,
+    });
+
+  const items = data?.pages.flatMap((page) => page.data) ?? [];
+
+  return {
+    items,
     isLoading,
     error,
     fetchNextPage,

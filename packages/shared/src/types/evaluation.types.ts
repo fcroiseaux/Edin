@@ -88,7 +88,54 @@ export interface EvaluationFailedEvent {
   };
 }
 
-export type EvaluationScoringWeights = Record<EvaluationDimensionKey, number>;
+export type DocEvaluationDimensionKey =
+  | 'structuralCompleteness'
+  | 'readability'
+  | 'referenceIntegrity';
+
+export type AllEvaluationDimensionKey = EvaluationDimensionKey | DocEvaluationDimensionKey;
+
+export type EvaluationScoringWeights = Record<string, number>;
+
+export interface EvaluationRubricDto {
+  id: string;
+  evaluationType: string;
+  documentType: string | null;
+  parameters: EvaluationRubricParameters;
+  version: string;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface EvaluationRubricParameters {
+  targetFleschKincaidRange?: { min: number; max: number };
+  requiredSections?: string[];
+  maxSentenceLength?: number;
+  maxParagraphLength?: number;
+}
+
+export interface EvaluationModelVersionDto {
+  id: string;
+  name: string;
+  version: string;
+  provider: string;
+  status: EvaluationModelStatus;
+  configHash: string | null;
+  deployedAt: string | null;
+  retiredAt: string | null;
+  evaluationCount: number;
+  createdAt: string;
+}
+
+export interface EvaluationModelMetricsDto {
+  modelId: string;
+  modelName: string;
+  modelVersion: string;
+  evaluationCount: number;
+  averageScore: number | null;
+  scoreVariance: number | null;
+  humanAgreementRate: number | null;
+}
 
 export interface EvaluationProvenanceDto {
   formulaVersion: string;
@@ -98,4 +145,30 @@ export interface EvaluationProvenanceDto {
   modelPromptVersion: string;
   inputTokenCount?: number;
   outputTokenCount?: number;
+}
+
+export interface EvaluationModelInfoDto {
+  name: string;
+  version: string;
+  provider: string;
+}
+
+export interface EvaluationRubricInfoDto {
+  version: string;
+  parameters: Record<string, unknown>;
+}
+
+export interface EvaluationDetailDto extends EvaluationWithContributionDto {
+  model: EvaluationModelInfoDto | null;
+  provenance: EvaluationProvenanceDto | null;
+  rubric: EvaluationRubricInfoDto | null;
+}
+
+export interface EvaluationHistoryItemDto {
+  id: string;
+  compositeScore: number;
+  contributionType: string;
+  contributionTitle: string;
+  narrativePreview: string;
+  completedAt: string;
 }

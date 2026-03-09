@@ -12,6 +12,7 @@ import type { NotificationCategory } from '@edin/shared';
 const DASHBOARD_NAV_ITEMS = [
   { href: '/dashboard', label: 'Overview' },
   { href: '/dashboard/contributions', label: 'Contributions' },
+  { href: '/dashboard/evaluations', label: 'Evaluations' },
   { href: '/dashboard/tasks', label: 'Tasks' },
   { href: '/dashboard/activity', label: 'Activity' },
   { href: '/dashboard/feedback', label: 'Feedback' },
@@ -23,6 +24,7 @@ const HREF_TO_CATEGORY: Record<string, NotificationCategory> = {
   '/dashboard/working-groups': 'working-groups',
   '/dashboard/tasks': 'tasks',
   '/dashboard/feedback': 'feedback',
+  '/dashboard/evaluations': 'evaluations',
 };
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {

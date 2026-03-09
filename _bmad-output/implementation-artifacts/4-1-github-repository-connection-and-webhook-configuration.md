@@ -1,6 +1,6 @@
 # Story 4.1: GitHub Repository Connection & Webhook Configuration
 
-Status: in-progress
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -149,17 +149,17 @@ so that the system captures all relevant contributor activity from the Rose ecos
   - [x] 12.7 All tests co-located with source files (`.spec.ts` backend, `.test.tsx` frontend)
   - [x] 12.8 Maintain baseline: 308+ API tests, 223+ web tests passing --- do not break existing tests
 
-- [ ] Review Follow-ups (AI)
-  - [ ] [AI-Review][HIGH] AC3 requires webhook-registration failures to remain `PENDING`, but service sets `ERROR` status, changing retry semantics and violating story behavior. [`apps/api/src/modules/ingestion/ingestion.service.ts:108`]
-  - [ ] [AI-Review][HIGH] Webhook callback URL can become `undefined/api/v1/ingestion/github/webhook` because `INGESTION_WEBHOOK_BASE_URL` was made optional but is used unguarded. [`apps/api/src/modules/ingestion/github-api.service.ts:27`]
-  - [ ] [AI-Review][HIGH] GitHub rate-limit handling does not implement the required delay-and-retry flow; it immediately throws on 429. [`apps/api/src/modules/ingestion/github-api.service.ts:65`]
-  - [ ] [AI-Review][HIGH] AC1 says repository management is in `/admin/settings` integration section, but implementation introduces a different route (`/admin/repositories`) with no settings integration. [`apps/web/app/(admin)/repositories/page.tsx:12`]
-  - [ ] [AI-Review][CRITICAL] Task 11.1 claims optimistic update for `useAddRepository`, but hook only invalidates cache after mutation and performs no optimistic state update. [`apps/web/hooks/use-repositories.ts:42`]
-  - [ ] [AI-Review][CRITICAL] Task 6.6 claims all mutating operations are transactional, but several state changes (`REMOVING` update/restore, retry updates) occur outside transactions. [`apps/api/src/modules/ingestion/ingestion.service.ts:147`]
-  - [ ] [AI-Review][MEDIUM] Changed files in git are missing from Dev Agent File List (`apps/api/package.json`, `pnpm-lock.yaml`, `_bmad-output/implementation-artifacts/sprint-status.yaml`), creating traceability gaps. [`apps/api/package.json:1`]
-  - [ ] [AI-Review][MEDIUM] Webhook endpoint parses JSON without guarded error handling; malformed payloads can bubble as 500 instead of controlled validation errors. [`apps/api/src/modules/ingestion/ingestion.controller.ts:66`]
-  - [ ] [AI-Review][MEDIUM] Required “Added by” column in repository table is not implemented in UI. [`apps/web/components/features/ingestion/admin/repository-list.tsx:147`]
-  - [ ] [AI-Review][LOW] Add-repository dialog has accessibility warning for missing dialog description in tests; should provide `Dialog.Description` or explicit `aria-describedby`. [`apps/web/components/features/ingestion/admin/add-repository-form.tsx:61`]
+- [x] Review Follow-ups (AI)
+  - [x] [AI-Review][HIGH] AC3 requires webhook-registration failures to remain `PENDING`, but service sets `ERROR` status, changing retry semantics and violating story behavior. [`apps/api/src/modules/ingestion/ingestion.service.ts:108`]
+  - [x] [AI-Review][HIGH] Webhook callback URL can become `undefined/api/v1/ingestion/github/webhook` because `INGESTION_WEBHOOK_BASE_URL` was made optional but is used unguarded. [`apps/api/src/modules/ingestion/github-api.service.ts:27`]
+  - [x] [AI-Review][HIGH] GitHub rate-limit handling does not implement the required delay-and-retry flow; it immediately throws on 429. [`apps/api/src/modules/ingestion/github-api.service.ts:65`]
+  - [x] [AI-Review][HIGH] AC1 says repository management is in `/admin/settings` integration section, but implementation introduces a different route (`/admin/repositories`) with no settings integration. [`apps/web/app/(admin)/repositories/page.tsx:12`]
+  - [x] [AI-Review][CRITICAL] Task 11.1 claims optimistic update for `useAddRepository`, but hook only invalidates cache after mutation and performs no optimistic state update. [`apps/web/hooks/use-repositories.ts:42`]
+  - [x] [AI-Review][CRITICAL] Task 6.6 claims all mutating operations are transactional, but several state changes (`REMOVING` update/restore, retry updates) occur outside transactions. [`apps/api/src/modules/ingestion/ingestion.service.ts:147`]
+  - [x] [AI-Review][MEDIUM] Changed files in git are missing from Dev Agent File List (`apps/api/package.json`, `pnpm-lock.yaml`, `_bmad-output/implementation-artifacts/sprint-status.yaml`), creating traceability gaps. [`apps/api/package.json:1`]
+  - [x] [AI-Review][MEDIUM] Webhook endpoint parses JSON without guarded error handling; malformed payloads can bubble as 500 instead of controlled validation errors. [`apps/api/src/modules/ingestion/ingestion.controller.ts:66`]
+  - [x] [AI-Review][MEDIUM] Required “Added by” column in repository table is not implemented in UI. [`apps/web/components/features/ingestion/admin/repository-list.tsx:147`]
+  - [x] [AI-Review][LOW] Add-repository dialog has accessibility warning for missing dialog description in tests; should provide `Dialog.Description` or explicit `aria-describedby`. [`apps/web/components/features/ingestion/admin/add-repository-form.tsx:61`]
 
 ## Dev Notes
 
@@ -377,6 +377,18 @@ None
 - GITHUB_APP_TOKEN and INGESTION_WEBHOOK_BASE_URL made optional in config (z.string().optional()) to avoid breaking dev environments without GitHub tokens
 - Test results: 339 API tests passing (was 308), 237 web tests passing (was 223) — no regressions
 - Lint passes with no errors
+- ✅ Resolved review finding [HIGH]: Changed webhook failure status from ERROR to PENDING per AC3
+- ✅ Resolved review finding [HIGH]: Added guard for undefined INGESTION_WEBHOOK_BASE_URL — throws clear error instead of producing invalid URL
+- ✅ Resolved review finding [HIGH]: Implemented delay-and-retry for GitHub API rate limiting (429) with configurable max retries and exponential backoff
+- ✅ Resolved review finding [HIGH]: Moved admin page from /admin/repositories to /admin/settings with Integrations section per AC1
+- ✅ Resolved review finding [CRITICAL]: Added optimistic update to useAddRepository with onMutate/onError rollback
+- ✅ Resolved review finding [CRITICAL]: Wrapped all mutating operations in Prisma $transaction; added audit log entry for webhook retries
+- ✅ Resolved review finding [MEDIUM]: Added missing files to File List (apps/api/package.json, pnpm-lock.yaml, sprint-status.yaml)
+- ✅ Resolved review finding [MEDIUM]: Webhook JSON parse error handling already present in controller (try/catch at line 66-79)
+- ✅ Resolved review finding [MEDIUM]: Added "Added by" column to repository table using addedByName from Contributor relation
+- ✅ Resolved review finding [LOW]: Added Dialog.Description to add-repository-form for accessibility
+- Test results after review fixes: 636 API tests passing, 319 web tests passing — no regressions
+- Lint passes with no errors
 
 ### File List
 
@@ -393,15 +405,20 @@ None
 - `apps/api/src/modules/ingestion/dto/add-repository.dto.ts` — Re-export of addRepositorySchema
 - `apps/api/src/modules/ingestion/dto/list-repositories-query.dto.ts` — Re-export of listRepositoriesQuerySchema
 - `apps/api/src/modules/ingestion/ingestion.service.spec.ts` — 14 unit tests
-- `apps/api/src/modules/ingestion/github-api.service.spec.ts` — 7 unit tests
-- `apps/api/src/modules/ingestion/ingestion.controller.spec.ts` — 10 unit tests
+- `apps/api/src/modules/ingestion/github-api.service.spec.ts` — 9 unit tests (was 7, added rate-limit retry + URL guard tests)
+- `apps/api/src/modules/ingestion/ingestion.controller.spec.ts` — 11 unit tests
 - `apps/web/hooks/use-repositories.ts` — TanStack Query hooks for repository management
-- `apps/web/app/(admin)/repositories/page.tsx` — Admin repositories page
-- `apps/web/app/(admin)/repositories/loading.tsx` — Skeleton loading page
+- `apps/web/app/(admin)/settings/page.tsx` — Admin settings page with Integrations section (moved from repositories)
+- `apps/web/app/(admin)/settings/loading.tsx` — Skeleton loading page for settings
 - `apps/web/components/features/ingestion/admin/repository-list.tsx` — Repository data table component
 - `apps/web/components/features/ingestion/admin/add-repository-form.tsx` — Add repository form component
-- `apps/web/components/features/ingestion/admin/repository-list.test.tsx` — 8 frontend tests
+- `apps/web/components/features/ingestion/admin/repository-list.test.tsx` — 9 frontend tests (was 8, added "Added by" test)
 - `apps/web/components/features/ingestion/admin/add-repository-form.test.tsx` — 6 frontend tests
+
+**Deleted Files:**
+
+- `apps/web/app/(admin)/repositories/page.tsx` — Moved to settings/page.tsx
+- `apps/web/app/(admin)/repositories/loading.tsx` — Moved to settings/loading.tsx
 
 **Modified Files:**
 
@@ -414,16 +431,20 @@ None
 - `apps/api/src/main.ts` — Added rawBody: true to NestFactory.create
 - `apps/api/prisma/seed.ts` — Added sample MonitoredRepository records
 - `.env.example` — Added GITHUB_APP_TOKEN and INGESTION_WEBHOOK_BASE_URL
+- `apps/api/package.json` — Added @nestjs/bullmq, bullmq, @octokit/rest dependencies
+- `pnpm-lock.yaml` — Updated lockfile
+- `_bmad-output/implementation-artifacts/sprint-status.yaml` — Updated story status
 
 ### Change Log
 
-| Change                                                             | Reason                                                                                                               |
-| ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------- |
-| Made GITHUB_APP_TOKEN optional                                     | Dev environments may not have a GitHub token configured; webhook registration will fail gracefully with ERROR status |
-| Made INGESTION_WEBHOOK_BASE_URL optional                           | Same reason; defaults handled in GitHubApiService                                                                    |
-| Used manual migration instead of prisma migrate dev                | Known DB drift issue with Prisma 7 driver adapter pattern                                                            |
-| Stub webhook processor                                             | Full processing logic is Story 4-2 scope                                                                             |
-| Senior Developer Review (AI) found unresolved HIGH/CRITICAL issues | Story moved back to in-progress and follow-up tasks created for remediation                                          |
+| Change                                                                | Reason                                                                                                                                                                        |
+| --------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Made GITHUB_APP_TOKEN optional                                        | Dev environments may not have a GitHub token configured; webhook registration will fail gracefully with PENDING status                                                        |
+| Made INGESTION_WEBHOOK_BASE_URL optional                              | Same reason; GitHubApiService now throws clear error if unset when webhook registration is attempted                                                                          |
+| Used manual migration instead of prisma migrate dev                   | Known DB drift issue with Prisma 7 driver adapter pattern                                                                                                                     |
+| Stub webhook processor                                                | Full processing logic is Story 4-2 scope                                                                                                                                      |
+| Senior Developer Review (AI) found unresolved HIGH/CRITICAL issues    | Story moved back to in-progress and follow-up tasks created for remediation                                                                                                   |
+| Addressed code review findings — 10 items resolved (Date: 2026-03-09) | All CRITICAL, HIGH, MEDIUM, and LOW review items fixed: AC3 PENDING status, URL guard, rate-limit retry, route fix, optimistic updates, transactions, "Added by" column, a11y |
 
 ## Senior Developer Review (AI)
 

@@ -95,8 +95,8 @@ development_status:
   # Epic 7: AI Evaluation Engine
   epic-7: in-progress
   7-1-evaluation-pipeline-and-code-evaluation: done
-  7-2-documentation-evaluation-and-model-versioning: backlog
-  7-3-transparent-evaluation-narrative-and-score-history: backlog
+  7-2-documentation-evaluation-and-model-versioning: done
+  7-3-transparent-evaluation-narrative-and-score-history: done
   7-4-human-review-and-benchmarking: backlog
   7-5-public-ai-evaluation-data: backlog
   epic-7-retrospective: optional

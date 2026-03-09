@@ -86,6 +86,7 @@ export class IngestionService {
           webhookId: result.webhookId,
           statusMessage: null,
         },
+        include: { addedBy: { select: { name: true } } },
       });
 
       this.logger.log('Repository added and webhook registered', {
@@ -105,12 +106,13 @@ export class IngestionService {
       repository = await this.prisma.monitoredRepository.update({
         where: { id: repository.id },
         data: {
-          status: 'ERROR',
+          status: 'PENDING',
           statusMessage: message,
         },
+        include: { addedBy: { select: { name: true } } },
       });
 
-      this.logger.warn('Webhook registration failed, repository saved with ERROR status', {
+      this.logger.warn('Webhook registration failed, repository saved with PENDING status', {
         repositoryId: repository.id,
         fullName,
         error: message,
@@ -143,10 +145,12 @@ export class IngestionService {
       );
     }
 
-    // Set status to REMOVING optimistically
-    await this.prisma.monitoredRepository.update({
-      where: { id: repositoryId },
-      data: { status: 'REMOVING' },
+    // Set status to REMOVING optimistically (transactional)
+    await this.prisma.$transaction(async (tx) => {
+      await tx.monitoredRepository.update({
+        where: { id: repositoryId },
+        data: { status: 'REMOVING' },
+      });
     });
 
     // Attempt webhook deregistration if webhookId exists
@@ -159,10 +163,12 @@ export class IngestionService {
           correlationId,
         );
       } catch (error) {
-        // Restore previous status on failure
-        await this.prisma.monitoredRepository.update({
-          where: { id: repositoryId },
-          data: { status: repository.status },
+        // Restore previous status on failure (transactional)
+        await this.prisma.$transaction(async (tx) => {
+          await tx.monitoredRepository.update({
+            where: { id: repositoryId },
+            data: { status: repository.status },
+          });
         });
 
         const message = error instanceof Error ? error.message : 'Webhook deregistration failed';
@@ -214,13 +220,11 @@ export class IngestionService {
 
     const { cursor, limit } = query;
 
-    const where = cursor ? { id: { lt: cursor } } : {};
-
     const [items, total] = await Promise.all([
       this.prisma.monitoredRepository.findMany({
-        where,
         orderBy: { createdAt: 'desc' },
         take: limit + 1,
+        include: { addedBy: { select: { name: true } } },
         ...(cursor && { cursor: { id: cursor }, skip: 1 }),
       }),
       this.prisma.monitoredRepository.count(),
@@ -245,6 +249,7 @@ export class IngestionService {
 
     const repository = await this.prisma.monitoredRepository.findUnique({
       where: { id: repositoryId },
+      include: { addedBy: { select: { name: true } } },
     });
 
     if (!repository) {
@@ -289,13 +294,35 @@ export class IngestionService {
         correlationId,
       );
 
-      const updated = await this.prisma.monitoredRepository.update({
-        where: { id: repositoryId },
-        data: {
-          status: 'ACTIVE',
-          webhookId: result.webhookId,
-          statusMessage: null,
-        },
+      const updated = await this.prisma.$transaction(async (tx) => {
+        const repo = await tx.monitoredRepository.update({
+          where: { id: repositoryId },
+          data: {
+            status: 'ACTIVE',
+            webhookId: result.webhookId,
+            statusMessage: null,
+          },
+          include: { addedBy: { select: { name: true } } },
+        });
+
+        await tx.auditLog.create({
+          data: {
+            actorId: adminId,
+            action: 'ingestion.webhook.retried',
+            entityType: 'MonitoredRepository',
+            entityId: repositoryId,
+            details: {
+              owner: repository.owner,
+              repo: repository.repo,
+              fullName: repository.fullName,
+              webhookId: result.webhookId,
+              outcome: 'success',
+            },
+            correlationId,
+          },
+        });
+
+        return repo;
       });
 
       this.logger.log('Webhook retry successful', {
@@ -313,9 +340,11 @@ export class IngestionService {
             ? error.message
             : 'Webhook registration failed';
 
-      await this.prisma.monitoredRepository.update({
-        where: { id: repositoryId },
-        data: { statusMessage: message },
+      await this.prisma.$transaction(async (tx) => {
+        await tx.monitoredRepository.update({
+          where: { id: repositoryId },
+          data: { statusMessage: message },
+        });
       });
 
       this.logger.warn('Webhook retry failed', {
@@ -396,6 +425,7 @@ export class IngestionService {
     status: string;
     statusMessage: string | null;
     addedById: string;
+    addedBy?: { name: string } | null;
     createdAt: Date;
     updatedAt: Date;
   }) {
@@ -408,6 +438,7 @@ export class IngestionService {
       status: repository.status,
       statusMessage: repository.statusMessage,
       addedById: repository.addedById,
+      addedByName: repository.addedBy?.name ?? null,
       createdAt: repository.createdAt.toISOString(),
       updatedAt: repository.updatedAt.toISOString(),
     };

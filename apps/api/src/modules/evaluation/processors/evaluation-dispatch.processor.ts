@@ -19,6 +19,8 @@ export class EvaluationDispatchProcessor extends WorkerHost {
     private readonly prisma: PrismaService,
     @InjectQueue('code-evaluation')
     private readonly codeEvaluationQueue: Queue,
+    @InjectQueue('doc-evaluation')
+    private readonly docEvaluationQueue: Queue,
   ) {
     super();
   }
@@ -61,8 +63,27 @@ export class EvaluationDispatchProcessor extends WorkerHost {
           contributionType,
           correlationId,
         });
+      } else if (contributionType === 'DOCUMENTATION') {
+        await this.docEvaluationQueue.add(
+          'evaluate-doc',
+          {
+            evaluationId,
+            contributionId,
+            contributionType,
+            contributorId,
+            correlationId,
+          },
+          { jobId: `doc-eval-${evaluationId}` },
+        );
+
+        this.logger.log('Routed to doc-evaluation queue', {
+          module: 'evaluation',
+          evaluationId,
+          contributionType,
+          correlationId,
+        });
       } else {
-        this.logger.warn('Documentation evaluation not yet implemented', {
+        this.logger.warn('Unknown contribution type for evaluation', {
           module: 'evaluation',
           evaluationId,
           contributionType,

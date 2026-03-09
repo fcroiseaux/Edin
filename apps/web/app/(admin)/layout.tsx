@@ -8,6 +8,7 @@ import { useAuth } from '../../hooks/use-auth';
 const ADMIN_NAV_ITEMS = [
   { href: '/admin/admission', label: 'Admission' },
   { href: '/admin/feedback', label: 'Feedback' },
+  { href: '/admin/evaluations/models', label: 'Evaluations' },
   { href: '/admin/settings', label: 'Settings' },
 ];
 

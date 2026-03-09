@@ -38,6 +38,7 @@ const mockRepositories = [
     status: 'ACTIVE',
     statusMessage: null,
     addedById: 'admin-1',
+    addedByName: 'Alice Admin',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
@@ -50,6 +51,7 @@ const mockRepositories = [
     status: 'ERROR',
     statusMessage: 'GitHub App needs admin access to this repository',
     addedById: 'admin-1',
+    addedByName: 'Alice Admin',
     createdAt: new Date(Date.now() - 86400000).toISOString(),
     updatedAt: new Date(Date.now() - 86400000).toISOString(),
   },
@@ -62,6 +64,7 @@ const mockRepositories = [
     status: 'PENDING',
     statusMessage: 'Webhook registration pending',
     addedById: 'admin-1',
+    addedByName: 'Bob Manager',
     createdAt: new Date(Date.now() - 172800000).toISOString(),
     updatedAt: new Date(Date.now() - 172800000).toISOString(),
   },
@@ -100,7 +103,7 @@ describe('RepositoryList', () => {
 
     renderWithProviders(<RepositoryList />);
 
-    expect(screen.getByText('Repository Monitoring')).toBeInTheDocument();
+    expect(screen.getAllByText('Repository Monitoring').length).toBeGreaterThan(0);
     expect(screen.getAllByText('edin-foundation/edin-core').length).toBeGreaterThan(0);
     expect(screen.getAllByText('edin-foundation/edin-docs').length).toBeGreaterThan(0);
   });
@@ -118,6 +121,20 @@ describe('RepositoryList', () => {
     expect(screen.getAllByText('Active').length).toBeGreaterThan(0);
     expect(screen.getAllByText('Error').length).toBeGreaterThan(0);
     expect(screen.getAllByText('Pending').length).toBeGreaterThan(0);
+  });
+
+  it('renders Added by column', () => {
+    mockUseRepositories.mockReturnValue({
+      repositories: mockRepositories,
+      isLoading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+
+    renderWithProviders(<RepositoryList />);
+
+    expect(screen.getAllByText('Added by').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Alice Admin').length).toBeGreaterThan(0);
   });
 
   it('renders empty state when no repositories', () => {

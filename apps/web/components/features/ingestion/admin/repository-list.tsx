@@ -105,9 +105,9 @@ export function RepositoryList() {
     <div>
       {/* Header */}
       <div className="mb-[var(--spacing-lg)] flex flex-col gap-[var(--spacing-md)] sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="font-serif text-[28px] font-bold text-brand-primary">
+        <h3 className="font-serif text-[18px] font-semibold text-brand-primary">
           Repository Monitoring
-        </h1>
+        </h3>
         <button
           type="button"
           onClick={() => setFormOpen(true)}
@@ -133,9 +133,16 @@ export function RepositoryList() {
                 </span>
                 <StatusIndicator status={repo.status} />
               </div>
-              <span className="mt-[var(--spacing-xs)] block font-sans text-[13px] text-brand-secondary">
-                Added {formatRelativeDate(repo.createdAt)}
-              </span>
+              <div className="mt-[var(--spacing-xs)] flex items-center gap-[var(--spacing-md)]">
+                {repo.addedByName && (
+                  <span className="font-sans text-[13px] text-brand-secondary">
+                    {repo.addedByName}
+                  </span>
+                )}
+                <span className="font-sans text-[13px] text-brand-secondary">
+                  Added {formatRelativeDate(repo.createdAt)}
+                </span>
+              </div>
             </div>
           ))
         )}
@@ -148,11 +155,14 @@ export function RepositoryList() {
         ) : (
           <div className="overflow-hidden rounded-[var(--radius-lg)] border border-surface-border bg-surface-raised">
             {/* Table header */}
-            <div className="grid grid-cols-[1fr_100px_120px_160px] gap-[var(--spacing-sm)] border-b border-surface-border px-[var(--spacing-md)] py-[var(--spacing-sm)]">
+            <div className="grid grid-cols-[1fr_100px_120px_120px_160px] gap-[var(--spacing-sm)] border-b border-surface-border px-[var(--spacing-md)] py-[var(--spacing-sm)]">
               <span className="font-sans text-[13px] font-medium text-brand-secondary">
                 Repository
               </span>
               <span className="font-sans text-[13px] font-medium text-brand-secondary">Status</span>
+              <span className="font-sans text-[13px] font-medium text-brand-secondary">
+                Added by
+              </span>
               <span className="font-sans text-[13px] font-medium text-brand-secondary">Added</span>
               <span className="font-sans text-[13px] font-medium text-brand-secondary">
                 Actions
@@ -163,7 +173,7 @@ export function RepositoryList() {
             {repositories.map((repo) => (
               <div key={repo.id}>
                 <div
-                  className="grid grid-cols-[1fr_100px_120px_160px] items-center gap-[var(--spacing-sm)] border-b border-surface-border px-[var(--spacing-md)] py-[var(--spacing-md)] last:border-b-0"
+                  className="grid grid-cols-[1fr_100px_120px_120px_160px] items-center gap-[var(--spacing-sm)] border-b border-surface-border px-[var(--spacing-md)] py-[var(--spacing-md)] last:border-b-0"
                   style={{ minHeight: '48px' }}
                 >
                   <button
@@ -174,6 +184,9 @@ export function RepositoryList() {
                     {repo.fullName}
                   </button>
                   <StatusIndicator status={repo.status} />
+                  <span className="truncate font-sans text-[14px] text-brand-secondary">
+                    {repo.addedByName ?? '—'}
+                  </span>
                   <span className="font-sans text-[14px] text-brand-secondary">
                     {formatRelativeDate(repo.createdAt)}
                   </span>
@@ -275,23 +288,39 @@ function RepositoryListSkeleton() {
         <div className="skeleton h-[32px] w-[280px]" />
         <div className="skeleton h-[40px] w-[200px]" />
       </div>
-      <div className="rounded-[var(--radius-lg)] border border-surface-border bg-surface-raised">
-        <div className="flex border-b border-surface-border px-[var(--spacing-md)] py-[var(--spacing-sm)]">
+      <div className="hidden rounded-[var(--radius-lg)] border border-surface-border bg-surface-raised md:block">
+        <div className="grid grid-cols-[1fr_100px_120px_120px_160px] gap-[var(--spacing-sm)] border-b border-surface-border px-[var(--spacing-md)] py-[var(--spacing-sm)]">
           <div className="skeleton h-[16px] w-[200px]" />
-          <div className="skeleton ml-auto h-[16px] w-[80px]" />
-          <div className="skeleton ml-[var(--spacing-xl)] h-[16px] w-[100px]" />
-          <div className="skeleton ml-[var(--spacing-xl)] h-[16px] w-[100px]" />
+          <div className="skeleton h-[16px] w-[60px]" />
+          <div className="skeleton h-[16px] w-[80px]" />
+          <div className="skeleton h-[16px] w-[70px]" />
+          <div className="skeleton h-[16px] w-[80px]" />
         </div>
         {Array.from({ length: 5 }).map((_, i) => (
           <div
             key={i}
-            className="flex items-center border-b border-surface-border px-[var(--spacing-md)] py-[var(--spacing-md)] last:border-b-0"
+            className="grid grid-cols-[1fr_100px_120px_120px_160px] items-center gap-[var(--spacing-sm)] border-b border-surface-border px-[var(--spacing-md)] py-[var(--spacing-md)] last:border-b-0"
             style={{ minHeight: '48px' }}
           >
             <div className="skeleton h-[20px] w-[220px]" />
-            <div className="skeleton ml-auto h-[24px] w-[70px] rounded-full" />
-            <div className="skeleton ml-[var(--spacing-xl)] h-[16px] w-[90px]" />
-            <div className="skeleton ml-[var(--spacing-xl)] h-[32px] w-[80px]" />
+            <div className="skeleton h-[24px] w-[70px] rounded-full" />
+            <div className="skeleton h-[16px] w-[90px]" />
+            <div className="skeleton h-[16px] w-[80px]" />
+            <div className="skeleton h-[32px] w-[80px]" />
+          </div>
+        ))}
+      </div>
+      <div className="space-y-[var(--spacing-sm)] md:hidden">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div
+            key={i}
+            className="rounded-[var(--radius-md)] border border-surface-border bg-surface-raised p-[var(--spacing-md)]"
+          >
+            <div className="flex items-center justify-between">
+              <div className="skeleton h-[20px] w-[180px]" />
+              <div className="skeleton h-[20px] w-[60px] rounded-full" />
+            </div>
+            <div className="skeleton mt-[var(--spacing-xs)] h-[16px] w-[120px]" />
           </div>
         ))}
       </div>

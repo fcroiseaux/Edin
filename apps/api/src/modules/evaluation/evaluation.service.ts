@@ -8,7 +8,7 @@ import { HttpStatus } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { RedisService } from '../../common/redis/redis.service.js';
 import { DomainException } from '../../common/exceptions/domain.exception.js';
-import { ERROR_CODES } from '@edin/shared';
+import { ERROR_CODES, getNarrativePreview } from '@edin/shared';
 import type { EvaluationStatus } from '@edin/shared';
 
 interface ContributionIngestedPayload {
@@ -24,6 +24,17 @@ interface EvaluationQuery {
   limit: number;
   status?: string;
   contributionId?: string;
+  contributionType?: string;
+  from?: string;
+  to?: string;
+}
+
+interface EvaluationHistoryQuery {
+  cursor?: string;
+  limit: number;
+  contributionType?: string;
+  from?: string;
+  to?: string;
 }
 
 @Injectable()
@@ -52,6 +63,11 @@ export class EvaluationService {
     await this.handleContributionIngested(payload);
   }
 
+  @OnEvent('contribution.documentation.ingested')
+  async handleDocIngested(payload: ContributionIngestedPayload): Promise<void> {
+    await this.handleContributionIngested(payload);
+  }
+
   private async handleContributionIngested(payload: ContributionIngestedPayload): Promise<void> {
     if (!this.isEnabled()) {
       this.logger.debug('Evaluation disabled, skipping dispatch', {
@@ -70,8 +86,9 @@ export class EvaluationService {
     }
 
     const contributionType = payload.contributionType;
-    if (contributionType !== 'COMMIT' && contributionType !== 'PULL_REQUEST') {
-      this.logger.debug('Skipping evaluation for non-code contribution', {
+    const supportedTypes = ['COMMIT', 'PULL_REQUEST', 'DOCUMENTATION'];
+    if (!supportedTypes.includes(contributionType)) {
+      this.logger.debug('Skipping evaluation for unsupported contribution type', {
         module: 'evaluation',
         contributionId: payload.contributionId,
         contributionType,
@@ -153,6 +170,19 @@ export class EvaluationService {
             sourceRef: true,
           },
         },
+        model: {
+          select: {
+            name: true,
+            version: true,
+            provider: true,
+          },
+        },
+        rubric: {
+          select: {
+            version: true,
+            parameters: true,
+          },
+        },
       },
     });
 
@@ -164,7 +194,7 @@ export class EvaluationService {
       );
     }
 
-    return this.mapEvaluationWithContribution(evaluation);
+    return this.mapEvaluationDetail(evaluation);
   }
 
   async getEvaluationByContribution(contributionId: string) {
@@ -217,7 +247,7 @@ export class EvaluationService {
   }
 
   async getEvaluationsForContributor(contributorId: string, query: EvaluationQuery) {
-    const { cursor, limit = 20, status, contributionId } = query;
+    const { cursor, limit = 20, status, contributionId, contributionType, from, to } = query;
 
     const where: Record<string, unknown> = { contributorId };
     if (status) {
@@ -225,6 +255,15 @@ export class EvaluationService {
     }
     if (contributionId) {
       where.contributionId = contributionId;
+    }
+    if (contributionType) {
+      where.contribution = { contributionType };
+    }
+    if (from || to) {
+      const dateFilter: Record<string, Date> = {};
+      if (from) dateFilter.gte = new Date(from);
+      if (to) dateFilter.lte = new Date(to);
+      where.completedAt = dateFilter;
     }
 
     if (cursor) {
@@ -240,6 +279,17 @@ export class EvaluationService {
           ];
         }
       }
+    }
+
+    const countWhere: Record<string, unknown> = { contributorId };
+    if (status) countWhere.status = status;
+    if (contributionId) countWhere.contributionId = contributionId;
+    if (contributionType) countWhere.contribution = { contributionType };
+    if (from || to) {
+      const countDateFilter: Record<string, Date> = {};
+      if (from) countDateFilter.gte = new Date(from);
+      if (to) countDateFilter.lte = new Date(to);
+      countWhere.completedAt = countDateFilter;
     }
 
     const [items, total] = await Promise.all([
@@ -258,9 +308,7 @@ export class EvaluationService {
           },
         },
       }),
-      this.prisma.evaluation.count({
-        where: { contributorId, ...(status ? { status: status as never } : {}) },
-      }),
+      this.prisma.evaluation.count({ where: countWhere }),
     ]);
 
     const hasMore = items.length > limit;
@@ -271,6 +319,97 @@ export class EvaluationService {
 
     return {
       items: resultItems.map((item) => this.mapEvaluationWithContribution(item)),
+      pagination: {
+        cursor: nextCursor,
+        hasMore,
+        total,
+      },
+    };
+  }
+
+  async getEvaluationHistory(contributorId: string, query: EvaluationHistoryQuery) {
+    const { cursor, limit = 20, contributionType, from, to } = query;
+
+    const where: Record<string, unknown> = {
+      contributorId,
+      status: 'COMPLETED',
+    };
+    if (contributionType) {
+      where.contribution = { contributionType };
+    }
+    if (from || to) {
+      const dateFilter: Record<string, Date> = {};
+      if (from) dateFilter.gte = new Date(from);
+      if (to) dateFilter.lte = new Date(to);
+      where.completedAt = dateFilter;
+    }
+
+    if (cursor) {
+      const separatorIdx = cursor.lastIndexOf('|');
+      if (separatorIdx > 0) {
+        const cursorDate = cursor.slice(0, separatorIdx);
+        const cursorId = cursor.slice(separatorIdx + 1);
+        const parsedDate = new Date(cursorDate);
+        if (!isNaN(parsedDate.getTime())) {
+          where.OR = [
+            { completedAt: { lt: parsedDate } },
+            { completedAt: parsedDate, id: { lt: cursorId } },
+          ];
+        }
+      }
+    }
+
+    const countWhere: Record<string, unknown> = {
+      contributorId,
+      status: 'COMPLETED',
+    };
+    if (contributionType) countWhere.contribution = { contributionType };
+    if (from || to) {
+      const countDateFilter: Record<string, Date> = {};
+      if (from) countDateFilter.gte = new Date(from);
+      if (to) countDateFilter.lte = new Date(to);
+      countWhere.completedAt = countDateFilter;
+    }
+
+    const [items, total] = await Promise.all([
+      this.prisma.evaluation.findMany({
+        where,
+        orderBy: [{ completedAt: 'desc' }, { id: 'desc' }],
+        take: limit + 1,
+        select: {
+          id: true,
+          compositeScore: true,
+          narrative: true,
+          completedAt: true,
+          contribution: {
+            select: {
+              contributionType: true,
+              title: true,
+            },
+          },
+        },
+      }),
+      this.prisma.evaluation.count({ where: countWhere }),
+    ]);
+
+    const hasMore = items.length > limit;
+    const resultItems = hasMore ? items.slice(0, limit) : items;
+    const lastItem = resultItems.length > 0 ? resultItems[resultItems.length - 1] : null;
+    const nextCursor =
+      hasMore && lastItem && lastItem.completedAt
+        ? `${lastItem.completedAt.toISOString()}|${lastItem.id}`
+        : null;
+
+    return {
+      items: resultItems.map((item) => ({
+        id: item.id,
+        compositeScore:
+          (item.compositeScore as unknown as { toNumber: () => number })?.toNumber() ?? 0,
+        contributionType: item.contribution.contributionType,
+        contributionTitle: item.contribution.title,
+        narrativePreview: getNarrativePreview(item.narrative),
+        completedAt: item.completedAt?.toISOString() ?? '',
+      })),
       pagination: {
         cursor: nextCursor,
         hasMore,
@@ -349,6 +488,60 @@ export class EvaluationService {
         contributionType: evaluation.contribution.contributionType,
         sourceRef: evaluation.contribution.sourceRef,
       },
+    };
+  }
+
+  private mapEvaluationDetail(evaluation: {
+    id: string;
+    contributionId: string;
+    contributorId: string;
+    modelId: string | null;
+    status: string;
+    compositeScore: { toNumber: () => number } | null;
+    dimensionScores: unknown;
+    narrative: string | null;
+    formulaVersion: string | null;
+    metadata: unknown;
+    startedAt: Date | null;
+    completedAt: Date | null;
+    createdAt: Date;
+    updatedAt: Date;
+    contribution: {
+      id: string;
+      title: string;
+      contributionType: string;
+      sourceRef: string;
+    };
+    model: { name: string; version: string; provider: string } | null;
+    rubric: { version: string; parameters: unknown } | null;
+  }) {
+    const base = this.mapEvaluationWithContribution(evaluation);
+    const meta = evaluation.metadata as Record<string, unknown> | null;
+
+    return {
+      ...base,
+      model: evaluation.model
+        ? {
+            name: evaluation.model.name,
+            version: evaluation.model.version,
+            provider: evaluation.model.provider,
+          }
+        : null,
+      provenance: meta
+        ? {
+            formulaVersion: (meta.formulaVersion as string) ?? evaluation.formulaVersion ?? '',
+            weights: (meta.weights as Record<string, number>) ?? {},
+            taskComplexityMultiplier: (meta.taskComplexityMultiplier as number) ?? 1.0,
+            domainNormalizationFactor: (meta.domainNormalizationFactor as number) ?? 1.0,
+            modelPromptVersion: (meta.modelPromptVersion as string) ?? '',
+          }
+        : null,
+      rubric: evaluation.rubric
+        ? {
+            version: evaluation.rubric.version,
+            parameters: evaluation.rubric.parameters as Record<string, unknown>,
+          }
+        : null,
     };
   }
 }

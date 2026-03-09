@@ -16,6 +16,10 @@ const mockCodeEvaluationQueue = {
   add: vi.fn(),
 };
 
+const mockDocEvaluationQueue = {
+  add: vi.fn(),
+};
+
 function createJob(
   overrides: Partial<EvaluationDispatchJobData> = {},
 ): Job<EvaluationDispatchJobData> {
@@ -45,6 +49,7 @@ describe('EvaluationDispatchProcessor', () => {
         EvaluationDispatchProcessor,
         { provide: PrismaService, useValue: mockPrisma },
         { provide: getQueueToken('code-evaluation'), useValue: mockCodeEvaluationQueue },
+        { provide: getQueueToken('doc-evaluation'), useValue: mockDocEvaluationQueue },
         { provide: getQueueToken('evaluation-dispatch'), useValue: {} },
       ],
     }).compile();
@@ -95,12 +100,21 @@ describe('EvaluationDispatchProcessor', () => {
     );
   });
 
-  it('does not route documentation types to code-evaluation queue', async () => {
+  it('routes DOCUMENTATION to doc-evaluation queue', async () => {
     mockPrisma.evaluation.update.mockResolvedValue({});
+    mockDocEvaluationQueue.add.mockResolvedValue({});
 
     await processor.process(createJob({ contributionType: 'DOCUMENTATION' }));
 
     expect(mockCodeEvaluationQueue.add).not.toHaveBeenCalled();
+    expect(mockDocEvaluationQueue.add).toHaveBeenCalledWith(
+      'evaluate-doc',
+      expect.objectContaining({
+        evaluationId: 'eval-1',
+        contributionType: 'DOCUMENTATION',
+      }),
+      expect.objectContaining({ jobId: 'doc-eval-eval-1' }),
+    );
   });
 
   it('marks evaluation as FAILED on error and rethrows', async () => {

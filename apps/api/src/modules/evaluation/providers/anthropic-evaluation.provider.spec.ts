@@ -13,6 +13,22 @@ vi.mock('@anthropic-ai/sdk', () => {
   };
 });
 
+const validDocResponse = JSON.stringify({
+  structuralCompleteness: { score: 80, explanation: 'Well organized sections' },
+  readability: { score: 75, explanation: 'Clear writing style' },
+  referenceIntegrity: { score: 90, explanation: 'All links valid' },
+  narrative: 'Documentation is well structured and easy to follow.',
+});
+
+const docInput = {
+  contributionId: 'contrib-doc-1',
+  contributionType: 'DOCUMENT',
+  repositoryName: 'org/repo',
+  documentTitle: 'Getting Started Guide',
+  documentContent: '# Getting Started\n\nThis guide explains how to set up the project.',
+  documentType: 'guide',
+};
+
 const validResponse = JSON.stringify({
   complexity: { score: 85, explanation: 'Clean control flow' },
   maintainability: { score: 90, explanation: 'Well structured' },
@@ -55,8 +71,12 @@ describe('AnthropicEvaluationProvider', () => {
     provider = module.get(AnthropicEvaluationProvider);
   });
 
-  it('returns promptVersion', () => {
-    expect(provider.promptVersion).toBe('code-eval-v1');
+  it('returns codePromptVersion', () => {
+    expect(provider.codePromptVersion).toBe('code-eval-v1');
+  });
+
+  it('returns docPromptVersion', () => {
+    expect(provider.docPromptVersion).toBe('doc-eval-v1');
   });
 
   it('calls Anthropic API and returns parsed dimensions', async () => {
@@ -177,6 +197,103 @@ describe('AnthropicEvaluationProvider', () => {
             content: expect.stringContaining('PR Title: Fix auth flow'),
           },
         ],
+      }),
+    );
+  });
+
+  it('evaluateDocumentation returns parsed doc dimensions', async () => {
+    mockCreate.mockResolvedValue({
+      content: [{ type: 'text', text: validDocResponse }],
+      usage: { input_tokens: 100, output_tokens: 200 },
+    });
+
+    const result = await provider.evaluateDocumentation(docInput);
+
+    expect(result.dimensions.structuralCompleteness.score).toBe(80);
+    expect(result.dimensions.structuralCompleteness.explanation).toBe('Well organized sections');
+    expect(result.dimensions.readability.score).toBe(75);
+    expect(result.dimensions.readability.explanation).toBe('Clear writing style');
+    expect(result.dimensions.referenceIntegrity.score).toBe(90);
+    expect(result.dimensions.referenceIntegrity.explanation).toBe('All links valid');
+    expect(result.narrative).toBe('Documentation is well structured and easy to follow.');
+    expect(result.rawModelOutput).toBe(validDocResponse);
+  });
+
+  it('evaluateDocumentation clamps doc scores to 0-100 range', async () => {
+    const outOfRange = JSON.stringify({
+      structuralCompleteness: { score: 120, explanation: 'Over' },
+      readability: { score: -5, explanation: 'Under' },
+      referenceIntegrity: { score: 73.6, explanation: 'Rounded' },
+      narrative: 'Doc score clamping test.',
+    });
+
+    mockCreate.mockResolvedValue({
+      content: [{ type: 'text', text: outOfRange }],
+      usage: { input_tokens: 100, output_tokens: 200 },
+    });
+
+    const result = await provider.evaluateDocumentation(docInput);
+
+    expect(result.dimensions.structuralCompleteness.score).toBe(100);
+    expect(result.dimensions.readability.score).toBe(0);
+    expect(result.dimensions.referenceIntegrity.score).toBe(74);
+  });
+
+  it('evaluateDocumentation throws on invalid JSON response', async () => {
+    mockCreate.mockResolvedValue({
+      content: [{ type: 'text', text: 'Sorry, I cannot evaluate this document.' }],
+      usage: { input_tokens: 100, output_tokens: 50 },
+    });
+
+    await expect(provider.evaluateDocumentation(docInput)).rejects.toThrow(
+      'Model response did not contain valid JSON',
+    );
+  });
+
+  it('evaluateDocumentation throws on missing doc dimension', async () => {
+    const incomplete = JSON.stringify({
+      structuralCompleteness: { score: 80, explanation: 'OK' },
+      narrative: 'Missing dimensions.',
+    });
+
+    mockCreate.mockResolvedValue({
+      content: [{ type: 'text', text: incomplete }],
+      usage: { input_tokens: 100, output_tokens: 100 },
+    });
+
+    await expect(provider.evaluateDocumentation(docInput)).rejects.toThrow(
+      'Missing or invalid dimension score: readability',
+    );
+  });
+
+  it('evaluateDocumentation includes rubric parameters in system prompt', async () => {
+    mockCreate.mockResolvedValue({
+      content: [{ type: 'text', text: validDocResponse }],
+      usage: { input_tokens: 100, output_tokens: 200 },
+    });
+
+    await provider.evaluateDocumentation({
+      ...docInput,
+      rubricParameters: {
+        targetFleschKincaidRange: { min: 8, max: 12 },
+        requiredSections: ['Introduction', 'Installation', 'Usage'],
+        maxSentenceLength: 25,
+      },
+    });
+
+    expect(mockCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        system: expect.stringContaining('Target Flesch-Kincaid grade level: 8-12'),
+      }),
+    );
+    expect(mockCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        system: expect.stringContaining('Required sections: Introduction, Installation, Usage'),
+      }),
+    );
+    expect(mockCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        system: expect.stringContaining('Maximum recommended sentence length: 25 words'),
       }),
     );
   });

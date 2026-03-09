@@ -9,6 +9,7 @@ export interface MonitoredRepository {
   status: RepositoryStatus;
   statusMessage: string | null;
   addedById: string;
+  addedByName: string | null;
   createdAt: string;
   updatedAt: string;
 }

@@ -31,24 +31,31 @@ export class GitHubApiService {
     correlationId?: string,
   ): Promise<CreateWebhookResult> {
     const webhookBaseUrl = this.configService.get('INGESTION_WEBHOOK_BASE_URL', { infer: true });
+    if (!webhookBaseUrl) {
+      throw new GitHubApiError(
+        'INGESTION_WEBHOOK_BASE_URL is not configured. Cannot register webhooks without a public callback URL.',
+      );
+    }
     const webhookUrl = `${webhookBaseUrl}/api/v1/ingestion/github/webhook`;
 
     this.logger.debug('Creating GitHub webhook', { owner, repo, webhookUrl, correlationId });
 
     const startTime = Date.now();
     try {
-      const response = await this.octokit.repos.createWebhook({
-        owner,
-        repo,
-        config: {
-          url: webhookUrl,
-          content_type: 'json',
-          secret,
-          insecure_ssl: '0',
-        },
-        events: ['push', 'pull_request', 'pull_request_review'],
-        active: true,
-      });
+      const response = await this.withRateLimitRetry(() =>
+        this.octokit.repos.createWebhook({
+          owner,
+          repo,
+          config: {
+            url: webhookUrl,
+            content_type: 'json',
+            secret,
+            insecure_ssl: '0',
+          },
+          events: ['push', 'pull_request', 'pull_request_review'],
+          active: true,
+        }),
+      );
 
       this.logger.debug('GitHub webhook created', {
         owner,
@@ -70,7 +77,7 @@ export class GitHubApiService {
       });
 
       if (this.isRateLimited(error)) {
-        throw new GitHubRateLimitError('GitHub API rate limit exceeded');
+        throw new GitHubRateLimitError('GitHub API rate limit exceeded after retries');
       }
 
       throw new GitHubApiError(error instanceof Error ? error.message : 'Failed to create webhook');
@@ -87,11 +94,13 @@ export class GitHubApiService {
 
     const startTime = Date.now();
     try {
-      await this.octokit.repos.deleteWebhook({
-        owner,
-        repo,
-        hook_id: webhookId,
-      });
+      await this.withRateLimitRetry(() =>
+        this.octokit.repos.deleteWebhook({
+          owner,
+          repo,
+          hook_id: webhookId,
+        }),
+      );
 
       this.logger.debug('GitHub webhook deleted', {
         owner,
@@ -112,7 +121,7 @@ export class GitHubApiService {
       });
 
       if (this.isRateLimited(error)) {
-        throw new GitHubRateLimitError('GitHub API rate limit exceeded');
+        throw new GitHubRateLimitError('GitHub API rate limit exceeded after retries');
       }
 
       throw new GitHubApiError(error instanceof Error ? error.message : 'Failed to delete webhook');
@@ -216,6 +225,45 @@ export class GitHubApiService {
         error instanceof Error ? error.message : 'Failed to fetch pull request commits',
       );
     }
+  }
+
+  private async withRateLimitRetry<T>(operation: () => Promise<T>, maxRetries = 2): Promise<T> {
+    let lastError: unknown;
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        return await operation();
+      } catch (error: unknown) {
+        lastError = error;
+        if (this.isRateLimited(error) && attempt < maxRetries) {
+          const retryAfterMs = this.getRetryAfterMs(error);
+          this.logger.warn('GitHub API rate limited, retrying after delay', {
+            attempt: attempt + 1,
+            maxRetries,
+            retryAfterMs,
+          });
+          await this.delay(retryAfterMs);
+          continue;
+        }
+        throw error;
+      }
+    }
+    throw lastError;
+  }
+
+  private getRetryAfterMs(error: unknown): number {
+    if (error && typeof error === 'object' && 'response' in error) {
+      const response = (error as { response?: { headers?: Record<string, string> } }).response;
+      const retryAfter = response?.headers?.['retry-after'];
+      if (retryAfter) {
+        const seconds = parseInt(retryAfter, 10);
+        if (!isNaN(seconds)) return seconds * 1000;
+      }
+    }
+    return 1000;
+  }
+
+  private delay(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   private isRateLimited(error: unknown): boolean {

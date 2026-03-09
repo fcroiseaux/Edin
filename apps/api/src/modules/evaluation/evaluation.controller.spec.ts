@@ -8,6 +8,7 @@ const mockEvaluationService = {
   getEvaluationByContribution: vi.fn(),
   getEvaluationsForContributor: vi.fn(),
   getEvaluationStatus: vi.fn(),
+  getEvaluationHistory: vi.fn(),
 };
 
 const user = {
@@ -111,6 +112,39 @@ describe('EvaluationController', () => {
 
       const result = await controller.getEvaluationByContribution(user, 'contrib-1');
       expect(result.data.compositeScore).toBe(85);
+    });
+  });
+
+  describe('GET /history', () => {
+    it('returns paginated evaluation history for current user', async () => {
+      mockEvaluationService.getEvaluationHistory.mockResolvedValue({
+        items: [
+          {
+            id: 'eval-1',
+            compositeScore: 82,
+            contributionType: 'COMMIT',
+            contributionTitle: 'Refactor auth',
+            narrativePreview: 'Your refactoring improved code clarity.',
+            completedAt: '2026-03-01T12:00:00.000Z',
+          },
+        ],
+        pagination: { cursor: null, hasMore: false, total: 1 },
+      });
+
+      const result = await controller.getEvaluationHistory(user, { limit: '20' });
+
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0].narrativePreview).toBe('Your refactoring improved code clarity.');
+      expect(mockEvaluationService.getEvaluationHistory).toHaveBeenCalledWith(
+        'user-1',
+        expect.objectContaining({ limit: 20 }),
+      );
+    });
+
+    it('rejects invalid query parameters', async () => {
+      await expect(controller.getEvaluationHistory(user, { limit: 'abc' })).rejects.toThrow(
+        'Invalid query parameters',
+      );
     });
   });
 

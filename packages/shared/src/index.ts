@@ -328,19 +328,35 @@ export {
 
 export {
   DEFAULT_CODE_WEIGHTS,
+  DEFAULT_DOC_WEIGHTS,
   FORMULA_VERSION,
+  DOC_FORMULA_VERSION,
   MAX_EVALUATION_FILES,
   MAX_PATCH_LENGTH,
+  MAX_DOC_CONTENT_LENGTH,
   EVALUATION_CACHE_TTL,
+  scoreToLabel,
+  dimensionKeyToLabel,
+  getNarrativePreview,
 } from './constants/evaluation.js';
 
-export { evaluationStatusEnum, evaluationQuerySchema } from './schemas/evaluation.schema.js';
-export type { EvaluationQuerySchemaDto } from './schemas/evaluation.schema.js';
+export {
+  evaluationStatusEnum,
+  contributionTypeFilterEnum,
+  evaluationQuerySchema,
+  evaluationHistoryQuerySchema,
+} from './schemas/evaluation.schema.js';
+export type {
+  EvaluationQuerySchemaDto,
+  EvaluationHistoryQuerySchemaDto,
+} from './schemas/evaluation.schema.js';
 
 export type {
   EvaluationStatus,
   EvaluationModelStatus,
   EvaluationDimensionKey,
+  DocEvaluationDimensionKey,
+  AllEvaluationDimensionKey,
   EvaluationDimensionScoreDto,
   EvaluationDimensionScoresDto,
   EvaluationDto,
@@ -351,6 +367,14 @@ export type {
   EvaluationFailedEvent,
   EvaluationScoringWeights,
   EvaluationProvenanceDto,
+  EvaluationRubricDto,
+  EvaluationRubricParameters,
+  EvaluationModelVersionDto,
+  EvaluationModelMetricsDto,
+  EvaluationModelInfoDto,
+  EvaluationRubricInfoDto,
+  EvaluationDetailDto,
+  EvaluationHistoryItemDto,
 } from './types/evaluation.types.js';
 
 export type {

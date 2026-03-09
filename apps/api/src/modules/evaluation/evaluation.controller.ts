@@ -4,7 +4,7 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
 import type { CurrentUserPayload } from '../../common/decorators/current-user.decorator.js';
 import { createSuccessResponse } from '../../common/types/api-response.type.js';
 import { DomainException } from '../../common/exceptions/domain.exception.js';
-import { ERROR_CODES, evaluationQuerySchema } from '@edin/shared';
+import { ERROR_CODES, evaluationQuerySchema, evaluationHistoryQuerySchema } from '@edin/shared';
 import { EvaluationService } from './evaluation.service.js';
 import { randomUUID } from 'crypto';
 
@@ -38,6 +38,37 @@ export class EvaluationController {
     const result = await this.evaluationService.getEvaluationsForContributor(user.id, parsed.data);
 
     this.logger.debug('Listed evaluations', {
+      module: 'evaluation',
+      userId: user.id,
+      correlationId,
+    });
+
+    return createSuccessResponse(result.items, correlationId, result.pagination);
+  }
+
+  @Get('history')
+  async getEvaluationHistory(
+    @CurrentUser() user: CurrentUserPayload,
+    @Query() query: Record<string, unknown>,
+  ) {
+    const correlationId = randomUUID();
+    const parsed = evaluationHistoryQuerySchema.safeParse(query);
+
+    if (!parsed.success) {
+      throw new DomainException(
+        ERROR_CODES.VALIDATION_ERROR,
+        'Invalid query parameters',
+        HttpStatus.BAD_REQUEST,
+        parsed.error.errors.map((e) => ({
+          field: e.path.join('.'),
+          message: e.message,
+        })),
+      );
+    }
+
+    const result = await this.evaluationService.getEvaluationHistory(user.id, parsed.data);
+
+    this.logger.debug('Listed evaluation history', {
       module: 'evaluation',
       userId: user.id,
       correlationId,

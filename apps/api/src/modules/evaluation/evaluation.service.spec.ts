@@ -153,7 +153,7 @@ describe('EvaluationService', () => {
   });
 
   describe('getEvaluation', () => {
-    it('returns evaluation with contribution', async () => {
+    it('returns evaluation with contribution, model, provenance, and rubric', async () => {
       const evaluation = {
         id: 'eval-1',
         contributionId: 'contrib-1',
@@ -164,6 +164,13 @@ describe('EvaluationService', () => {
         dimensionScores: {},
         narrative: 'Good code',
         formulaVersion: 'v1.0.0',
+        metadata: {
+          formulaVersion: 'v1.0.0',
+          weights: { complexity: 0.2, maintainability: 0.35 },
+          taskComplexityMultiplier: 1.05,
+          domainNormalizationFactor: 1.0,
+          modelPromptVersion: 'code-v1',
+        },
         startedAt: new Date(),
         completedAt: new Date(),
         createdAt: new Date(),
@@ -174,6 +181,8 @@ describe('EvaluationService', () => {
           contributionType: 'COMMIT',
           sourceRef: 'abc123',
         },
+        model: { name: 'claude-sonnet', version: '4.0', provider: 'anthropic' },
+        rubric: null,
       };
       mockPrisma.evaluation.findUnique.mockResolvedValue(evaluation);
 
@@ -182,6 +191,53 @@ describe('EvaluationService', () => {
       expect(result.id).toBe('eval-1');
       expect(result.compositeScore).toBe(78.5);
       expect(result.contribution.title).toBe('Fix bug');
+      expect(result.model).toEqual({
+        name: 'claude-sonnet',
+        version: '4.0',
+        provider: 'anthropic',
+      });
+      expect(result.provenance).toEqual({
+        formulaVersion: 'v1.0.0',
+        weights: { complexity: 0.2, maintainability: 0.35 },
+        taskComplexityMultiplier: 1.05,
+        domainNormalizationFactor: 1.0,
+        modelPromptVersion: 'code-v1',
+      });
+      expect(result.rubric).toBeNull();
+    });
+
+    it('returns null model/provenance/rubric when not present', async () => {
+      const evaluation = {
+        id: 'eval-2',
+        contributionId: 'contrib-2',
+        contributorId: 'contributor-1',
+        modelId: null,
+        status: 'COMPLETED',
+        compositeScore: { toNumber: () => 65 },
+        dimensionScores: null,
+        narrative: null,
+        formulaVersion: null,
+        metadata: null,
+        startedAt: null,
+        completedAt: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        contribution: {
+          id: 'contrib-2',
+          title: 'Test PR',
+          contributionType: 'PULL_REQUEST',
+          sourceRef: 'def456',
+        },
+        model: null,
+        rubric: null,
+      };
+      mockPrisma.evaluation.findUnique.mockResolvedValue(evaluation);
+
+      const result = await service.getEvaluation('eval-2');
+
+      expect(result.model).toBeNull();
+      expect(result.provenance).toBeNull();
+      expect(result.rubric).toBeNull();
     });
 
     it('throws EVALUATION_NOT_FOUND', async () => {
@@ -288,6 +344,127 @@ describe('EvaluationService', () => {
       expect(result.items).toHaveLength(20);
       expect(result.pagination.hasMore).toBe(true);
       expect(result.pagination.total).toBe(25);
+      expect(result.pagination.cursor).not.toBeNull();
+    });
+
+    it('applies contributionType filter', async () => {
+      mockPrisma.evaluation.findMany.mockResolvedValue([]);
+      mockPrisma.evaluation.count.mockResolvedValue(0);
+
+      await service.getEvaluationsForContributor('contributor-1', {
+        limit: 20,
+        contributionType: 'DOCUMENTATION',
+      });
+
+      expect(mockPrisma.evaluation.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            contribution: { contributionType: 'DOCUMENTATION' },
+          }),
+        }),
+      );
+    });
+
+    it('applies date range filters', async () => {
+      mockPrisma.evaluation.findMany.mockResolvedValue([]);
+      mockPrisma.evaluation.count.mockResolvedValue(0);
+
+      await service.getEvaluationsForContributor('contributor-1', {
+        limit: 20,
+        from: '2026-01-01T00:00:00.000Z',
+        to: '2026-03-01T00:00:00.000Z',
+      });
+
+      expect(mockPrisma.evaluation.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            completedAt: {
+              gte: new Date('2026-01-01T00:00:00.000Z'),
+              lte: new Date('2026-03-01T00:00:00.000Z'),
+            },
+          }),
+        }),
+      );
+    });
+  });
+
+  describe('getEvaluationHistory', () => {
+    it('returns completed evaluations with narrative preview', async () => {
+      const completedAt = new Date('2026-03-01T12:00:00.000Z');
+      mockPrisma.evaluation.findMany.mockResolvedValue([
+        {
+          id: 'eval-1',
+          compositeScore: { toNumber: () => 82 },
+          narrative: 'Your refactoring improved code clarity. The approach was systematic.',
+          completedAt,
+          contribution: {
+            contributionType: 'COMMIT',
+            title: 'Refactor auth module',
+          },
+        },
+      ]);
+      mockPrisma.evaluation.count.mockResolvedValue(1);
+
+      const result = await service.getEvaluationHistory('contributor-1', { limit: 20 });
+
+      expect(result.items).toHaveLength(1);
+      expect(result.items[0].compositeScore).toBe(82);
+      expect(result.items[0].narrativePreview).toBe('Your refactoring improved code clarity.');
+      expect(result.items[0].contributionType).toBe('COMMIT');
+      expect(result.items[0].contributionTitle).toBe('Refactor auth module');
+    });
+
+    it('filters by contributionType', async () => {
+      mockPrisma.evaluation.findMany.mockResolvedValue([]);
+      mockPrisma.evaluation.count.mockResolvedValue(0);
+
+      await service.getEvaluationHistory('contributor-1', {
+        limit: 20,
+        contributionType: 'DOCUMENTATION',
+      });
+
+      expect(mockPrisma.evaluation.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            status: 'COMPLETED',
+            contribution: { contributionType: 'DOCUMENTATION' },
+          }),
+        }),
+      );
+    });
+
+    it('handles null narrative gracefully', async () => {
+      mockPrisma.evaluation.findMany.mockResolvedValue([
+        {
+          id: 'eval-2',
+          compositeScore: { toNumber: () => 70 },
+          narrative: null,
+          completedAt: new Date(),
+          contribution: { contributionType: 'COMMIT', title: 'Fix bug' },
+        },
+      ]);
+      mockPrisma.evaluation.count.mockResolvedValue(1);
+
+      const result = await service.getEvaluationHistory('contributor-1', { limit: 20 });
+
+      expect(result.items[0].narrativePreview).toBe('');
+    });
+
+    it('paginates with cursor', async () => {
+      const items = Array.from({ length: 21 }, (_, i) => ({
+        id: `eval-${i}`,
+        compositeScore: { toNumber: () => 70 + i },
+        narrative: `Evaluation ${i}.`,
+        completedAt: new Date(`2026-03-${String(i + 1).padStart(2, '0')}T12:00:00.000Z`),
+        contribution: { contributionType: 'COMMIT', title: `Contribution ${i}` },
+      }));
+      mockPrisma.evaluation.findMany.mockResolvedValue(items);
+      mockPrisma.evaluation.count.mockResolvedValue(30);
+
+      const result = await service.getEvaluationHistory('contributor-1', { limit: 20 });
+
+      expect(result.items).toHaveLength(20);
+      expect(result.pagination.hasMore).toBe(true);
       expect(result.pagination.cursor).not.toBeNull();
     });
   });
