@@ -269,3 +269,41 @@ export interface EvaluationReviewResolvedEvent {
     reviewerId: string;
   };
 }
+
+// ─── Public AI Evaluation Data (Story 7-5) ──────────────────────────────────
+
+export interface DomainScoreDto {
+  domain: string;
+  averageScore: number;
+  count: number;
+}
+
+export interface ScoreDistributionBucketDto {
+  range: string;
+  min: number;
+  max: number;
+  count: number;
+}
+
+export interface PublicEvaluationAggregateDto {
+  totalEvaluations: number;
+  averageScore: number;
+  byDomain: DomainScoreDto[];
+  scoreDistribution: ScoreDistributionBucketDto[];
+  agreementRate: {
+    overall: number;
+    totalReviewed: number;
+  };
+}
+
+export interface ContributorEvaluationSummaryDto {
+  contributorId: string;
+  averageScore: number;
+  evaluationCount: number;
+  narrative: string;
+  recentScores: Array<{
+    score: number;
+    contributionType: string;
+    completedAt: string;
+  }>;
+}

@@ -389,6 +389,10 @@ export type {
   AgreementRatesResponseDto,
   EvaluationReviewFlaggedEvent,
   EvaluationReviewResolvedEvent,
+  DomainScoreDto,
+  ScoreDistributionBucketDto,
+  PublicEvaluationAggregateDto,
+  ContributorEvaluationSummaryDto,
 } from './types/evaluation.types.js';
 
 export type {

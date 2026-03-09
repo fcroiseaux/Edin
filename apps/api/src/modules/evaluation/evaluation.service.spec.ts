@@ -3,6 +3,7 @@ import { Test } from '@nestjs/testing';
 import { getQueueToken } from '@nestjs/bullmq';
 import { ConfigModule } from '@nestjs/config';
 import { EvaluationService } from './evaluation.service.js';
+import { EvaluationReviewService } from './services/evaluation-review.service.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { RedisService } from '../../common/redis/redis.service.js';
 import { DomainException } from '../../common/exceptions/domain.exception.js';
@@ -30,6 +31,14 @@ const mockQueue = {
   add: vi.fn(),
 };
 
+const mockReviewService = {
+  getAgreementRates: vi.fn().mockResolvedValue({
+    overall: { totalReviewed: 0, confirmed: 0, overridden: 0, agreementRate: 0 },
+    byModel: [],
+    byDomain: [],
+  }),
+};
+
 describe('EvaluationService', () => {
   let service: EvaluationService;
 
@@ -52,6 +61,7 @@ describe('EvaluationService', () => {
         { provide: PrismaService, useValue: mockPrisma },
         { provide: RedisService, useValue: mockRedis },
         { provide: getQueueToken('evaluation-dispatch'), useValue: mockQueue },
+        { provide: EvaluationReviewService, useValue: mockReviewService },
       ],
     }).compile();
 
@@ -140,6 +150,7 @@ describe('EvaluationService', () => {
           { provide: PrismaService, useValue: mockPrisma },
           { provide: RedisService, useValue: mockRedis },
           { provide: getQueueToken('evaluation-dispatch'), useValue: mockQueue },
+          { provide: EvaluationReviewService, useValue: mockReviewService },
         ],
       }).compile();
 

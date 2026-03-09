@@ -8,8 +8,13 @@ import { HttpStatus } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { RedisService } from '../../common/redis/redis.service.js';
 import { DomainException } from '../../common/exceptions/domain.exception.js';
-import { ERROR_CODES, getNarrativePreview } from '@edin/shared';
-import type { EvaluationStatus } from '@edin/shared';
+import { ERROR_CODES, getNarrativePreview, scoreToLabel } from '@edin/shared';
+import type {
+  EvaluationStatus,
+  PublicEvaluationAggregateDto,
+  ContributorEvaluationSummaryDto,
+} from '@edin/shared';
+import { EvaluationReviewService } from './services/evaluation-review.service.js';
 
 interface ContributionIngestedPayload {
   contributionId: string;
@@ -41,12 +46,16 @@ interface EvaluationHistoryQuery {
 export class EvaluationService {
   private readonly logger = new Logger(EvaluationService.name);
 
+  private static readonly PUBLIC_AGGREGATE_CACHE_KEY = 'public:evaluation-aggregate';
+  private static readonly PUBLIC_AGGREGATE_CACHE_TTL = 300; // 5 minutes
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly redisService: RedisService,
     private readonly configService: ConfigService,
     @InjectQueue('evaluation-dispatch')
     private readonly dispatchQueue: Queue,
+    private readonly reviewService: EvaluationReviewService,
   ) {}
 
   private isEnabled(): boolean {
@@ -542,6 +551,162 @@ export class EvaluationService {
             parameters: evaluation.rubric.parameters as Record<string, unknown>,
           }
         : null,
+    };
+  }
+
+  // ─── Public Evaluation Aggregate (Story 7-5) ───────────────────────────────
+
+  async getPublicEvaluationAggregate(): Promise<PublicEvaluationAggregateDto> {
+    const cached = await this.redisService.get<PublicEvaluationAggregateDto>(
+      EvaluationService.PUBLIC_AGGREGATE_CACHE_KEY,
+    );
+    if (cached) {
+      this.logger.log('Public evaluation aggregate served from cache');
+      return cached;
+    }
+
+    const startTime = Date.now();
+
+    const completedEvaluations = await this.prisma.evaluation.findMany({
+      where: { status: 'COMPLETED' },
+      select: {
+        compositeScore: true,
+        contributor: { select: { domain: true } },
+      },
+    });
+
+    const totalEvaluations = completedEvaluations.length;
+
+    // Overall average score
+    const scores = completedEvaluations
+      .map((e) => e.compositeScore?.toNumber())
+      .filter((s): s is number => s !== null && s !== undefined);
+
+    const averageScore =
+      scores.length > 0
+        ? Math.round((scores.reduce((a, b) => a + b, 0) / scores.length) * 100) / 100
+        : 0;
+
+    // By domain
+    const domainMap = new Map<string, { sum: number; count: number }>();
+    for (const e of completedEvaluations) {
+      const domain = e.contributor?.domain ?? 'Unknown';
+      const score = e.compositeScore?.toNumber();
+      if (score === null || score === undefined) continue;
+      const existing = domainMap.get(domain) ?? { sum: 0, count: 0 };
+      existing.sum += score;
+      existing.count++;
+      domainMap.set(domain, existing);
+    }
+
+    const byDomain = Array.from(domainMap.entries()).map(([domain, data]) => ({
+      domain,
+      averageScore: Math.round((data.sum / data.count) * 100) / 100,
+      count: data.count,
+    }));
+
+    // Score distribution (histogram buckets)
+    const buckets = [
+      { range: '0–20', min: 0, max: 20, count: 0 },
+      { range: '21–40', min: 21, max: 40, count: 0 },
+      { range: '41–60', min: 41, max: 60, count: 0 },
+      { range: '61–80', min: 61, max: 80, count: 0 },
+      { range: '81–100', min: 81, max: 100, count: 0 },
+    ];
+
+    for (const score of scores) {
+      if (score <= 20) buckets[0].count++;
+      else if (score <= 40) buckets[1].count++;
+      else if (score <= 60) buckets[2].count++;
+      else if (score <= 80) buckets[3].count++;
+      else buckets[4].count++;
+    }
+
+    // Agreement rate from Story 7-4
+    const agreementRates = await this.reviewService.getAgreementRates();
+
+    const aggregate: PublicEvaluationAggregateDto = {
+      totalEvaluations,
+      averageScore,
+      byDomain,
+      scoreDistribution: buckets,
+      agreementRate: {
+        overall: agreementRates.overall.agreementRate,
+        totalReviewed: agreementRates.overall.totalReviewed,
+      },
+    };
+
+    await this.redisService.set(
+      EvaluationService.PUBLIC_AGGREGATE_CACHE_KEY,
+      aggregate,
+      EvaluationService.PUBLIC_AGGREGATE_CACHE_TTL,
+    );
+
+    this.logger.log('Public evaluation aggregate computed and cached', {
+      totalEvaluations,
+      averageScore,
+      domainCount: byDomain.length,
+      duration: `${Date.now() - startTime}ms`,
+    });
+
+    return aggregate;
+  }
+
+  async getContributorPublicScores(
+    contributorId: string,
+  ): Promise<ContributorEvaluationSummaryDto | null> {
+    const contributor = await this.prisma.contributor.findUnique({
+      where: { id: contributorId },
+      select: { id: true, showEvaluationScores: true },
+    });
+
+    if (!contributor || !contributor.showEvaluationScores) {
+      return null;
+    }
+
+    const evaluations = await this.prisma.evaluation.findMany({
+      where: { contributorId, status: 'COMPLETED' },
+      select: {
+        compositeScore: true,
+        completedAt: true,
+        contribution: { select: { contributionType: true } },
+      },
+      orderBy: { completedAt: 'desc' },
+      take: 10,
+    });
+
+    if (evaluations.length === 0) {
+      return null;
+    }
+
+    // Compute all-time average and count in parallel
+    const [aggregateResult, totalCount] = await Promise.all([
+      this.prisma.evaluation.aggregate({
+        where: { contributorId, status: 'COMPLETED' },
+        _avg: { compositeScore: true },
+      }),
+      this.prisma.evaluation.count({
+        where: { contributorId, status: 'COMPLETED' },
+      }),
+    ]);
+
+    const avgScore = aggregateResult._avg.compositeScore
+      ? Math.round(aggregateResult._avg.compositeScore.toNumber() * 100) / 100
+      : 0;
+
+    const label = scoreToLabel(avgScore);
+    const narrative = `This contributor's work has been evaluated ${totalCount} time${totalCount !== 1 ? 's' : ''} with an average quality score of ${avgScore}, placing them in the ${label} range.`;
+
+    return {
+      contributorId,
+      averageScore: avgScore,
+      evaluationCount: totalCount,
+      narrative,
+      recentScores: evaluations.map((e) => ({
+        score: e.compositeScore?.toNumber() ?? 0,
+        contributionType: e.contribution.contributionType,
+        completedAt: e.completedAt?.toISOString() ?? '',
+      })),
     };
   }
 }

@@ -16,4 +16,5 @@ export interface PublicContributorProfile {
   skillAreas: string[];
   role: string;
   createdAt: string;
+  showEvaluationScores: boolean;
 }

@@ -20,6 +20,7 @@ export class ContributorService {
     skillAreas: true,
     role: true,
     createdAt: true,
+    showEvaluationScores: true,
   } as const;
 
   private decodeRosterCursor(cursor: string): { id: string; createdAt: Date } | null {
@@ -202,6 +203,13 @@ export class ContributorService {
     ) {
       updateData.skillAreas = dto.skillAreas;
       changedFields.push('skillAreas');
+    }
+    if (
+      dto.showEvaluationScores !== undefined &&
+      dto.showEvaluationScores !== contributor.showEvaluationScores
+    ) {
+      updateData.showEvaluationScores = dto.showEvaluationScores;
+      changedFields.push('showEvaluationScores');
     }
 
     if (changedFields.length === 0) {

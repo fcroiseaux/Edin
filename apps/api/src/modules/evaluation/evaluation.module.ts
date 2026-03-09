@@ -5,6 +5,7 @@ import { CaslModule } from '../auth/casl/casl.module.js';
 import { RedisModule } from '../../common/redis/redis.module.js';
 import { EvaluationController } from './evaluation.controller.js';
 import { EvaluationAdminController } from './controllers/evaluation-admin.controller.js';
+import { EvaluationPublicController } from './controllers/evaluation-public.controller.js';
 import { EvaluationService } from './evaluation.service.js';
 import { EvaluationRubricService } from './services/evaluation-rubric.service.js';
 import { EvaluationReviewService } from './services/evaluation-review.service.js';
@@ -48,7 +49,7 @@ import { EVALUATION_PROVIDER } from './providers/evaluation-provider.interface.j
       },
     }),
   ],
-  controllers: [EvaluationController, EvaluationAdminController],
+  controllers: [EvaluationController, EvaluationAdminController, EvaluationPublicController],
   providers: [
     EvaluationService,
     EvaluationRubricService,

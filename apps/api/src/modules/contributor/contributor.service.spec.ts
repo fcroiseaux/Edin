@@ -299,6 +299,7 @@ describe('ContributorService', () => {
       skillAreas: true,
       role: true,
       createdAt: true,
+      showEvaluationScores: true,
     };
 
     const foundingContributor1 = {
@@ -431,6 +432,7 @@ describe('ContributorService', () => {
           skillAreas: true,
           role: true,
           createdAt: true,
+          showEvaluationScores: true,
         },
       });
     });
@@ -617,6 +619,7 @@ describe('ContributorService', () => {
       skillAreas: true,
       role: true,
       createdAt: true,
+      showEvaluationScores: true,
     };
 
     const rosterContributor1 = {

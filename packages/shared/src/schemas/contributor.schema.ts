@@ -47,6 +47,7 @@ export const updateContributorSchema = z
       .array(z.string().trim().min(1, 'Tag cannot be empty').max(50, 'Tag too long'))
       .max(10, 'Maximum 10 skill areas')
       .optional(),
+    showEvaluationScores: z.boolean().optional(),
   })
   .strict();
 

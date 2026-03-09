@@ -219,7 +219,8 @@ model Contributor {
   createdAt  DateTime          @default(now()) @map("created_at")
   updatedAt  DateTime          @updatedAt @map("updated_at")
 
-  buddyOptIn Boolean           @default(false) @map("buddy_opt_in")
+  buddyOptIn             Boolean           @default(false) @map("buddy_opt_in")
+  showEvaluationScores   Boolean           @default(false) @map("show_evaluation_scores")
 
   auditLogs              AuditLog[]
   applications           Application[]    @relation("ApplicationContributor")
