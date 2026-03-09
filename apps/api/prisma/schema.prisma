@@ -245,6 +245,9 @@ model Contributor {
   evaluations                Evaluation[]
   evaluationReviewsAsContributor EvaluationReview[] @relation("EvaluationReviewContributor")
   evaluationReviewsAsReviewer    EvaluationReview[] @relation("EvaluationReviewReviewer")
+  articles               Article[]         @relation("ArticleAuthor")
+  editedArticles         Article[]         @relation("ArticleEditor")
+  articleVersions        ArticleVersion[]  @relation("ArticleVersionCreator")
 
   @@map("contributors")
   @@schema("core")
@@ -632,6 +635,62 @@ model ConsentRecord {
 
   @@map("consent_records")
   @@schema("audit")
+}
+
+// ─── Publication Schema ─────────────────────────────────────────────────────
+
+enum ArticleStatus {
+  DRAFT
+  SUBMITTED
+  EDITORIAL_REVIEW
+  REVISION_REQUESTED
+  APPROVED
+  PUBLISHED
+  ARCHIVED
+
+  @@schema("publication")
+}
+
+model Article {
+  id          String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  authorId    String            @map("author_id") @db.Uuid
+  title       String            @db.VarChar(200)
+  slug        String            @unique
+  abstract    String            @db.VarChar(300)
+  body        String            @db.Text
+  domain      ContributorDomain
+  status      ArticleStatus     @default(DRAFT)
+  version     Int               @default(1)
+  editorId    String?           @map("editor_id") @db.Uuid
+  createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @updatedAt @map("updated_at")
+  submittedAt DateTime?         @map("submitted_at")
+  publishedAt DateTime?         @map("published_at")
+
+  author   Contributor      @relation("ArticleAuthor", fields: [authorId], references: [id])
+  editor   Contributor?     @relation("ArticleEditor", fields: [editorId], references: [id])
+  versions ArticleVersion[]
+
+  @@index([authorId, status], map: "idx_articles_author_id_status")
+  @@index([domain, status], map: "idx_articles_domain_status")
+  @@map("articles")
+  @@schema("publication")
+}
+
+model ArticleVersion {
+  id            String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  articleId     String      @map("article_id") @db.Uuid
+  versionNumber Int         @map("version_number")
+  body          String      @db.Text
+  createdAt     DateTime    @default(now()) @map("created_at")
+  createdById   String      @map("created_by_id") @db.Uuid
+
+  article   Article     @relation(fields: [articleId], references: [id])
+  createdBy Contributor @relation("ArticleVersionCreator", fields: [createdById], references: [id])
+
+  @@index([articleId, versionNumber], map: "idx_article_versions_article_version")
+  @@map("article_versions")
+  @@schema("publication")
 }
 
 // ─── Evaluation Schema ──────────────────────────────────────────────────────

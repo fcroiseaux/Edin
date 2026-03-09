@@ -395,6 +395,27 @@ export type {
   ContributorEvaluationSummaryDto,
 } from './types/evaluation.types.js';
 
+export {
+  createArticleSchema,
+  updateArticleSchema,
+  submitArticleSchema,
+  articleDomainEnum,
+  ARTICLE_DOMAINS,
+} from './schemas/article.schema.js';
+export type {
+  CreateArticleDto,
+  UpdateArticleDto,
+  SubmitArticleValidation,
+} from './schemas/article.schema.js';
+
+export { ARTICLE_STATUSES } from './types/article.types.js';
+export type {
+  ArticleStatus,
+  ArticleDto,
+  ArticleListItemDto,
+  ArticleSubmittedEvent,
+} from './types/article.types.js';
+
 export type {
   RepositoryStatus,
   MonitoredRepository as MonitoredRepositoryType,
