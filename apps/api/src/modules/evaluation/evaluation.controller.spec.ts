@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Test } from '@nestjs/testing';
 import { EvaluationController } from './evaluation.controller.js';
 import { EvaluationService } from './evaluation.service.js';
+import { EvaluationReviewService } from './services/evaluation-review.service.js';
 
 const mockEvaluationService = {
   getEvaluation: vi.fn(),
@@ -9,6 +10,11 @@ const mockEvaluationService = {
   getEvaluationsForContributor: vi.fn(),
   getEvaluationStatus: vi.fn(),
   getEvaluationHistory: vi.fn(),
+};
+
+const mockEvaluationReviewService = {
+  flagEvaluation: vi.fn(),
+  getReviewStatusForEvaluation: vi.fn(),
 };
 
 const user = {
@@ -34,7 +40,10 @@ describe('EvaluationController', () => {
 
     const module = await Test.createTestingModule({
       controllers: [EvaluationController],
-      providers: [{ provide: EvaluationService, useValue: mockEvaluationService }],
+      providers: [
+        { provide: EvaluationService, useValue: mockEvaluationService },
+        { provide: EvaluationReviewService, useValue: mockEvaluationReviewService },
+      ],
     }).compile();
 
     controller = module.get(EvaluationController);

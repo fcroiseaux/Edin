@@ -3,15 +3,18 @@
 import { use } from 'react';
 import Link from 'next/link';
 import { useEvaluation } from '../../../../hooks/use-evaluations';
+import { useReviewStatus } from '../../../../hooks/use-evaluation-review';
 import { NarrativeCard } from '../../../../components/features/evaluation/narrative/narrative-card';
 import { DimensionAccordion } from '../../../../components/features/evaluation/narrative/dimension-accordion';
 import { ProvenanceSection } from '../../../../components/features/evaluation/narrative/provenance-section';
 import { ModelFootnote } from '../../../../components/features/evaluation/narrative/model-footnote';
+import { FlagEvaluationDialog } from '../../../../components/features/evaluation/review/flag-evaluation-dialog';
 import type { EvaluationDimensionScoreDto } from '@edin/shared';
 
 export default function EvaluationDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { evaluation, isLoading, error } = useEvaluation(id);
+  const { reviewStatus } = useReviewStatus(id);
 
   if (isLoading) {
     return (
@@ -78,6 +81,21 @@ export default function EvaluationDetailPage({ params }: { params: Promise<{ id:
           provenance={evaluation.provenance ?? null}
           rubric={evaluation.rubric ?? null}
         />
+
+        {evaluation.status === 'COMPLETED' && (
+          <div className="flex items-center gap-[var(--spacing-md)]">
+            {reviewStatus ? (
+              <span className="inline-flex items-center gap-[var(--spacing-xs)] rounded-full bg-amber-50 px-[var(--spacing-md)] py-[var(--spacing-xs)] font-sans text-[13px] text-amber-700">
+                Human review{' '}
+                {reviewStatus.status === 'PENDING'
+                  ? 'requested'
+                  : reviewStatus.status.toLowerCase()}
+              </span>
+            ) : (
+              <FlagEvaluationDialog evaluationId={id} />
+            )}
+          </div>
+        )}
 
         <footer className="border-t border-surface-border pt-[var(--spacing-md)]">
           <ModelFootnote model={evaluation.model ?? null} />

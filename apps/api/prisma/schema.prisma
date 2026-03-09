@@ -164,6 +164,8 @@ enum FeedbackStatus {
 
 enum NotificationType {
   EVALUATION_COMPLETED
+  EVALUATION_REVIEW_FLAGGED
+  EVALUATION_REVIEW_RESOLVED
   PEER_FEEDBACK_AVAILABLE
   PEER_FEEDBACK_RECEIVED
   ANNOUNCEMENT_POSTED
@@ -188,6 +190,14 @@ enum EvaluationModelStatus {
   ACTIVE
   DEPRECATED
   RETIRED
+
+  @@schema("evaluation")
+}
+
+enum EvaluationReviewStatus {
+  PENDING
+  CONFIRMED
+  OVERRIDDEN
 
   @@schema("evaluation")
 }
@@ -232,6 +242,8 @@ model Contributor {
   peerFeedbacksGiven         PeerFeedback[]      @relation("ReviewerFeedbacks")
   platformSettings           PlatformSetting[]
   evaluations                Evaluation[]
+  evaluationReviewsAsContributor EvaluationReview[] @relation("EvaluationReviewContributor")
+  evaluationReviewsAsReviewer    EvaluationReview[] @relation("EvaluationReviewReviewer")
 
   @@map("contributors")
   @@schema("core")
@@ -680,10 +692,36 @@ model Evaluation {
   contributor     Contributor       @relation(fields: [contributorId], references: [id])
   model           EvaluationModel?  @relation(fields: [modelId], references: [id])
   rubric          EvaluationRubric? @relation(fields: [rubricId], references: [id])
+  review          EvaluationReview?
 
   @@unique([contributionId])
   @@index([contributorId, createdAt], map: "idx_evaluations_contributor_created")
   @@index([status], map: "idx_evaluations_status")
   @@map("evaluations")
+  @@schema("evaluation")
+}
+
+model EvaluationReview {
+  id                String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  evaluationId      String                  @unique @map("evaluation_id") @db.Uuid
+  contributorId     String                  @map("contributor_id") @db.Uuid
+  reviewerId        String?                 @map("reviewer_id") @db.Uuid
+  status            EvaluationReviewStatus  @default(PENDING)
+  flagReason        String                  @map("flag_reason") @db.Text
+  reviewReason      String?                 @map("review_reason") @db.Text
+  originalScores    Json                    @map("original_scores")
+  overrideScores    Json?                   @map("override_scores")
+  overrideNarrative String?                 @map("override_narrative") @db.Text
+  flaggedAt         DateTime                @default(now()) @map("flagged_at")
+  resolvedAt        DateTime?               @map("resolved_at")
+  createdAt         DateTime                @default(now()) @map("created_at")
+  updatedAt         DateTime                @updatedAt @map("updated_at")
+
+  evaluation        Evaluation              @relation(fields: [evaluationId], references: [id])
+  contributor       Contributor             @relation("EvaluationReviewContributor", fields: [contributorId], references: [id])
+  reviewer          Contributor?            @relation("EvaluationReviewReviewer", fields: [reviewerId], references: [id])
+
+  @@index([status, flaggedAt], map: "idx_evaluation_reviews_status_flagged")
+  @@map("evaluation_reviews")
   @@schema("evaluation")
 }

@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { createHash } from 'crypto';
-import { ERROR_CODES } from '@edin/shared';
+import { ERROR_CODES, resolveReviewSchema, reviewQueueQuerySchema } from '@edin/shared';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard.js';
 import { AbilityGuard } from '../../../common/guards/ability.guard.js';
 import { CheckAbility } from '../../../common/decorators/check-ability.decorator.js';
@@ -21,6 +21,7 @@ import { createSuccessResponse } from '../../../common/types/api-response.type.j
 import { DomainException } from '../../../common/exceptions/domain.exception.js';
 import { PrismaService } from '../../../prisma/prisma.service.js';
 import { EvaluationRubricService } from '../services/evaluation-rubric.service.js';
+import { EvaluationReviewService } from '../services/evaluation-review.service.js';
 import { CurrentUser } from '../../../common/decorators/current-user.decorator.js';
 import type { CurrentUserPayload } from '../../../common/decorators/current-user.decorator.js';
 
@@ -32,6 +33,7 @@ export class EvaluationAdminController {
   constructor(
     private readonly prisma: PrismaService,
     private readonly rubricService: EvaluationRubricService,
+    private readonly reviewService: EvaluationReviewService,
   ) {}
 
   // ─── Model Registry Endpoints ──────────────────────────────────────────────
@@ -113,6 +115,11 @@ export class EvaluationAdminController {
       scoreVariance = sumSquaredDiffs / (evaluationCount - 1);
     }
 
+    // Calculate human agreement rate from resolved reviews for this model
+    const agreementRates = await this.reviewService.getAgreementRates(id);
+    const modelAgreement = agreementRates.byModel.find((m) => m.modelId === id);
+    const humanAgreementRate = modelAgreement ? modelAgreement.agreementRate : null;
+
     const data = {
       modelId: model.id,
       modelName: model.name,
@@ -120,7 +127,7 @@ export class EvaluationAdminController {
       evaluationCount,
       averageScore: averageScore !== null ? Math.round(averageScore * 100) / 100 : null,
       scoreVariance: scoreVariance !== null ? Math.round(scoreVariance * 100) / 100 : null,
-      humanAgreementRate: null as number | null,
+      humanAgreementRate,
     };
 
     return createSuccessResponse(data, correlationId);
@@ -159,7 +166,9 @@ export class EvaluationAdminController {
           name: body.name,
           version: body.version,
           provider: body.provider,
-          config: body.config ?? null,
+          config: (body.config ?? undefined) as
+            | import('../../../../generated/prisma/client/client.js').Prisma.InputJsonValue
+            | undefined,
           configHash,
           status: 'ACTIVE',
           deployedAt: new Date(),
@@ -344,5 +353,95 @@ export class EvaluationAdminController {
     });
 
     return createSuccessResponse(rubric, correlationId);
+  }
+
+  // ─── Review Queue Endpoints ──────────────────────────────────────────────
+
+  @Get('reviews')
+  @CheckAbility((ability) => ability.can(Action.Manage, 'all'))
+  async listReviews(@Query() query: Record<string, unknown>) {
+    const correlationId = randomUUID();
+    const parsed = reviewQueueQuerySchema.safeParse(query);
+
+    if (!parsed.success) {
+      throw new DomainException(
+        ERROR_CODES.VALIDATION_ERROR,
+        'Invalid query parameters',
+        HttpStatus.BAD_REQUEST,
+        parsed.error.errors.map((e: { path: (string | number)[]; message: string }) => ({
+          field: e.path.join('.'),
+          message: e.message,
+        })),
+      );
+    }
+
+    const result = await this.reviewService.getReviewQueue(parsed.data);
+
+    this.logger.debug('Listed evaluation reviews', {
+      module: 'evaluation',
+      count: result.items.length,
+      correlationId,
+    });
+
+    return createSuccessResponse(result.items, correlationId, result.pagination);
+  }
+
+  @Get('reviews/:id')
+  @CheckAbility((ability) => ability.can(Action.Manage, 'all'))
+  async getReviewDetail(@Param('id') id: string) {
+    const correlationId = randomUUID();
+    const result = await this.reviewService.getReviewDetail(id);
+    return createSuccessResponse(result, correlationId);
+  }
+
+  @Post('reviews/:id/resolve')
+  @CheckAbility((ability) => ability.can(Action.Manage, 'all'))
+  async resolveReview(
+    @Param('id') id: string,
+    @Body() body: Record<string, unknown>,
+    @CurrentUser() user: CurrentUserPayload,
+  ) {
+    const correlationId = randomUUID();
+    const parsed = resolveReviewSchema.safeParse(body);
+
+    if (!parsed.success) {
+      throw new DomainException(
+        ERROR_CODES.VALIDATION_ERROR,
+        'Invalid resolve request',
+        HttpStatus.BAD_REQUEST,
+        parsed.error.errors.map((e: { path: (string | number)[]; message: string }) => ({
+          field: e.path.join('.'),
+          message: e.message,
+        })),
+      );
+    }
+
+    const result = await this.reviewService.resolveReview(
+      id,
+      user.id,
+      parsed.data.action,
+      parsed.data.reviewReason,
+      parsed.data.overrideScores,
+      parsed.data.overrideNarrative,
+      correlationId,
+    );
+
+    this.logger.log('Evaluation review resolved', {
+      module: 'evaluation',
+      reviewId: id,
+      action: parsed.data.action,
+      userId: user.id,
+      correlationId,
+    });
+
+    return createSuccessResponse(result, correlationId);
+  }
+
+  @Get('agreement-rates')
+  @CheckAbility((ability) => ability.can(Action.Manage, 'all'))
+  async getAgreementRates(@Query('modelId') modelId?: string) {
+    const correlationId = randomUUID();
+    const result = await this.reviewService.getAgreementRates(modelId);
+    return createSuccessResponse(result, correlationId);
   }
 }

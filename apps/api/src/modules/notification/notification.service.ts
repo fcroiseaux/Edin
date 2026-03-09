@@ -9,6 +9,8 @@ import type {
   FeedbackSubmittedEvent,
   FeedbackReassignedEvent,
   EvaluationCompletedEvent,
+  EvaluationReviewFlaggedEvent,
+  EvaluationReviewResolvedEvent,
 } from '@edin/shared';
 
 export interface NotificationJobData {
@@ -377,6 +379,73 @@ export class NotificationService {
       this.logger.error('Failed to process feedback review reassigned notification', {
         module: 'notification',
         peerFeedbackId: event.payload.peerFeedbackId,
+        correlationId: event.correlationId,
+        error: message,
+      });
+    }
+  }
+
+  @OnEvent('evaluation.review.flagged')
+  async handleEvaluationReviewFlagged(event: EvaluationReviewFlaggedEvent): Promise<void> {
+    try {
+      // Notify all admins about the flagged evaluation
+      const admins = await this.prisma.contributor.findMany({
+        where: { role: 'ADMIN', isActive: true },
+        select: { id: true },
+      });
+
+      if (admins.length === 0) return;
+
+      const jobs: NotificationJobData[] = admins.map((admin) => ({
+        contributorId: admin.id,
+        type: 'EVALUATION_REVIEW_FLAGGED' as PrismaNotificationType,
+        title: 'Evaluation flagged for human review',
+        description: `A contributor has requested review of the evaluation for "${event.payload.contributionTitle}"`,
+        entityId: event.payload.reviewId,
+        category: 'evaluation',
+        correlationId: event.correlationId,
+      }));
+
+      await this.notificationQueue.addBulk(
+        jobs.map((job) => ({
+          name: 'send-notification',
+          data: job,
+          opts: { removeOnComplete: true, removeOnFail: false },
+        })),
+      );
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      this.logger.error('Failed to process evaluation review flagged notification', {
+        module: 'notification',
+        reviewId: event.payload.reviewId,
+        correlationId: event.correlationId,
+        error: message,
+      });
+    }
+  }
+
+  @OnEvent('evaluation.review.resolved')
+  async handleEvaluationReviewResolved(event: EvaluationReviewResolvedEvent): Promise<void> {
+    try {
+      const actionLabel =
+        event.payload.action === 'confirm'
+          ? 'confirmed — the original evaluation stands'
+          : 'updated with revised scores';
+
+      await this.enqueueNotification({
+        contributorId: event.payload.contributorId,
+        type: 'EVALUATION_REVIEW_RESOLVED' as PrismaNotificationType,
+        title: 'Your evaluation review has been processed',
+        description: `Your review request for "${event.payload.contributionTitle}" has been ${actionLabel}`,
+        entityId: event.payload.reviewId,
+        category: 'evaluation',
+        correlationId: event.correlationId,
+      });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      this.logger.error('Failed to process evaluation review resolved notification', {
+        module: 'notification',
+        reviewId: event.payload.reviewId,
         correlationId: event.correlationId,
         error: message,
       });

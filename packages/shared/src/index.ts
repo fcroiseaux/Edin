@@ -345,10 +345,16 @@ export {
   contributionTypeFilterEnum,
   evaluationQuerySchema,
   evaluationHistoryQuerySchema,
+  flagEvaluationSchema,
+  resolveReviewSchema,
+  reviewQueueQuerySchema,
 } from './schemas/evaluation.schema.js';
 export type {
   EvaluationQuerySchemaDto,
   EvaluationHistoryQuerySchemaDto,
+  FlagEvaluationSchemaDto,
+  ResolveReviewSchemaDto,
+  ReviewQueueQuerySchemaDto,
 } from './schemas/evaluation.schema.js';
 
 export type {
@@ -375,6 +381,14 @@ export type {
   EvaluationRubricInfoDto,
   EvaluationDetailDto,
   EvaluationHistoryItemDto,
+  EvaluationReviewStatus,
+  EvaluationReviewDto,
+  EvaluationReviewQueueItemDto,
+  EvaluationReviewDetailDto,
+  AgreementRateDto,
+  AgreementRatesResponseDto,
+  EvaluationReviewFlaggedEvent,
+  EvaluationReviewResolvedEvent,
 } from './types/evaluation.types.js';
 
 export type {

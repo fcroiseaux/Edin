@@ -172,3 +172,100 @@ export interface EvaluationHistoryItemDto {
   narrativePreview: string;
   completedAt: string;
 }
+
+// ─── Human Review & Benchmarking (Story 7-4) ───────────────────────────────
+
+export type EvaluationReviewStatus = 'PENDING' | 'CONFIRMED' | 'OVERRIDDEN';
+
+export interface EvaluationReviewDto {
+  id: string;
+  evaluationId: string;
+  contributorId: string;
+  reviewerId: string | null;
+  status: EvaluationReviewStatus;
+  flagReason: string;
+  reviewReason: string | null;
+  originalScores: {
+    compositeScore: number;
+    dimensionScores: Record<string, EvaluationDimensionScoreDto>;
+  };
+  overrideScores: {
+    compositeScore: number;
+    dimensionScores: Record<string, EvaluationDimensionScoreDto>;
+  } | null;
+  overrideNarrative: string | null;
+  flaggedAt: string;
+  resolvedAt: string | null;
+}
+
+export interface EvaluationReviewQueueItemDto {
+  id: string;
+  evaluationId: string;
+  contributorName: string;
+  contributionTitle: string;
+  domain: string | null;
+  originalScore: number;
+  flagReason: string;
+  flaggedAt: string;
+  status: EvaluationReviewStatus;
+}
+
+export interface EvaluationReviewDetailDto extends EvaluationReviewDto {
+  contributorName: string;
+  evaluation: {
+    id: string;
+    narrative: string | null;
+    dimensionScores: Record<string, EvaluationDimensionScoreDto> | null;
+    compositeScore: number | null;
+    model: EvaluationModelInfoDto | null;
+    contribution: {
+      id: string;
+      title: string;
+      contributionType: string;
+      sourceRef: string;
+    };
+  };
+}
+
+export interface AgreementRateDto {
+  totalReviewed: number;
+  confirmed: number;
+  overridden: number;
+  agreementRate: number;
+}
+
+export interface AgreementRatesResponseDto {
+  overall: AgreementRateDto;
+  byModel: Array<AgreementRateDto & { modelId: string; modelVersion: string }>;
+  byDomain: Array<AgreementRateDto & { domain: string }>;
+}
+
+export interface EvaluationReviewFlaggedEvent {
+  eventType: 'evaluation.review.flagged';
+  timestamp: string;
+  correlationId: string;
+  actorId: string;
+  payload: {
+    reviewId: string;
+    evaluationId: string;
+    contributionId: string;
+    contributorId: string;
+    contributionTitle: string;
+    flagReason: string;
+  };
+}
+
+export interface EvaluationReviewResolvedEvent {
+  eventType: 'evaluation.review.resolved';
+  timestamp: string;
+  correlationId: string;
+  actorId: string;
+  payload: {
+    reviewId: string;
+    evaluationId: string;
+    contributorId: string;
+    contributionTitle: string;
+    action: 'confirm' | 'override';
+    reviewerId: string;
+  };
+}

@@ -7,6 +7,7 @@ import { EvaluationController } from './evaluation.controller.js';
 import { EvaluationAdminController } from './controllers/evaluation-admin.controller.js';
 import { EvaluationService } from './evaluation.service.js';
 import { EvaluationRubricService } from './services/evaluation-rubric.service.js';
+import { EvaluationReviewService } from './services/evaluation-review.service.js';
 import { EvaluationDispatchProcessor } from './processors/evaluation-dispatch.processor.js';
 import { CodeEvaluationProcessor } from './processors/code-evaluation.processor.js';
 import { DocEvaluationProcessor } from './processors/doc-evaluation.processor.js';
@@ -51,6 +52,7 @@ import { EVALUATION_PROVIDER } from './providers/evaluation-provider.interface.j
   providers: [
     EvaluationService,
     EvaluationRubricService,
+    EvaluationReviewService,
     EvaluationDispatchProcessor,
     CodeEvaluationProcessor,
     DocEvaluationProcessor,
@@ -60,6 +62,6 @@ import { EVALUATION_PROVIDER } from './providers/evaluation-provider.interface.j
       useClass: AnthropicEvaluationProvider,
     },
   ],
-  exports: [EvaluationService],
+  exports: [EvaluationService, EvaluationReviewService],
 })
 export class EvaluationModule {}

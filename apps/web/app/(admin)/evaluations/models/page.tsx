@@ -5,13 +5,16 @@ import {
   useEvaluationModels,
   useEvaluationModelMetrics,
 } from '../../../../hooks/use-evaluation-models';
+import { useAgreementRates } from '../../../../hooks/use-evaluation-review';
 import { ModelRegistryList } from '../../../../components/features/evaluation/admin/model-registry-list';
 import { ModelMetricsComparison } from '../../../../components/features/evaluation/admin/model-metrics-comparison';
+import { AgreementRateCard } from '../../../../components/features/evaluation/admin/agreement-rate-card';
 
 export default function EvaluationModelsPage() {
   const [selectedModelId, setSelectedModelId] = useState<string | null>(null);
   const { models, isLoading: modelsLoading, error: modelsError } = useEvaluationModels();
   const { metrics, isLoading: metricsLoading } = useEvaluationModelMetrics(selectedModelId);
+  const { rates, isLoading: ratesLoading } = useAgreementRates(selectedModelId ?? undefined);
 
   if (modelsLoading) {
     return (
@@ -51,6 +54,10 @@ export default function EvaluationModelsPage() {
 
       <div className="mt-[var(--spacing-lg)]">
         <ModelMetricsComparison metrics={metrics} isLoading={metricsLoading} />
+      </div>
+
+      <div className="mt-[var(--spacing-lg)]">
+        <AgreementRateCard rates={rates} isLoading={ratesLoading} />
       </div>
     </div>
   );

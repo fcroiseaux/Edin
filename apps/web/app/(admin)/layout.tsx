@@ -9,6 +9,7 @@ const ADMIN_NAV_ITEMS = [
   { href: '/admin/admission', label: 'Admission' },
   { href: '/admin/feedback', label: 'Feedback' },
   { href: '/admin/evaluations/models', label: 'Evaluations' },
+  { href: '/admin/evaluations/review-queue', label: 'Review Queue' },
   { href: '/admin/settings', label: 'Settings' },
 ];
 

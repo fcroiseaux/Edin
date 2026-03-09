@@ -3,6 +3,7 @@ import { Test } from '@nestjs/testing';
 import { EvaluationAdminController } from './evaluation-admin.controller.js';
 import { PrismaService } from '../../../prisma/prisma.service.js';
 import { EvaluationRubricService } from '../services/evaluation-rubric.service.js';
+import { EvaluationReviewService } from '../services/evaluation-review.service.js';
 import { CaslAbilityFactory } from '../../auth/casl/ability.factory.js';
 import type { CurrentUserPayload } from '../../../common/decorators/current-user.decorator.js';
 
@@ -35,6 +36,13 @@ const mockRubricService = {
   createRubricVersion: vi.fn(),
 };
 
+const mockReviewService = {
+  getReviewQueue: vi.fn(),
+  getReviewDetail: vi.fn(),
+  resolveReview: vi.fn(),
+  getAgreementRates: vi.fn(),
+};
+
 describe('EvaluationAdminController', () => {
   let controller: EvaluationAdminController;
 
@@ -46,6 +54,7 @@ describe('EvaluationAdminController', () => {
       providers: [
         { provide: PrismaService, useValue: mockPrisma },
         { provide: EvaluationRubricService, useValue: mockRubricService },
+        { provide: EvaluationReviewService, useValue: mockReviewService },
         { provide: CaslAbilityFactory, useValue: {} },
       ],
     }).compile();
@@ -97,7 +106,13 @@ describe('EvaluationAdminController', () => {
         { compositeScore: { toNumber: () => 70 } },
       ]);
 
-      const result = await controller.getModelMetrics('model-1', adminUser);
+      mockReviewService.getAgreementRates.mockResolvedValue({
+        overall: { totalReviewed: 0, confirmed: 0, overridden: 0, agreementRate: 0 },
+        byModel: [],
+        byDomain: [],
+      });
+
+      const result = await controller.getModelMetrics('model-1');
 
       expect(result.data.evaluationCount).toBe(3);
       expect(result.data.averageScore).toBe(80);
@@ -106,7 +121,7 @@ describe('EvaluationAdminController', () => {
     it('throws NOT_FOUND for unknown model', async () => {
       mockPrisma.evaluationModel.findUnique.mockResolvedValue(null);
 
-      await expect(controller.getModelMetrics('unknown', adminUser)).rejects.toThrow();
+      await expect(controller.getModelMetrics('unknown')).rejects.toThrow();
     });
   });
 
