@@ -14,6 +14,10 @@ const mockPrisma = {
     findMany: vi.fn(),
     create: vi.fn(),
     count: vi.fn(),
+    aggregate: vi.fn(),
+  },
+  contributor: {
+    findUnique: vi.fn(),
   },
   auditLog: {
     create: vi.fn(),
@@ -396,6 +400,139 @@ describe('EvaluationService', () => {
           }),
         }),
       );
+    });
+  });
+
+  describe('getPublicEvaluationAggregate', () => {
+    it('returns cached aggregate when Redis hit', async () => {
+      const cachedAggregate = {
+        totalEvaluations: 100,
+        averageScore: 75.5,
+        byDomain: [{ domain: 'Technology', averageScore: 78.0, count: 50 }],
+        scoreDistribution: [
+          { range: '0–20', min: 0, max: 20, count: 5 },
+          { range: '21–40', min: 21, max: 40, count: 10 },
+          { range: '41–60', min: 41, max: 60, count: 20 },
+          { range: '61–80', min: 61, max: 80, count: 40 },
+          { range: '81–100', min: 81, max: 100, count: 25 },
+        ],
+        agreementRate: { overall: 0.95, totalReviewed: 20 },
+      };
+      mockRedis.get.mockResolvedValue(cachedAggregate);
+
+      const result = await service.getPublicEvaluationAggregate();
+
+      expect(result).toEqual(cachedAggregate);
+      expect(mockPrisma.evaluation.findMany).not.toHaveBeenCalled();
+    });
+
+    it('computes histogram buckets correctly and caches on miss', async () => {
+      mockRedis.get.mockResolvedValue(null);
+
+      const evaluations = [
+        { compositeScore: { toNumber: () => 15 }, contributor: { domain: 'Technology' } },
+        { compositeScore: { toNumber: () => 35 }, contributor: { domain: 'Technology' } },
+        { compositeScore: { toNumber: () => 55 }, contributor: { domain: 'Fintech' } },
+        { compositeScore: { toNumber: () => 75 }, contributor: { domain: 'Fintech' } },
+        { compositeScore: { toNumber: () => 95 }, contributor: { domain: 'Technology' } },
+      ];
+      mockPrisma.evaluation.findMany.mockResolvedValue(evaluations);
+
+      const result = await service.getPublicEvaluationAggregate();
+
+      expect(result.totalEvaluations).toBe(5);
+      expect(result.averageScore).toBe(55);
+      expect(result.scoreDistribution[0].count).toBe(1); // 0-20
+      expect(result.scoreDistribution[1].count).toBe(1); // 21-40
+      expect(result.scoreDistribution[2].count).toBe(1); // 41-60
+      expect(result.scoreDistribution[3].count).toBe(1); // 61-80
+      expect(result.scoreDistribution[4].count).toBe(1); // 81-100
+      expect(result.byDomain).toHaveLength(2);
+      expect(mockRedis.set).toHaveBeenCalledWith(
+        'public:evaluation-aggregate',
+        expect.any(Object),
+        300,
+      );
+    });
+
+    it('returns zero average when no evaluations exist', async () => {
+      mockRedis.get.mockResolvedValue(null);
+      mockPrisma.evaluation.findMany.mockResolvedValue([]);
+
+      const result = await service.getPublicEvaluationAggregate();
+
+      expect(result.totalEvaluations).toBe(0);
+      expect(result.averageScore).toBe(0);
+      expect(result.byDomain).toHaveLength(0);
+    });
+  });
+
+  describe('getContributorPublicScores', () => {
+    it('returns null when contributor does not exist', async () => {
+      mockPrisma.contributor.findUnique.mockResolvedValue(null);
+
+      const result = await service.getContributorPublicScores('nonexistent');
+
+      expect(result).toBeNull();
+    });
+
+    it('returns null when showEvaluationScores is false', async () => {
+      mockPrisma.contributor.findUnique.mockResolvedValue({
+        id: 'contributor-1',
+        showEvaluationScores: false,
+      });
+
+      const result = await service.getContributorPublicScores('contributor-1');
+
+      expect(result).toBeNull();
+      expect(mockPrisma.evaluation.findMany).not.toHaveBeenCalled();
+    });
+
+    it('returns null when evaluations array is empty', async () => {
+      mockPrisma.contributor.findUnique.mockResolvedValue({
+        id: 'contributor-1',
+        showEvaluationScores: true,
+      });
+      mockPrisma.evaluation.findMany.mockResolvedValue([]);
+
+      const result = await service.getContributorPublicScores('contributor-1');
+
+      expect(result).toBeNull();
+    });
+
+    it('returns narrative and recentScores when consented', async () => {
+      mockPrisma.contributor.findUnique.mockResolvedValue({
+        id: 'contributor-1',
+        showEvaluationScores: true,
+      });
+      mockPrisma.evaluation.findMany.mockResolvedValue([
+        {
+          compositeScore: { toNumber: () => 80 },
+          completedAt: new Date('2026-03-01T12:00:00.000Z'),
+          contribution: { contributionType: 'COMMIT' },
+        },
+        {
+          compositeScore: { toNumber: () => 70 },
+          completedAt: new Date('2026-02-28T12:00:00.000Z'),
+          contribution: { contributionType: 'PULL_REQUEST' },
+        },
+      ]);
+      mockPrisma.evaluation.aggregate.mockResolvedValue({
+        _avg: { compositeScore: { toNumber: () => 75 } },
+      });
+      mockPrisma.evaluation.count.mockResolvedValue(10);
+
+      const result = await service.getContributorPublicScores('contributor-1');
+
+      expect(result).not.toBeNull();
+      expect(result!.contributorId).toBe('contributor-1');
+      expect(result!.averageScore).toBe(75);
+      expect(result!.evaluationCount).toBe(10);
+      expect(result!.narrative).toContain('10 times');
+      expect(result!.narrative).toContain('75');
+      expect(result!.recentScores).toHaveLength(2);
+      expect(result!.recentScores[0].score).toBe(80);
+      expect(result!.recentScores[0].contributionType).toBe('COMMIT');
     });
   });
 

@@ -513,7 +513,7 @@ describe('WorkingGroupService', () => {
       prisma.contributor.findUnique.mockResolvedValue({ role: 'CONTRIBUTOR' });
       prisma.announcement.delete.mockResolvedValue(mockAnnouncement);
 
-      await service.deleteAnnouncement('ann-1', 'contributor-1', 'corr-1');
+      await service.deleteAnnouncement('wg-1', 'ann-1', 'contributor-1', 'corr-1');
 
       expect(prisma.announcement.delete).toHaveBeenCalledWith({
         where: { id: 'ann-1' },
@@ -535,7 +535,7 @@ describe('WorkingGroupService', () => {
       prisma.contributor.findUnique.mockResolvedValue({ role: 'ADMIN' });
       prisma.announcement.delete.mockResolvedValue(mockAnnouncement);
 
-      await service.deleteAnnouncement('ann-1', 'admin-1', 'corr-1');
+      await service.deleteAnnouncement('wg-1', 'ann-1', 'admin-1', 'corr-1');
 
       expect(prisma.announcement.delete).toHaveBeenCalled();
     });
@@ -544,22 +544,33 @@ describe('WorkingGroupService', () => {
       prisma.announcement.findUnique.mockResolvedValue(mockAnnouncement);
       prisma.contributor.findUnique.mockResolvedValue({ role: 'CONTRIBUTOR' });
 
-      await expect(service.deleteAnnouncement('ann-1', 'other-user', 'corr-1')).rejects.toThrow(
-        DomainException,
-      );
       await expect(
-        service.deleteAnnouncement('ann-1', 'other-user', 'corr-1'),
+        service.deleteAnnouncement('wg-1', 'ann-1', 'other-user', 'corr-1'),
+      ).rejects.toThrow(DomainException);
+      await expect(
+        service.deleteAnnouncement('wg-1', 'ann-1', 'other-user', 'corr-1'),
       ).rejects.toMatchObject({ status: 403 });
     });
 
     it('throws ANNOUNCEMENT_NOT_FOUND when announcement does not exist', async () => {
       prisma.announcement.findUnique.mockResolvedValue(null);
 
-      await expect(service.deleteAnnouncement('nonexistent', 'contributor-1')).rejects.toThrow(
-        DomainException,
-      );
       await expect(
-        service.deleteAnnouncement('nonexistent', 'contributor-1'),
+        service.deleteAnnouncement('wg-1', 'nonexistent', 'contributor-1'),
+      ).rejects.toThrow(DomainException);
+      await expect(
+        service.deleteAnnouncement('wg-1', 'nonexistent', 'contributor-1'),
+      ).rejects.toMatchObject({ status: 404 });
+    });
+
+    it('throws ANNOUNCEMENT_NOT_FOUND when announcement belongs to a different working group', async () => {
+      prisma.announcement.findUnique.mockResolvedValue(mockAnnouncement);
+
+      await expect(
+        service.deleteAnnouncement('wg-other', 'ann-1', 'contributor-1', 'corr-1'),
+      ).rejects.toThrow(DomainException);
+      await expect(
+        service.deleteAnnouncement('wg-other', 'ann-1', 'contributor-1', 'corr-1'),
       ).rejects.toMatchObject({ status: 404 });
     });
   });

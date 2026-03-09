@@ -33,9 +33,9 @@ export function ContributorScoreSummary({
               Recent Evaluations
             </p>
             <div className="mt-[var(--spacing-xs)] flex flex-wrap gap-[var(--spacing-xs)]">
-              {scores.recentScores.slice(0, 5).map((s, i) => (
+              {scores.recentScores.slice(0, 5).map((s) => (
                 <span
-                  key={i}
+                  key={s.completedAt}
                   className="inline-flex items-center gap-[4px] rounded-full bg-surface-sunken px-[var(--spacing-sm)] py-[2px] font-sans text-[12px] text-brand-primary"
                 >
                   <span className="font-medium">{s.score.toFixed(0)}</span>

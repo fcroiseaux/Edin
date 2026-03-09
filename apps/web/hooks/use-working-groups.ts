@@ -73,6 +73,7 @@ export function useJoinWorkingGroup() {
       }),
     onMutate: async (workingGroupId) => {
       await queryClient.cancelQueries({ queryKey: ['working-groups'] });
+      await queryClient.cancelQueries({ queryKey: ['working-groups', workingGroupId] });
 
       const previousGroups = queryClient.getQueryData<WorkingGroupsResponse>(['working-groups']);
       if (previousGroups) {
@@ -93,8 +94,9 @@ export function useJoinWorkingGroup() {
         queryClient.setQueryData(['working-groups'], context.previousGroups);
       }
     },
-    onSettled: () => {
+    onSettled: (_data, _err, workingGroupId) => {
       queryClient.invalidateQueries({ queryKey: ['working-groups'] });
+      queryClient.invalidateQueries({ queryKey: ['working-groups', workingGroupId] });
     },
   });
 }

@@ -11,6 +11,7 @@ export const workingGroupSchema = z.object({
   domain: z.enum(['Technology', 'Fintech', 'Impact', 'Governance']),
   accentColor: z.string(),
   memberCount: z.number().int().min(0),
+  isMember: z.boolean(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
 });

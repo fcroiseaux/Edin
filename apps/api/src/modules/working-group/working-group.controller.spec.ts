@@ -311,7 +311,7 @@ describe('WorkingGroupController', () => {
       await controller.deleteAnnouncement('wg-1', 'ann-1', mockUser, mockReq);
 
       expect(service.assertLeadAccess).toHaveBeenCalledWith('wg-1', 'user-1', 'CONTRIBUTOR');
-      expect(service.deleteAnnouncement).toHaveBeenCalledWith('ann-1', 'user-1', 'corr-1');
+      expect(service.deleteAnnouncement).toHaveBeenCalledWith('wg-1', 'ann-1', 'user-1', 'corr-1');
     });
 
     it('propagates ANNOUNCEMENT_NOT_FOUND exception (404)', async () => {

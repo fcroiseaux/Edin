@@ -193,32 +193,44 @@ export class WorkingGroupService {
       );
     }
 
-    const member = await this.prisma.$transaction(async (tx) => {
-      const created = await tx.workingGroupMember.create({
-        data: {
-          workingGroupId,
-          contributorId,
-        },
-      });
+    let member;
+    try {
+      member = await this.prisma.$transaction(async (tx) => {
+        const created = await tx.workingGroupMember.create({
+          data: {
+            workingGroupId,
+            contributorId,
+          },
+        });
 
-      await tx.workingGroup.update({
-        where: { id: workingGroupId },
-        data: { memberCount: { increment: 1 } },
-      });
+        await tx.workingGroup.update({
+          where: { id: workingGroupId },
+          data: { memberCount: { increment: 1 } },
+        });
 
-      await tx.auditLog.create({
-        data: {
-          actorId: contributorId,
-          action: 'working-group.member.joined',
-          entityType: 'WorkingGroupMember',
-          entityId: created.id,
-          details: { workingGroupId, workingGroupName: workingGroup.name },
-          correlationId,
-        },
-      });
+        await tx.auditLog.create({
+          data: {
+            actorId: contributorId,
+            action: 'working-group.member.joined',
+            entityType: 'WorkingGroupMember',
+            entityId: created.id,
+            details: { workingGroupId, workingGroupName: workingGroup.name },
+            correlationId,
+          },
+        });
 
-      return created;
-    });
+        return created;
+      });
+    } catch (err: unknown) {
+      if (err instanceof Error && 'code' in err && (err as { code: string }).code === 'P2002') {
+        throw new DomainException(
+          ERROR_CODES.ALREADY_MEMBER,
+          'You are already a member of this working group',
+          HttpStatus.CONFLICT,
+        );
+      }
+      throw err;
+    }
 
     this.eventEmitter.emit('working-group.member.joined', {
       eventType: 'working-group.member.joined',
@@ -527,8 +539,14 @@ export class WorkingGroupService {
     });
   }
 
-  async deleteAnnouncement(announcementId: string, userId: string, correlationId?: string) {
+  async deleteAnnouncement(
+    workingGroupId: string,
+    announcementId: string,
+    userId: string,
+    correlationId?: string,
+  ) {
     this.logger.log('Deleting announcement', {
+      workingGroupId,
       announcementId,
       userId,
       correlationId,
@@ -543,6 +561,14 @@ export class WorkingGroupService {
       throw new DomainException(
         ERROR_CODES.ANNOUNCEMENT_NOT_FOUND,
         'Announcement not found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    if (announcement.workingGroupId !== workingGroupId) {
+      throw new DomainException(
+        ERROR_CODES.ANNOUNCEMENT_NOT_FOUND,
+        'Announcement not found in this working group',
         HttpStatus.NOT_FOUND,
       );
     }

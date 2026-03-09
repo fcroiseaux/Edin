@@ -176,7 +176,7 @@ export function useAgreementRates(modelId?: string) {
   const { data, isLoading, error } = useQuery<AgreementRatesResponse>({
     queryKey: ['admin', 'agreement-rates', modelId],
     queryFn: () => {
-      const params = modelId ? `?modelId=${modelId}` : '';
+      const params = modelId ? `?modelId=${encodeURIComponent(modelId)}` : '';
       return apiClient<AgreementRatesResponse>(
         `/api/v1/admin/evaluations/agreement-rates${params}`,
       );

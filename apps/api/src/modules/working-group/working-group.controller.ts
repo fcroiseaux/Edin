@@ -64,8 +64,10 @@ export class WorkingGroupController {
   ) {
     const group = await this.workingGroupService.findById(id, user.id);
 
-    const contributions = await this.workingGroupService.getGroupContributions(id);
-    const activeTasks = await this.workingGroupService.getActiveTasksForDomain(group.domain);
+    const [contributions, activeTasks] = await Promise.all([
+      this.workingGroupService.getGroupContributions(id),
+      this.workingGroupService.getActiveTasksForDomain(group.domain),
+    ]);
 
     return createSuccessResponse(
       {
@@ -256,7 +258,12 @@ export class WorkingGroupController {
       module: 'working-group',
     });
 
-    await this.workingGroupService.deleteAnnouncement(announcementId, user.id, req.correlationId);
+    await this.workingGroupService.deleteAnnouncement(
+      id,
+      announcementId,
+      user.id,
+      req.correlationId,
+    );
   }
 
   @Get(':id/dashboard')

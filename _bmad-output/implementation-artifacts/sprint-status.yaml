@@ -72,13 +72,13 @@ development_status:
   epic-4: in-progress
   4-1-github-repository-connection-and-webhook-configuration: done
   4-2-contribution-ingestion-pipeline: done
-  4-3-contribution-attribution-and-dashboard-display: review
+  4-3-contribution-attribution-and-dashboard-display: done
   4-4-multi-contributor-collaboration-detection: done
   epic-4-retrospective: optional
 
   # Epic 5: Community Structure, Tasks & Activity Feed
   epic-5: in-progress
-  5-1-working-groups-and-domain-membership: review
+  5-1-working-groups-and-domain-membership: done
   5-2-contribution-menu-and-task-management: done
   5-3-working-group-lead-management: done
   5-4-activity-feed-with-real-time-updates: done
@@ -97,14 +97,14 @@ development_status:
   7-1-evaluation-pipeline-and-code-evaluation: done
   7-2-documentation-evaluation-and-model-versioning: done
   7-3-transparent-evaluation-narrative-and-score-history: done
-  7-4-human-review-and-benchmarking: review
-  7-5-public-ai-evaluation-data: review
+  7-4-human-review-and-benchmarking: done
+  7-5-public-ai-evaluation-data: done
   epic-7-retrospective: optional
 
   # Epic 8: Publication Platform
   epic-8: in-progress
   8-1-article-authoring-interface: done
-  8-2-editorial-workflow-and-lifecycle: backlog
+  8-2-editorial-workflow-and-lifecycle: done
   8-3-editor-roles-and-eligibility: backlog
   8-4-public-article-reading-experience: backlog
   8-5-publication-metrics-and-reward-split: backlog

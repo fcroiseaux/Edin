@@ -339,6 +339,14 @@ export class EvaluationReviewService {
         resolvedAt: new Date(),
       };
 
+      if (action === 'override' && !overrideScores) {
+        throw new DomainException(
+          ERROR_CODES.VALIDATION_ERROR,
+          'Override scores are required when action is override',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
       if (action === 'override' && overrideScores) {
         updateData.overrideScores = overrideScores;
         updateData.overrideNarrative = overrideNarrative ?? null;
