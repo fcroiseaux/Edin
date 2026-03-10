@@ -56,7 +56,7 @@ export default function MyTasksPage() {
 
   return (
     <main className="min-h-screen bg-surface-base px-[var(--spacing-lg)] py-[var(--spacing-xl)]">
-      <div className="mx-auto max-w-4xl">
+      <div className="mx-auto max-w-[56rem]">
         <h1 className="font-serif text-[28px] font-bold text-brand-primary">My Tasks</h1>
         <p className="mt-[var(--spacing-xs)] font-serif text-[14px] text-brand-secondary">
           Tasks you have claimed and their progress.

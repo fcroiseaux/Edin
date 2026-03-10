@@ -42,13 +42,15 @@ export function FlaggedArticlesTable() {
   const handleActionConfirm = async (reason: string) => {
     if (!actionArticleId || !actionType) return;
 
-    const mutationMap = {
+    const mutationMap: Record<string, typeof dismissMutation> = {
       DISMISS: dismissMutation,
       REQUEST_CORRECTIONS: correctionsMutation,
       REJECT: rejectMutation,
     };
 
-    await mutationMap[actionType].mutateAsync({ articleId: actionArticleId, reason });
+    const mutation = mutationMap[actionType];
+    if (!mutation) return;
+    await mutation.mutateAsync({ articleId: actionArticleId, reason });
     setActionType(null);
     setActionArticleId(null);
   };

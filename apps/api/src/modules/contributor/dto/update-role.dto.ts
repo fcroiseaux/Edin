@@ -11,6 +11,7 @@ export const updateRoleSchema = z.object({
     ROLES.WORKING_GROUP_LEAD,
     ROLES.ADMIN,
   ]),
+  reason: z.string().min(1, 'Reason is required').max(500),
 });
 
 export type UpdateRoleDto = z.infer<typeof updateRoleSchema>;

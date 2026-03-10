@@ -27,7 +27,7 @@ async function bootstrap() {
   app.use(helmet());
   app.use(cookieParser());
   app.enableCors({
-    origin: process.env.NODE_ENV === 'production' ? false : true,
+    origin: config.NODE_ENV === 'production' ? config.FRONTEND_URL : true,
     credentials: true,
   });
 

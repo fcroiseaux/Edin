@@ -1,6 +1,7 @@
 import { Test } from '@nestjs/testing';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CollaborationController } from './collaboration.controller.js';
+import { AuditService } from '../compliance/audit/audit.service.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { RedisService } from '../../common/redis/redis.service.js';
 import { DomainException } from '../../common/exceptions/domain.exception.js';
@@ -9,13 +10,13 @@ import { CaslAbilityFactory } from '../auth/casl/ability.factory.js';
 
 describe('CollaborationController', () => {
   let controller: CollaborationController;
+  let mockAuditService: { log: ReturnType<typeof vi.fn> };
   let prisma: {
     contributor: { findUnique: ReturnType<typeof vi.fn> };
     contributionCollaboration: {
       findUnique: ReturnType<typeof vi.fn>;
       update: ReturnType<typeof vi.fn>;
     };
-    auditLog: { create: ReturnType<typeof vi.fn> };
     $transaction: ReturnType<typeof vi.fn>;
   };
   let eventEmitter: { emit: ReturnType<typeof vi.fn> };
@@ -32,13 +33,13 @@ describe('CollaborationController', () => {
   const mockReq = { correlationId: 'corr-1' } as never;
 
   beforeEach(async () => {
+    mockAuditService = { log: vi.fn().mockResolvedValue(undefined) };
     prisma = {
       contributor: { findUnique: vi.fn() },
       contributionCollaboration: {
         findUnique: vi.fn(),
         update: vi.fn(),
       },
-      auditLog: { create: vi.fn() },
       $transaction: vi.fn(<T>(fn: (tx: typeof prisma) => T) => fn(prisma)),
     };
     eventEmitter = { emit: vi.fn() };
@@ -48,6 +49,7 @@ describe('CollaborationController', () => {
       controllers: [CollaborationController],
       providers: [
         { provide: PrismaService, useValue: prisma },
+        { provide: AuditService, useValue: mockAuditService },
         { provide: EventEmitter2, useValue: eventEmitter },
         { provide: RedisService, useValue: redisService },
         { provide: CaslAbilityFactory, useValue: {} },
@@ -75,7 +77,7 @@ describe('CollaborationController', () => {
         status: 'CONFIRMED',
         confirmedAt: new Date(),
       });
-      prisma.auditLog.create.mockResolvedValue({});
+
       redisService.publish.mockResolvedValue(undefined);
 
       const result = await controller.confirmCollaboration('collab-1', mockUser, mockReq);
@@ -147,7 +149,6 @@ describe('CollaborationController', () => {
         status: 'DISPUTED',
         disputeComment: 'I was not involved in this work at all',
       });
-      prisma.auditLog.create.mockResolvedValue({});
 
       const result = await controller.disputeCollaboration(
         'collab-1',

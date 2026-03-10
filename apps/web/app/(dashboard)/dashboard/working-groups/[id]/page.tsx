@@ -7,7 +7,7 @@ import { WorkingGroupDetail } from '../../../../../components/features/working-g
 function WorkingGroupDetailSkeleton() {
   return (
     <main className="min-h-screen bg-surface-base px-[var(--spacing-lg)] py-[var(--spacing-xl)]">
-      <div className="mx-auto max-w-4xl">
+      <div className="mx-auto max-w-[56rem]">
         <div className="skeleton h-[16px] w-[160px]" />
         <div className="mt-[var(--spacing-sm)] skeleton h-[36px] w-[300px]" />
         <div className="mt-[var(--spacing-xs)] flex gap-[var(--spacing-sm)]">

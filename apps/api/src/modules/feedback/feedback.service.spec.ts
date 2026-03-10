@@ -5,6 +5,9 @@ import { EventEmitter2, EventEmitterModule } from '@nestjs/event-emitter';
 import { FeedbackService } from './feedback.service.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { DomainException } from '../../common/exceptions/domain.exception.js';
+import { AuditService } from '../compliance/audit/audit.service.js';
+
+const mockAuditService = { log: vi.fn().mockResolvedValue(undefined) };
 
 const mockPrisma = {
   contribution: {
@@ -21,9 +24,6 @@ const mockPrisma = {
     update: vi.fn(),
     count: vi.fn(),
     groupBy: vi.fn(),
-  },
-  auditLog: {
-    create: vi.fn(),
   },
   $transaction: vi.fn((fn: (tx: typeof mockPrisma) => Promise<unknown>) => fn(mockPrisma)),
 };
@@ -45,6 +45,7 @@ describe('FeedbackService', () => {
         FeedbackService,
         { provide: PrismaService, useValue: mockPrisma },
         { provide: getQueueToken('feedback-assignment'), useValue: mockQueue },
+        { provide: AuditService, useValue: mockAuditService },
       ],
     }).compile();
 
@@ -75,7 +76,6 @@ describe('FeedbackService', () => {
         reviewerId: 'reviewer-2',
         status: 'ASSIGNED',
       });
-      mockPrisma.auditLog.create.mockResolvedValue({});
 
       const result = await service.assignReviewer('contrib-1', 'corr-1');
 
@@ -110,7 +110,6 @@ describe('FeedbackService', () => {
         reviewerId: 'reviewer-1',
         status: 'ASSIGNED',
       });
-      mockPrisma.auditLog.create.mockResolvedValue({});
 
       await service.assignReviewer('contrib-1', 'corr-1');
 
@@ -142,7 +141,6 @@ describe('FeedbackService', () => {
         reviewerId: 'reviewer-1',
         status: 'ASSIGNED',
       });
-      mockPrisma.auditLog.create.mockResolvedValue({});
 
       await service.assignReviewer('contrib-1', 'corr-1');
 
@@ -183,7 +181,6 @@ describe('FeedbackService', () => {
           status: 'ASSIGNED',
         }),
       );
-      mockPrisma.auditLog.create.mockResolvedValue({});
 
       const result = await service.assignReviewer('contrib-1', 'corr-1');
 
@@ -224,7 +221,6 @@ describe('FeedbackService', () => {
         reviewerId: 'reviewer-1',
         status: 'ASSIGNED',
       });
-      mockPrisma.auditLog.create.mockResolvedValue({});
 
       await service.assignReviewer('contrib-1', 'corr-1');
 
@@ -257,7 +253,6 @@ describe('FeedbackService', () => {
         reviewerId: 'reviewer-1',
         status: 'ASSIGNED',
       });
-      mockPrisma.auditLog.create.mockResolvedValue({});
 
       await service.assignReviewer('contrib-1', 'corr-1');
 
@@ -292,18 +287,18 @@ describe('FeedbackService', () => {
         reviewerId: 'reviewer-1',
         status: 'ASSIGNED',
       });
-      mockPrisma.auditLog.create.mockResolvedValue({});
 
       await service.assignReviewer('contrib-1', 'corr-1');
 
-      expect(mockPrisma.auditLog.create).toHaveBeenCalledWith({
-        data: expect.objectContaining({
+      expect(mockAuditService.log).toHaveBeenCalledWith(
+        expect.objectContaining({
           action: 'FEEDBACK_AUTO_ASSIGNED',
           entityType: 'PeerFeedback',
           entityId: 'pf-1',
           correlationId: 'corr-1',
         }),
-      });
+        expect.anything(),
+      );
     });
   });
 
@@ -331,7 +326,6 @@ describe('FeedbackService', () => {
         status: 'ASSIGNED',
         assignedBy: 'admin-1',
       });
-      mockPrisma.auditLog.create.mockResolvedValue({});
 
       const result = await service.adminAssignReviewer(
         'contrib-1',
@@ -365,17 +359,17 @@ describe('FeedbackService', () => {
         status: 'ASSIGNED',
         assignedBy: 'admin-1',
       });
-      mockPrisma.auditLog.create.mockResolvedValue({});
 
       await service.adminAssignReviewer('contrib-1', 'reviewer-1', 'admin-1', 'corr-1');
 
-      expect(mockPrisma.auditLog.create).toHaveBeenCalledWith({
-        data: expect.objectContaining({
+      expect(mockAuditService.log).toHaveBeenCalledWith(
+        expect.objectContaining({
           actorId: 'admin-1',
           action: 'FEEDBACK_ADMIN_ASSIGNED',
           entityType: 'PeerFeedback',
         }),
-      });
+        expect.anything(),
+      );
     });
   });
 
@@ -460,7 +454,6 @@ describe('FeedbackService', () => {
         status: 'COMPLETED',
         submittedAt: new Date(),
       });
-      mockPrisma.auditLog.create.mockResolvedValue({});
 
       const result = await service.submitFeedback('pf-1', validSubmission, 'reviewer-1', 'corr-1');
 
@@ -486,7 +479,6 @@ describe('FeedbackService', () => {
         ...mockFeedbackRecord,
         status: 'COMPLETED',
       });
-      mockPrisma.auditLog.create.mockResolvedValue({});
 
       await service.submitFeedback('pf-1', validSubmission, 'reviewer-1', 'corr-1');
 
@@ -513,19 +505,19 @@ describe('FeedbackService', () => {
         ...mockFeedbackRecord,
         status: 'COMPLETED',
       });
-      mockPrisma.auditLog.create.mockResolvedValue({});
 
       await service.submitFeedback('pf-1', validSubmission, 'reviewer-1', 'corr-1');
 
-      expect(mockPrisma.auditLog.create).toHaveBeenCalledWith({
-        data: expect.objectContaining({
+      expect(mockAuditService.log).toHaveBeenCalledWith(
+        expect.objectContaining({
           actorId: 'reviewer-1',
           action: 'FEEDBACK_SUBMITTED',
           entityType: 'PeerFeedback',
           entityId: 'pf-1',
           correlationId: 'corr-1',
         }),
-      });
+        expect.anything(),
+      );
     });
 
     it('rejects when feedback not found (404)', async () => {

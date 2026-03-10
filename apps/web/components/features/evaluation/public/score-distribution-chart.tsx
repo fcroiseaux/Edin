@@ -43,7 +43,7 @@ export function ScoreDistributionChart({ distribution }: ScoreDistributionChartP
               borderRadius: '8px',
               fontSize: '13px',
             }}
-            formatter={(value: number) => [`${value} evaluations`, 'Count']}
+            formatter={(value: number | undefined) => [`${value ?? 0} evaluations`, 'Count']}
           />
           <Bar dataKey="count" radius={[4, 4, 0, 0]} maxBarSize={48}>
             {distribution.map((entry, index) => (

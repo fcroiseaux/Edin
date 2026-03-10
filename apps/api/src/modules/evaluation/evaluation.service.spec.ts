@@ -7,6 +7,7 @@ import { EvaluationReviewService } from './services/evaluation-review.service.js
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { RedisService } from '../../common/redis/redis.service.js';
 import { DomainException } from '../../common/exceptions/domain.exception.js';
+import { AuditService } from '../compliance/audit/audit.service.js';
 
 const mockPrisma = {
   evaluation: {
@@ -18,9 +19,6 @@ const mockPrisma = {
   },
   contributor: {
     findUnique: vi.fn(),
-  },
-  auditLog: {
-    create: vi.fn(),
   },
   $transaction: vi.fn((fn: (tx: typeof mockPrisma) => Promise<unknown>) => fn(mockPrisma)),
 };
@@ -34,6 +32,8 @@ const mockRedis = {
 const mockQueue = {
   add: vi.fn(),
 };
+
+const mockAuditService = { log: vi.fn().mockResolvedValue(undefined) };
 
 const mockReviewService = {
   getAgreementRates: vi.fn().mockResolvedValue({
@@ -66,6 +66,7 @@ describe('EvaluationService', () => {
         { provide: RedisService, useValue: mockRedis },
         { provide: getQueueToken('evaluation-dispatch'), useValue: mockQueue },
         { provide: EvaluationReviewService, useValue: mockReviewService },
+        { provide: AuditService, useValue: mockAuditService },
       ],
     }).compile();
 
@@ -87,7 +88,6 @@ describe('EvaluationService', () => {
         id: 'eval-1',
         status: 'PENDING',
       });
-      mockPrisma.auditLog.create.mockResolvedValue({});
 
       await service.handleCommitIngested(payload);
 
@@ -155,6 +155,7 @@ describe('EvaluationService', () => {
           { provide: RedisService, useValue: mockRedis },
           { provide: getQueueToken('evaluation-dispatch'), useValue: mockQueue },
           { provide: EvaluationReviewService, useValue: mockReviewService },
+          { provide: AuditService, useValue: mockAuditService },
         ],
       }).compile();
 

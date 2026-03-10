@@ -90,4 +90,37 @@ export const REWARD_METHODOLOGY: RewardMethodology = {
         'value of institutional knowledge and community trust.',
     },
   ],
+
+  workedExamples: [
+    {
+      name: 'The Steady Gardener',
+      description:
+        'A contributor who maintains consistent, quality engagement over a full year. ' +
+        'Steady output compounds significantly through the scaling-law multiplier.',
+      monthlyContributions: 5,
+      avgQualityScore: 72,
+      months: 12,
+      domain: 'technology',
+    },
+    {
+      name: 'The Intensive Sprint',
+      description:
+        'A contributor who delivers a high volume of work over a short period. ' +
+        'Volume alone produces lower compounding because tenure drives the multiplier.',
+      monthlyContributions: 20,
+      avgQualityScore: 65,
+      months: 3,
+      domain: 'fintech',
+    },
+    {
+      name: 'The Quality Cultivator',
+      description:
+        'A contributor who focuses on fewer, exceptional contributions over two years. ' +
+        'High quality combined with long tenure maximizes the compounding effect.',
+      monthlyContributions: 3,
+      avgQualityScore: 92,
+      months: 24,
+      domain: 'impact',
+    },
+  ],
 };

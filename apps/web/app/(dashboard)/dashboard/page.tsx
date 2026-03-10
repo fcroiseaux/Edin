@@ -26,7 +26,7 @@ export default function DashboardPage() {
   if (isLoading) {
     return (
       <main className="min-h-screen bg-surface-base px-[var(--spacing-lg)] py-[var(--spacing-xl)]">
-        <div className="mx-auto max-w-4xl">
+        <div className="mx-auto max-w-[56rem]">
           <div className="skeleton h-[32px] w-[250px]" />
           <div className="mt-[var(--spacing-lg)] skeleton h-[140px] w-full rounded-[var(--radius-lg)]" />
         </div>
@@ -35,8 +35,8 @@ export default function DashboardPage() {
   }
 
   return (
-    <main className="min-h-screen bg-surface-base px-[var(--spacing-lg)] py-[var(--spacing-xl)]">
-      <div className="mx-auto max-w-4xl">
+    <main className="min-h-screen w-full bg-surface-base px-[var(--spacing-lg)] py-[var(--spacing-xl)]">
+      <div className="mx-auto max-w-[56rem]">
         <h1 className="font-serif text-[32px] leading-[1.25] font-bold text-brand-primary">
           Welcome to Edin
         </h1>

@@ -33,7 +33,7 @@ export function PublicProfileView({ profile }: PublicProfileViewProps) {
   });
 
   return (
-    <article className="mx-auto max-w-3xl">
+    <article className="mx-auto max-w-[48rem]">
       {/* Profile Header */}
       <div className="flex flex-col items-center gap-[var(--spacing-lg)] rounded-[var(--radius-lg)] border border-surface-border bg-surface-raised p-[var(--spacing-xl)] shadow-[var(--shadow-card)] md:flex-row md:items-start">
         {/* Avatar */}
@@ -152,7 +152,7 @@ export function PublicProfileView({ profile }: PublicProfileViewProps) {
 
 export function PublicProfileSkeleton() {
   return (
-    <div className="mx-auto max-w-3xl" role="status" aria-label="Loading profile">
+    <div className="mx-auto max-w-[48rem]" role="status" aria-label="Loading profile">
       {/* Header Skeleton */}
       <div className="flex flex-col items-center gap-[var(--spacing-lg)] rounded-[var(--radius-lg)] border border-surface-border bg-surface-raised p-[var(--spacing-xl)] shadow-[var(--shadow-card)] md:flex-row md:items-start">
         <div className="skeleton h-[120px] w-[120px] shrink-0 rounded-full" />

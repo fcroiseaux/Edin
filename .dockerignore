@@ -1,0 +1,13 @@
+node_modules
+.git
+.turbo
+coverage
+test-results
+playwright-report
+.env*
+.DS_Store
+.vscode
+.idea
+*.pem
+postgres-data
+redis-data

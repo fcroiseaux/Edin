@@ -6,11 +6,16 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '../../hooks/use-auth';
 
 const ADMIN_NAV_ITEMS = [
+  { href: '/admin', label: 'Dashboard', exact: true },
   { href: '/admin/admission', label: 'Admission' },
+  { href: '/admin/contributors', label: 'Contributors' },
   { href: '/admin/feedback', label: 'Feedback' },
   { href: '/admin/evaluations/models', label: 'Evaluations' },
   { href: '/admin/evaluations/review-queue', label: 'Review Queue' },
   { href: '/admin/publication/moderation', label: 'Moderation' },
+  { href: '/admin/audit-logs', label: 'Audit Logs' },
+  { href: '/admin/compliance', label: 'Compliance' },
+  { href: '/admin/reports', label: 'Reports' },
   { href: '/admin/settings', label: 'Settings' },
 ];
 
@@ -43,7 +48,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             Edin Admin
           </Link>
           {ADMIN_NAV_ITEMS.map((item) => {
-            const isActive = pathname.startsWith(item.href);
+            const isActive =
+              'exact' in item && item.exact
+                ? pathname === item.href
+                : pathname.startsWith(item.href);
             return (
               <Link
                 key={item.href}

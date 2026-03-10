@@ -18,6 +18,7 @@ export const appConfigSchema = z.object({
   INGESTION_WEBHOOK_BASE_URL: z.string().url().optional(),
   OTEL_SERVICE_NAME: z.string().default('edin-api'),
   OTEL_EXPORTER_OTLP_ENDPOINT: z.string().url().optional(),
+  PSEUDONYM_SALT: z.string().min(32).optional(),
 });
 
 export type AppConfig = z.infer<typeof appConfigSchema>;

@@ -61,6 +61,64 @@ export interface CreateFormulaVersionInput {
   metadata?: Record<string, unknown>;
 }
 
+// ─── Reward Trajectory Types (Story 9-2) ────────────────────────────────────
+
+export type TrajectoryTimeRange = '30d' | 'quarter' | 'year' | 'all';
+
+export interface TrajectoryPointDto {
+  date: string;
+  rawScore: number;
+  compoundingMultiplier: number;
+  compoundedScore: number;
+  contributionCount: number;
+  trend: ScoreTrend;
+  isProjected: boolean;
+}
+
+export interface TrajectorySummaryDto {
+  currentMultiplier: number;
+  tenureMonths: number;
+  overallTrend: ScoreTrend;
+  totalContributions: number;
+}
+
+export interface TrajectoryResponseDto {
+  points: TrajectoryPointDto[];
+  summary: TrajectorySummaryDto;
+  projected: TrajectoryPointDto[];
+}
+
+// ─── Reward Methodology Types (Story 9-3) ─────────────────────────────────
+
+export interface CalculatorInput {
+  monthlyContributions: number;
+  avgQualityScore: number;
+  months: number;
+  domain?: string;
+}
+
+export interface CalculatorProjectedPoint {
+  month: number;
+  rawScore: number;
+  compoundingMultiplier: number;
+  compoundedScore: number;
+  cumulativeRewardUnits: number;
+}
+
+export interface CalculatorResultSummary {
+  totalContributions: number;
+  finalMultiplier: number;
+  totalRewardUnits: number;
+  compoundingEffect: string;
+}
+
+export interface CalculatorResult {
+  projectedPoints: CalculatorProjectedPoint[];
+  summary: CalculatorResultSummary;
+}
+
+// ─── Reward Score Events ─────────────────────────────────────────────────────
+
 export interface RewardScoreCalculatedEvent {
   eventType: 'reward.score.calculated';
   timestamp: string;

@@ -1,21 +1,18 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { SettingsService } from './settings.service.js';
+import { AuditService } from '../compliance/audit/audit.service.js';
+
+const mockAuditService = { log: vi.fn().mockResolvedValue(undefined) };
 
 const mockPrisma = {
   platformSetting: {
     findUnique: vi.fn(),
     upsert: vi.fn(),
   },
-  auditLog: {
-    create: vi.fn(),
-  },
   $transaction: vi.fn((fn: (tx: unknown) => Promise<unknown>) =>
     fn({
       platformSetting: {
         upsert: mockPrisma.platformSetting.upsert,
-      },
-      auditLog: {
-        create: mockPrisma.auditLog.create,
       },
     }),
   ),
@@ -26,7 +23,7 @@ describe('SettingsService', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    service = new SettingsService(mockPrisma as never);
+    service = new SettingsService(mockPrisma as never, mockAuditService as unknown as AuditService);
   });
 
   describe('getSetting', () => {
@@ -85,18 +82,17 @@ describe('SettingsService', () => {
         updatedAt: new Date(),
         createdAt: new Date(),
       });
-      mockPrisma.auditLog.create.mockResolvedValue({});
-
       const result = await service.updateSetting('feedback.sla.hours', 72, 'admin-1', 'corr-1');
       expect(result.value).toBe(72);
-      expect(mockPrisma.auditLog.create).toHaveBeenCalledWith({
-        data: expect.objectContaining({
+      expect(mockAuditService.log).toHaveBeenCalledWith(
+        expect.objectContaining({
           action: 'SETTING_UPDATED',
           entityType: 'PlatformSetting',
           entityId: 'feedback.sla.hours',
           details: { key: 'feedback.sla.hours', oldValue: 48, newValue: 72 },
         }),
-      });
+        expect.anything(),
+      );
     });
 
     it('stores oldValue in audit details', async () => {
@@ -111,14 +107,13 @@ describe('SettingsService', () => {
         updatedAt: new Date(),
         createdAt: new Date(),
       });
-      mockPrisma.auditLog.create.mockResolvedValue({});
-
       await service.updateSetting('feedback.sla.hours', 24, 'admin-1');
-      expect(mockPrisma.auditLog.create).toHaveBeenCalledWith({
-        data: expect.objectContaining({
+      expect(mockAuditService.log).toHaveBeenCalledWith(
+        expect.objectContaining({
           details: expect.objectContaining({ oldValue: 48 }),
         }),
-      });
+        expect.anything(),
+      );
     });
   });
 });

@@ -145,7 +145,7 @@ export function WorkingGroupDetail({ group, isLoading }: WorkingGroupDetailProps
 
   return (
     <div className={`min-h-screen ${tint}`}>
-      <div className="mx-auto max-w-4xl px-[var(--spacing-lg)] py-[var(--spacing-xl)]">
+      <div className="mx-auto max-w-[56rem] px-[var(--spacing-lg)] py-[var(--spacing-xl)]">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div>

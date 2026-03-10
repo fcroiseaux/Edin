@@ -8,6 +8,7 @@ import type { Prisma } from '../../../generated/prisma/client/client.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { RedisService } from '../../common/redis/redis.service.js';
 import { DomainException } from '../../common/exceptions/domain.exception.js';
+import { AuditService } from '../compliance/audit/audit.service.js';
 import type { GithubProfile } from './strategies/github.strategy.js';
 
 interface TokenPair {
@@ -27,6 +28,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly redisService: RedisService,
     private readonly configService: ConfigService,
+    private readonly auditService: AuditService,
   ) {
     this.refreshTokenTtlSeconds = this.parseExpirationToSeconds(
       this.configService.get<string>('REFRESH_TOKEN_EXPIRATION', '30d'),
@@ -197,15 +199,13 @@ export class AuthService {
     correlationId?: string,
     actorId?: string,
   ): Promise<void> {
-    await this.prisma.auditLog.create({
-      data: {
-        actorId: actorId ?? null,
-        action,
-        entityType,
-        entityId,
-        details: details ?? undefined,
-        correlationId: correlationId ?? undefined,
-      },
+    await this.auditService.log({
+      actorId: actorId ?? null,
+      action,
+      entityType,
+      entityId,
+      details: details ?? undefined,
+      correlationId: correlationId ?? undefined,
     });
   }
 

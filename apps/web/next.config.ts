@@ -1,6 +1,7 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  output: 'standalone',
   transpilePackages: ['@edin/shared'],
   turbopack: {
     resolveExtensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],

@@ -20,6 +20,7 @@ import { Action } from '../../auth/casl/action.enum.js';
 import { createSuccessResponse } from '../../../common/types/api-response.type.js';
 import { DomainException } from '../../../common/exceptions/domain.exception.js';
 import { PrismaService } from '../../../prisma/prisma.service.js';
+import { AuditService } from '../../compliance/audit/audit.service.js';
 import { EvaluationRubricService } from '../services/evaluation-rubric.service.js';
 import { EvaluationReviewService } from '../services/evaluation-review.service.js';
 import { CurrentUser } from '../../../common/decorators/current-user.decorator.js';
@@ -34,6 +35,7 @@ export class EvaluationAdminController {
     private readonly prisma: PrismaService,
     private readonly rubricService: EvaluationRubricService,
     private readonly reviewService: EvaluationReviewService,
+    private readonly auditService: AuditService,
   ) {}
 
   // ─── Model Registry Endpoints ──────────────────────────────────────────────
@@ -175,8 +177,8 @@ export class EvaluationAdminController {
         },
       });
 
-      await tx.auditLog.create({
-        data: {
+      await this.auditService.log(
+        {
           actorId: user.id,
           action: 'EVALUATION_MODEL_REGISTERED',
           entityType: 'EvaluationModel',
@@ -188,7 +190,8 @@ export class EvaluationAdminController {
             provider: body.provider,
           },
         },
-      });
+        tx,
+      );
 
       return created;
     });
@@ -256,8 +259,8 @@ export class EvaluationAdminController {
         },
       });
 
-      await tx.auditLog.create({
-        data: {
+      await this.auditService.log(
+        {
           actorId: user.id,
           action: 'EVALUATION_MODEL_STATUS_CHANGED',
           entityType: 'EvaluationModel',
@@ -268,7 +271,8 @@ export class EvaluationAdminController {
             newStatus: body.status,
           },
         },
-      });
+        tx,
+      );
 
       return updated;
     });

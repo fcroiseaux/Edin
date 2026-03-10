@@ -9,6 +9,7 @@ import type {
   OnboardingMilestoneType,
 } from '../../../generated/prisma/client/client.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
+import { AuditService } from '../compliance/audit/audit.service.js';
 import { DomainException } from '../../common/exceptions/domain.exception.js';
 import type { CreateApplicationDto } from './dto/create-application.dto.js';
 import type { SubmitReviewDto } from './dto/submit-review.dto.js';
@@ -25,6 +26,7 @@ export class AdmissionService {
 
   constructor(
     private readonly prisma: PrismaService,
+    private readonly auditService: AuditService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
@@ -71,8 +73,8 @@ export class AdmissionService {
           },
         });
 
-        await tx.auditLog.create({
-          data: {
+        await this.auditService.log(
+          {
             actorId: contributorId || null,
             action: 'admission.application.submitted',
             entityType: 'Application',
@@ -83,7 +85,8 @@ export class AdmissionService {
             },
             correlationId,
           },
-        });
+          tx,
+        );
 
         return created;
       });
@@ -356,8 +359,8 @@ export class AdmissionService {
         });
       }
 
-      await tx.auditLog.create({
-        data: {
+      await this.auditService.log(
+        {
           actorId: adminId,
           action: 'admission.reviewer.assigned',
           entityType: 'Application',
@@ -365,7 +368,8 @@ export class AdmissionService {
           details: { reviewerId: contributorId },
           correlationId,
         },
-      });
+        tx,
+      );
 
       return review;
     });
@@ -456,8 +460,8 @@ export class AdmissionService {
         },
       });
 
-      await tx.auditLog.create({
-        data: {
+      await this.auditService.log(
+        {
           actorId: reviewerId,
           action: 'admission.review.submitted',
           entityType: 'Application',
@@ -465,7 +469,8 @@ export class AdmissionService {
           details: { recommendation: dto.recommendation },
           correlationId,
         },
-      });
+        tx,
+      );
 
       return review;
     });
@@ -545,8 +550,8 @@ export class AdmissionService {
         });
       }
 
-      await tx.auditLog.create({
-        data: {
+      await this.auditService.log(
+        {
           actorId: adminId,
           action: 'admission.application.approved',
           entityType: 'Application',
@@ -557,7 +562,8 @@ export class AdmissionService {
           },
           correlationId,
         },
-      });
+        tx,
+      );
 
       return updated;
     });
@@ -622,8 +628,8 @@ export class AdmissionService {
         },
       });
 
-      await tx.auditLog.create({
-        data: {
+      await this.auditService.log(
+        {
           actorId: adminId,
           action: 'admission.application.declined',
           entityType: 'Application',
@@ -631,7 +637,8 @@ export class AdmissionService {
           details: { reason },
           correlationId,
         },
-      });
+        tx,
+      );
 
       return updated;
     });
@@ -683,15 +690,13 @@ export class AdmissionService {
       );
     }
 
-    await this.prisma.auditLog.create({
-      data: {
-        actorId: adminId,
-        action: 'admission.application.info.requested',
-        entityType: 'Application',
-        entityId: applicationId,
-        details: { reason },
-        correlationId,
-      },
+    await this.auditService.log({
+      actorId: adminId,
+      action: 'admission.application.info.requested',
+      entityType: 'Application',
+      entityId: applicationId,
+      details: { reason },
+      correlationId,
     });
 
     this.eventEmitter.emit('admission.application.info.requested', {
@@ -859,8 +864,8 @@ export class AdmissionService {
           },
         });
 
-        await tx.auditLog.create({
-          data: {
+        await this.auditService.log(
+          {
             actorId: adminId,
             action: 'admission.microtask.created',
             entityType: 'MicroTask',
@@ -872,7 +877,8 @@ export class AdmissionService {
             },
             correlationId,
           },
-        });
+          tx,
+        );
 
         return created;
       });
@@ -972,8 +978,8 @@ export class AdmissionService {
           data: updateData,
         });
 
-        await tx.auditLog.create({
-          data: {
+        await this.auditService.log(
+          {
             actorId: adminId,
             action: 'admission.microtask.updated',
             entityType: 'MicroTask',
@@ -983,7 +989,8 @@ export class AdmissionService {
             },
             correlationId,
           },
-        });
+          tx,
+        );
 
         return updated;
       });
@@ -1041,8 +1048,8 @@ export class AdmissionService {
         },
       });
 
-      await tx.auditLog.create({
-        data: {
+      await this.auditService.log(
+        {
           actorId: adminId,
           action: 'admission.microtask.deactivated',
           entityType: 'MicroTask',
@@ -1052,7 +1059,8 @@ export class AdmissionService {
           },
           correlationId,
         },
-      });
+        tx,
+      );
 
       return updated;
     });
@@ -1159,8 +1167,8 @@ export class AdmissionService {
         },
       });
 
-      await tx.auditLog.create({
-        data: {
+      await this.auditService.log(
+        {
           actorId: null,
           action: 'admission.buddy.assigned',
           entityType: 'BuddyAssignment',
@@ -1173,7 +1181,8 @@ export class AdmissionService {
           },
           correlationId,
         },
-      });
+        tx,
+      );
 
       return assignment;
     });
@@ -1259,8 +1268,8 @@ export class AdmissionService {
         },
       });
 
-      await tx.auditLog.create({
-        data: {
+      await this.auditService.log(
+        {
           actorId: adminId,
           action: 'admission.buddy.overridden',
           entityType: 'BuddyAssignment',
@@ -1273,7 +1282,8 @@ export class AdmissionService {
           },
           correlationId,
         },
-      });
+        tx,
+      );
 
       return newAssignment;
     });
@@ -1389,8 +1399,8 @@ export class AdmissionService {
         select: { id: true, buddyOptIn: true },
       });
 
-      await tx.auditLog.create({
-        data: {
+      await this.auditService.log(
+        {
           actorId: contributorId,
           action: 'admission.buddy.optin.changed',
           entityType: 'Contributor',
@@ -1398,7 +1408,8 @@ export class AdmissionService {
           details: { optIn },
           correlationId,
         },
-      });
+        tx,
+      );
 
       return updated;
     });
@@ -1548,34 +1559,30 @@ export class AdmissionService {
         });
 
         // Store notification intent in audit log
-        await this.prisma.auditLog.create({
-          data: {
-            actorId: null,
-            action: 'admission.buddy.assignment.skipped',
-            entityType: 'Application',
-            entityId: payload.applicationId,
-            details: {
-              contributorId: application.contributorId,
-              reason: 'no_eligible_buddies',
-            },
-            correlationId: payload.correlationId,
+        await this.auditService.log({
+          actorId: null,
+          action: 'admission.buddy.assignment.skipped',
+          entityType: 'Application',
+          entityId: payload.applicationId,
+          details: {
+            contributorId: application.contributorId,
+            reason: 'no_eligible_buddies',
           },
+          correlationId: payload.correlationId,
         });
       } else {
         // Store buddy notification payload for future delivery
-        await this.prisma.auditLog.create({
-          data: {
-            actorId: null,
-            action: 'admission.buddy.notification.pending',
-            entityType: 'BuddyAssignment',
-            entityId: assignment.id,
-            details: {
-              buddyId: assignment.buddyId,
-              contributorId: application.contributorId,
-              message: 'You have been paired with a new contributor',
-            },
-            correlationId: payload.correlationId,
+        await this.auditService.log({
+          actorId: null,
+          action: 'admission.buddy.notification.pending',
+          entityType: 'BuddyAssignment',
+          entityId: assignment.id,
+          details: {
+            buddyId: assignment.buddyId,
+            contributorId: application.contributorId,
+            message: 'You have been paired with a new contributor',
           },
+          correlationId: payload.correlationId,
         });
       }
     } catch (error) {
@@ -1612,8 +1619,8 @@ export class AdmissionService {
           },
         });
 
-        await tx.auditLog.create({
-          data: {
+        await this.auditService.log(
+          {
             actorId: contributorId,
             action: 'admission.onboarding.milestone.completed',
             entityType: 'OnboardingMilestone',
@@ -1621,10 +1628,11 @@ export class AdmissionService {
             details: {
               milestoneType,
               metadata: (metadata ?? null) as Prisma.InputJsonValue | null,
-            } as Prisma.InputJsonValue,
+            } as unknown,
             correlationId,
           },
-        });
+          tx,
+        );
 
         return record;
       });

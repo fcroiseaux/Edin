@@ -6,13 +6,14 @@ import { AuthService } from './auth.service.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { RedisService } from '../../common/redis/redis.service.js';
 import { DomainException } from '../../common/exceptions/domain.exception.js';
+import { AuditService } from '../compliance/audit/audit.service.js';
 
 describe('AuthService', () => {
   let service: AuthService;
   let prisma: {
     contributor: { findUnique: ReturnType<typeof vi.fn>; upsert: ReturnType<typeof vi.fn> };
-    auditLog: { create: ReturnType<typeof vi.fn> };
   };
+  let mockAuditService: { log: ReturnType<typeof vi.fn> };
   let jwtService: { signAsync: ReturnType<typeof vi.fn> };
   let redisService: {
     setRefreshToken: ReturnType<typeof vi.fn>;
@@ -40,9 +41,10 @@ describe('AuthService', () => {
         findUnique: vi.fn(),
         upsert: vi.fn(),
       },
-      auditLog: {
-        create: vi.fn(),
-      },
+    };
+
+    mockAuditService = {
+      log: vi.fn().mockResolvedValue(undefined),
     };
 
     jwtService = {
@@ -62,6 +64,7 @@ describe('AuthService', () => {
         { provide: PrismaService, useValue: prisma },
         { provide: JwtService, useValue: jwtService },
         { provide: RedisService, useValue: redisService },
+        { provide: AuditService, useValue: mockAuditService },
         {
           provide: ConfigService,
           useValue: {
@@ -93,7 +96,7 @@ describe('AuthService', () => {
     it('should create a new contributor on first login', async () => {
       prisma.contributor.findUnique.mockResolvedValueOnce(null);
       prisma.contributor.upsert.mockResolvedValueOnce(mockContributor);
-      prisma.auditLog.create.mockResolvedValueOnce({});
+      mockAuditService.log.mockResolvedValueOnce({});
 
       const result = await service.validateGithubUser(githubProfile, 'corr-123');
 
@@ -112,7 +115,7 @@ describe('AuthService', () => {
           name: 'Test User',
         }),
       });
-      expect(prisma.auditLog.create).toHaveBeenCalled();
+      expect(mockAuditService.log).toHaveBeenCalled();
     });
 
     it('should update existing contributor on subsequent login', async () => {
@@ -123,7 +126,7 @@ describe('AuthService', () => {
 
       expect(result.isNewUser).toBe(false);
       expect(result.contributor.id).toBe(mockContributor.id);
-      expect(prisma.auditLog.create).not.toHaveBeenCalled();
+      expect(mockAuditService.log).not.toHaveBeenCalled();
     });
   });
 
@@ -209,7 +212,7 @@ describe('AuthService', () => {
 
   describe('createAuditLog', () => {
     it('should create an audit log entry', async () => {
-      prisma.auditLog.create.mockResolvedValueOnce({});
+      mockAuditService.log.mockResolvedValueOnce({});
 
       await service.createAuditLog(
         'CREATED',
@@ -219,14 +222,14 @@ describe('AuthService', () => {
         'corr-444',
       );
 
-      expect(prisma.auditLog.create).toHaveBeenCalledWith({
-        data: expect.objectContaining({
+      expect(mockAuditService.log).toHaveBeenCalledWith(
+        expect.objectContaining({
           action: 'CREATED',
           entityType: 'contributor',
           entityId: mockContributor.id,
           correlationId: 'corr-444',
         }),
-      });
+      );
     });
   });
 });

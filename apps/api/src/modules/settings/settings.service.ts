@@ -1,11 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service.js';
+import { AuditService } from '../compliance/audit/audit.service.js';
 
 @Injectable()
 export class SettingsService {
   private readonly logger = new Logger(SettingsService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly auditService: AuditService,
+  ) {}
 
   async getSetting(key: string) {
     const setting = await this.prisma.platformSetting.findUnique({
@@ -45,16 +49,19 @@ export class SettingsService {
         create: { key, value: value as never, updatedBy: adminId },
       });
 
-      await tx.auditLog.create({
-        data: {
+      await this.auditService.log(
+        {
           actorId: adminId,
           action: 'SETTING_UPDATED',
           entityType: 'PlatformSetting',
           entityId: key,
+          previousState: { value: oldValue },
+          newState: { value },
           details: { key, oldValue, newValue: value },
           correlationId: correlationId ?? null,
         },
-      });
+        tx,
+      );
 
       return result;
     });

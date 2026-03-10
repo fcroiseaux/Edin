@@ -7,6 +7,7 @@ import { randomUUID } from 'crypto';
 import { HttpStatus } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { RedisService } from '../../common/redis/redis.service.js';
+import { AuditService } from '../compliance/audit/audit.service.js';
 import { DomainException } from '../../common/exceptions/domain.exception.js';
 import { ERROR_CODES, getNarrativePreview, scoreToLabel } from '@edin/shared';
 import type {
@@ -56,6 +57,7 @@ export class EvaluationService {
     @InjectQueue('evaluation-dispatch')
     private readonly dispatchQueue: Queue,
     private readonly reviewService: EvaluationReviewService,
+    private readonly auditService: AuditService,
   ) {}
 
   private isEnabled(): boolean {
@@ -131,8 +133,8 @@ export class EvaluationService {
         },
       });
 
-      await tx.auditLog.create({
-        data: {
+      await this.auditService.log(
+        {
           actorId: null,
           action: 'EVALUATION_DISPATCHED',
           entityType: 'Evaluation',
@@ -144,7 +146,8 @@ export class EvaluationService {
             contributionType,
           },
         },
-      });
+        tx,
+      );
     });
 
     await this.dispatchQueue.add(

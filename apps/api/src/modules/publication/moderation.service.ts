@@ -3,6 +3,7 @@ import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { InjectQueue } from '@nestjs/bullmq';
 import type { Queue } from 'bullmq';
 import { PrismaService } from '../../prisma/prisma.service.js';
+import { AuditService } from '../compliance/audit/audit.service.js';
 import { DomainException } from '../../common/exceptions/domain.exception.js';
 import { ERROR_CODES } from '@edin/shared';
 import type {
@@ -28,6 +29,7 @@ export class ModerationService {
 
   constructor(
     private readonly prisma: PrismaService,
+    private readonly auditService: AuditService,
     private readonly eventEmitter: EventEmitter2,
     @InjectQueue('plagiarism-check')
     private readonly plagiarismCheckQueue: Queue,
@@ -239,8 +241,8 @@ export class ModerationService {
         },
       });
 
-      await tx.auditLog.create({
-        data: {
+      await this.auditService.log(
+        {
           actorId: adminId,
           action: 'MODERATION_DISMISS',
           entityType: 'Article',
@@ -248,7 +250,8 @@ export class ModerationService {
           details: { reason, reportId: report.id },
           correlationId,
         },
-      });
+        tx,
+      );
 
       return result;
     });
@@ -326,8 +329,8 @@ export class ModerationService {
         data: { status: 'REVISION_REQUESTED' },
       });
 
-      await tx.auditLog.create({
-        data: {
+      await this.auditService.log(
+        {
           actorId: adminId,
           action: 'MODERATION_REQUEST_CORRECTIONS',
           entityType: 'Article',
@@ -335,7 +338,8 @@ export class ModerationService {
           details: { reason, reportId: report.id },
           correlationId,
         },
-      });
+        tx,
+      );
 
       return result;
     });
@@ -412,8 +416,8 @@ export class ModerationService {
         data: { status: 'ARCHIVED' },
       });
 
-      await tx.auditLog.create({
-        data: {
+      await this.auditService.log(
+        {
           actorId: adminId,
           action: 'MODERATION_REJECT',
           entityType: 'Article',
@@ -421,7 +425,8 @@ export class ModerationService {
           details: { reason, reportId: report.id },
           correlationId,
         },
-      });
+        tx,
+      );
 
       return result;
     });
@@ -496,8 +501,8 @@ export class ModerationService {
         data: { status: 'ARCHIVED' },
       });
 
-      await tx.auditLog.create({
-        data: {
+      await this.auditService.log(
+        {
           actorId: adminId,
           action: 'MODERATION_UNPUBLISH',
           entityType: 'Article',
@@ -505,7 +510,8 @@ export class ModerationService {
           details: { reason },
           correlationId,
         },
-      });
+        tx,
+      );
     });
 
     this.eventEmitter.emit('publication.article.moderated', {

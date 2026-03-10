@@ -10,6 +10,7 @@ import type { CurrentUserPayload } from '../../common/decorators/current-user.de
 import { Action } from '../auth/casl/action.enum.js';
 import { createSuccessResponse } from '../../common/types/api-response.type.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
+import { AuditService } from '../compliance/audit/audit.service.js';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { RedisService } from '../../common/redis/redis.service.js';
 import { disputeCollaborationSchema } from '@edin/shared';
@@ -30,6 +31,7 @@ export class CollaborationController {
 
   constructor(
     private readonly prisma: PrismaService,
+    private readonly auditService: AuditService,
     private readonly eventEmitter: EventEmitter2,
     private readonly redisService: RedisService,
   ) {}
@@ -99,8 +101,8 @@ export class CollaborationController {
         },
       });
 
-      await tx.auditLog.create({
-        data: {
+      await this.auditService.log(
+        {
           actorId: contributor.id,
           action: 'contribution.collaboration.confirmed',
           entityType: 'ContributionCollaboration',
@@ -108,7 +110,8 @@ export class CollaborationController {
           details: { contributionId: collaboration.contributionId },
           correlationId: req.correlationId,
         },
-      });
+        tx,
+      );
 
       return result;
     });
@@ -221,8 +224,8 @@ export class CollaborationController {
         },
       });
 
-      await tx.auditLog.create({
-        data: {
+      await this.auditService.log(
+        {
           actorId: contributor.id,
           action: 'contribution.collaboration.disputed',
           entityType: 'ContributionCollaboration',
@@ -233,7 +236,8 @@ export class CollaborationController {
           },
           correlationId: req.correlationId,
         },
-      });
+        tx,
+      );
 
       return result;
     });

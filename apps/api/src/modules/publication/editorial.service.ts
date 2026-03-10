@@ -300,7 +300,10 @@ export class EditorialService {
           editorId,
           decision: data.decision,
           overallAssessment: data.overallAssessment,
-          revisionRequests: revisionRequests.length > 0 ? revisionRequests : undefined,
+          revisionRequests:
+            revisionRequests.length > 0
+              ? (JSON.parse(JSON.stringify(revisionRequests)) as Record<string, unknown>[])
+              : undefined,
           articleVersion: article.version,
         },
       });

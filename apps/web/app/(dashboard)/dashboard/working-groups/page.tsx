@@ -37,7 +37,7 @@ export default function WorkingGroupsPage() {
   if (isLoading) {
     return (
       <main className="min-h-screen bg-surface-base px-[var(--spacing-lg)] py-[var(--spacing-xl)]">
-        <div className="mx-auto max-w-4xl">
+        <div className="mx-auto max-w-[56rem]">
           <div className="skeleton h-[32px] w-[250px]" />
           <div className="mt-[var(--spacing-xs)] skeleton h-[20px] w-[400px]" />
           <div className="mt-[var(--spacing-xl)]">
@@ -50,7 +50,7 @@ export default function WorkingGroupsPage() {
 
   return (
     <main className="min-h-screen bg-surface-base px-[var(--spacing-lg)] py-[var(--spacing-xl)]">
-      <div className="mx-auto max-w-4xl">
+      <div className="mx-auto max-w-[56rem]">
         <h1 className="font-serif text-[32px] leading-[1.25] font-bold text-brand-primary">
           Working Groups
         </h1>

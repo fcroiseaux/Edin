@@ -2,16 +2,19 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useAuth } from '../../../hooks/use-auth';
 
 const NAV_LINKS = [
   { href: '/articles', label: 'Publication' },
   { href: '/contributors', label: 'Contributors' },
   { href: '/about', label: 'About' },
+  { href: '/docs', label: 'Docs' },
   { href: '/apply', label: 'Apply' },
 ];
 
 export function PublicNav() {
   const pathname = usePathname();
+  const { user, isAuthenticated, isLoading, login, logout } = useAuth();
 
   return (
     <nav className="border-b border-surface-border bg-surface-raised" aria-label="Main navigation">
@@ -40,6 +43,31 @@ export function PublicNav() {
               </li>
             );
           })}
+          <li>
+            {isLoading ? null : isAuthenticated ? (
+              <div className="flex items-center gap-[var(--spacing-md)]">
+                <Link
+                  href="/dashboard"
+                  className="font-sans text-[14px] font-medium text-brand-secondary transition-colors duration-[var(--transition-fast)] hover:text-brand-primary"
+                >
+                  Dashboard
+                </Link>
+                <button
+                  onClick={logout}
+                  className="rounded-[var(--radius-md)] border border-surface-border px-[var(--spacing-md)] py-[var(--spacing-xs)] font-sans text-[14px] font-medium text-brand-secondary transition-colors duration-[var(--transition-fast)] hover:bg-surface-base hover:text-brand-primary"
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={login}
+                className="rounded-[var(--radius-md)] bg-brand-primary px-[var(--spacing-md)] py-[var(--spacing-xs)] font-sans text-[14px] font-medium text-surface-raised transition-colors duration-[var(--transition-fast)] hover:bg-brand-accent"
+              >
+                Login with GitHub
+              </button>
+            )}
+          </li>
         </ul>
       </div>
     </nav>

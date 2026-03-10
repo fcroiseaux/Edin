@@ -20,6 +20,7 @@ import type { CurrentUserPayload } from '../../common/decorators/current-user.de
 import { Action } from '../auth/casl/action.enum.js';
 import { createSuccessResponse } from '../../common/types/api-response.type.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
+import { AuditService } from '../compliance/audit/audit.service.js';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { RedisService } from '../../common/redis/redis.service.js';
 import { CollaborationDetectionService } from './services/collaboration-detection.service.js';
@@ -40,6 +41,7 @@ export class AdminContributionController {
 
   constructor(
     private readonly prisma: PrismaService,
+    private readonly auditService: AuditService,
     private readonly eventEmitter: EventEmitter2,
     private readonly redisService: RedisService,
     private readonly collaborationDetectionService: CollaborationDetectionService,
@@ -213,8 +215,8 @@ export class AdminContributionController {
         }
       }
 
-      await tx.auditLog.create({
-        data: {
+      await this.auditService.log(
+        {
           actorId: admin.id,
           action: 'contribution.attribution.overridden',
           entityType: 'ContributionCollaboration',
@@ -225,7 +227,8 @@ export class AdminContributionController {
           },
           correlationId: req.correlationId,
         },
-      });
+        tx,
+      );
 
       return results;
     });

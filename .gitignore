@@ -1,5 +1,8 @@
 # Dependencies
 node_modules/
+
+# Generated reports
+data/reports/
 .pnp
 .pnp.*
 

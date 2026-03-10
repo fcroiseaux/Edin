@@ -14,7 +14,7 @@ export default function ContributionsPage() {
 
   return (
     <main className="min-h-screen bg-surface-base px-[var(--spacing-lg)] py-[var(--spacing-xl)]">
-      <div className="mx-auto max-w-4xl">
+      <div className="mx-auto max-w-[56rem]">
         <h1 className="font-serif text-[32px] leading-[1.25] font-bold text-brand-primary">
           My Contributions
         </h1>

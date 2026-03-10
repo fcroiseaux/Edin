@@ -13,6 +13,7 @@ import type {
 } from '@edin/shared';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { DomainException } from '../../common/exceptions/domain.exception.js';
+import { AuditService } from '../compliance/audit/audit.service.js';
 import { Prisma } from '../../../generated/prisma/client/client.js';
 import type { ContributorDomain } from '../../../generated/prisma/client/client.js';
 
@@ -47,6 +48,7 @@ export class FeedbackService {
     private readonly prisma: PrismaService,
     private readonly eventEmitter: EventEmitter2,
     @InjectQueue('feedback-assignment') private readonly feedbackQueue: Queue,
+    private readonly auditService: AuditService,
   ) {}
 
   async assignReviewer(
@@ -94,8 +96,9 @@ export class FeedbackService {
         },
       });
 
-      await tx.auditLog.create({
-        data: {
+      await this.auditService.log(
+        {
+          actorId: null,
           action: 'FEEDBACK_AUTO_ASSIGNED',
           entityType: 'PeerFeedback',
           entityId: feedback.id,
@@ -106,7 +109,8 @@ export class FeedbackService {
           },
           correlationId: correlationId ?? null,
         },
-      });
+        tx,
+      );
 
       return feedback;
     });
@@ -168,8 +172,8 @@ export class FeedbackService {
         },
       });
 
-      await tx.auditLog.create({
-        data: {
+      await this.auditService.log(
+        {
           actorId: adminId,
           action: 'FEEDBACK_ADMIN_ASSIGNED',
           entityType: 'PeerFeedback',
@@ -181,7 +185,8 @@ export class FeedbackService {
           },
           correlationId: correlationId ?? null,
         },
-      });
+        tx,
+      );
 
       return feedback;
     });
@@ -378,8 +383,8 @@ export class FeedbackService {
         },
       });
 
-      await tx.auditLog.create({
-        data: {
+      await this.auditService.log(
+        {
           actorId: reviewerId,
           action: 'FEEDBACK_SUBMITTED',
           entityType: 'PeerFeedback',
@@ -392,7 +397,8 @@ export class FeedbackService {
           },
           correlationId: correlationId ?? null,
         },
-      });
+        tx,
+      );
 
       return result;
     });
@@ -972,8 +978,8 @@ export class FeedbackService {
           },
         });
 
-        await tx.auditLog.create({
-          data: {
+        await this.auditService.log(
+          {
             actorId: adminId,
             action: 'FEEDBACK_REASSIGNED',
             entityType: 'PeerFeedback',
@@ -987,7 +993,8 @@ export class FeedbackService {
             },
             correlationId: correlationId ?? null,
           },
-        });
+          tx,
+        );
 
         return { oldFeedbackId: feedbackId, newPeerFeedbackId: newFeedback.id, newReviewerId };
       });

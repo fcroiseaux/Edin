@@ -1,24 +1,34 @@
 FROM node:20-alpine AS base
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@10.30.2 --activate
 WORKDIR /app
 
-FROM base AS deps
-COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
-COPY apps/web/package.json ./apps/web/
-COPY packages/shared/package.json ./packages/shared/
-COPY packages/ui/package.json ./packages/ui/
-COPY packages/config/package.json ./packages/config/
-RUN pnpm install --frozen-lockfile
-
+# ── Build ─────────────────────────────────────────────────────────
 FROM base AS builder
-COPY --from=deps /app/node_modules ./node_modules
+
+# NEXT_PUBLIC_* vars must be present at build time (Next.js inlines them)
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
 COPY . .
+RUN pnpm install --frozen-lockfile
+RUN pnpm --filter @edin/shared build
+RUN pnpm --filter @edin/ui build
 RUN pnpm --filter web build
 
-FROM base AS runner
+# ── Production ────────────────────────────────────────────────────
+FROM node:20-alpine AS runner
+RUN apk add --no-cache dumb-init
+WORKDIR /app
 ENV NODE_ENV=production
+
+# Next.js standalone output (monorepo structure preserved)
 COPY --from=builder /app/apps/web/.next/standalone ./
-COPY --from=builder /app/apps/web/.next/static ./.next/static
-COPY --from=builder /app/apps/web/public ./public
+COPY --from=builder /app/apps/web/.next/static ./apps/web/.next/static
+COPY --from=builder /app/apps/web/public ./apps/web/public
+
 EXPOSE 3000
-CMD ["node", "server.js"]
+ENV HOSTNAME=0.0.0.0
+ENV PORT=3000
+
+WORKDIR /app/apps/web
+CMD ["dumb-init", "node", "server.js"]

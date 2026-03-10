@@ -4,6 +4,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import type { Job, Queue } from 'bullmq';
 import type { ContributionType } from '../../../../generated/prisma/client/enums.js';
 import { PrismaService } from '../../../prisma/prisma.service.js';
+import { AuditService } from '../../compliance/audit/audit.service.js';
 import { GitHubApiService } from '../github-api.service.js';
 
 export interface WebhookJobData {
@@ -87,6 +88,7 @@ export class WebhookProcessor extends WorkerHost {
   constructor(
     private readonly prisma: PrismaService,
     private readonly eventEmitter: EventEmitter2,
+    private readonly auditService: AuditService,
     private readonly githubApiService: GitHubApiService,
     @InjectQueue('github-ingestion-dlq')
     private readonly githubIngestionDlqQueue: Queue,
@@ -683,8 +685,9 @@ export class WebhookProcessor extends WorkerHost {
         });
       }
 
-      await tx.auditLog.create({
-        data: {
+      await this.auditService.log(
+        {
+          actorId: null,
           action: 'contribution.batch.ingested',
           entityType: 'Contribution',
           entityId: deliveryId,
@@ -694,7 +697,8 @@ export class WebhookProcessor extends WorkerHost {
           },
           correlationId: deliveryId,
         },
-      });
+        tx,
+      );
 
       await tx.webhookDelivery.update({
         where: { deliveryId },
@@ -807,6 +811,8 @@ export class WebhookProcessor extends WorkerHost {
         return 'pull_request';
       case 'CODE_REVIEW':
         return 'review';
+      default:
+        return type.toLowerCase();
     }
   }
 }

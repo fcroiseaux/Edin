@@ -4,8 +4,11 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { getQueueToken } from '@nestjs/bullmq';
 import { IngestionService } from './ingestion.service.js';
 import { GitHubApiService, GitHubApiError } from './github-api.service.js';
+import { AuditService } from '../compliance/audit/audit.service.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { DomainException } from '../../common/exceptions/domain.exception.js';
+
+const mockAuditService = { log: vi.fn().mockResolvedValue(undefined) };
 
 const mockPrisma = {
   monitoredRepository: {
@@ -15,9 +18,6 @@ const mockPrisma = {
     update: vi.fn(),
     delete: vi.fn(),
     count: vi.fn(),
-  },
-  auditLog: {
-    create: vi.fn(),
   },
   $transaction: vi.fn((callback: (tx: any) => unknown) => callback(mockPrisma)),
 };
@@ -58,6 +58,7 @@ describe('IngestionService', () => {
       providers: [
         IngestionService,
         { provide: PrismaService, useValue: mockPrisma },
+        { provide: AuditService, useValue: mockAuditService },
         { provide: EventEmitter2, useValue: mockEventEmitter },
         { provide: GitHubApiService, useValue: mockGitHubApiService },
         { provide: getQueueToken('github-ingestion'), useValue: mockQueue },
@@ -88,10 +89,9 @@ describe('IngestionService', () => {
       expect(result.fullName).toBe('edin-foundation/edin-core');
       expect(result.status).toBe('ACTIVE');
       expect(result.addedByName).toBe('Alice Admin');
-      expect(mockPrisma.auditLog.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({ action: 'ingestion.repository.added' }),
-        }),
+      expect(mockAuditService.log).toHaveBeenCalledWith(
+        expect.objectContaining({ action: 'ingestion.repository.added' }),
+        expect.anything(),
       );
       expect(mockEventEmitter.emit).toHaveBeenCalledWith(
         'ingestion.repository.added',
@@ -160,10 +160,9 @@ describe('IngestionService', () => {
         12345,
         'test-corr',
       );
-      expect(mockPrisma.auditLog.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({ action: 'ingestion.repository.removed' }),
-        }),
+      expect(mockAuditService.log).toHaveBeenCalledWith(
+        expect.objectContaining({ action: 'ingestion.repository.removed' }),
+        expect.anything(),
       );
       expect(mockEventEmitter.emit).toHaveBeenCalledWith(
         'ingestion.repository.removed',

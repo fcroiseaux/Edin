@@ -23,13 +23,13 @@ export function EvaluationMetricsSection({ initialData }: EvaluationMetricsSecti
 
   return (
     <section
-      className="mx-auto max-w-5xl px-[var(--spacing-lg)] py-[var(--spacing-2xl)]"
+      className="mx-auto max-w-[64rem] px-[var(--spacing-lg)] py-[var(--spacing-2xl)]"
       aria-label="Evaluation intelligence"
     >
       <h2 className="font-serif text-[clamp(1.5rem,3vw,2rem)] leading-[1.2] font-bold text-brand-primary">
         Evaluation Intelligence
       </h2>
-      <p className="mt-[var(--spacing-sm)] max-w-2xl font-sans text-[15px] leading-[1.65] text-brand-secondary">
+      <p className="mt-[var(--spacing-sm)] max-w-[42rem] font-sans text-[15px] leading-[1.65] text-brand-secondary">
         Every contribution is evaluated by AI for quality, rigor, and impact. Here is how the
         community performs across domains.
       </p>
@@ -108,7 +108,7 @@ export function EvaluationMetricsSection({ initialData }: EvaluationMetricsSecti
 function EvaluationMetricsSkeleton() {
   return (
     <section
-      className="mx-auto max-w-5xl px-[var(--spacing-lg)] py-[var(--spacing-2xl)]"
+      className="mx-auto max-w-[64rem] px-[var(--spacing-lg)] py-[var(--spacing-2xl)]"
       role="status"
       aria-label="Loading evaluation metrics"
     >

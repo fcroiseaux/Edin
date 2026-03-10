@@ -6,11 +6,12 @@ export function AboutHero() {
     >
       <div className="mx-auto max-w-[1200px] text-center">
         <h1 className="font-serif text-[clamp(2rem,5vw,2.5rem)] leading-[1.2] font-bold text-brand-primary">
-          Our Domains
+          About Edin
         </h1>
-        <p className="mx-auto mt-[var(--spacing-lg)] max-w-[560px] font-sans text-[15px] leading-[1.5] font-normal text-brand-secondary">
-          Edin is built on four pillars of expertise. Each domain represents a critical dimension of
-          our platform — from the code that powers it to the governance that shapes its future.
+        <p className="mx-auto mt-[var(--spacing-lg)] max-w-[680px] font-sans text-[15px] leading-[1.6] font-normal text-brand-secondary">
+          Named after the Sumerian word for a fertile plain, Edin is a curated contributor platform
+          designed to organize, evaluate, and reward collaborative development within the Rose
+          decentralized finance ecosystem.
         </p>
       </div>
     </section>

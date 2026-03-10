@@ -3,6 +3,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ERROR_CODES } from '@edin/shared';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { DomainException } from '../../common/exceptions/domain.exception.js';
+import { AuditService } from '../compliance/audit/audit.service.js';
 
 @Injectable()
 export class WorkingGroupService {
@@ -11,6 +12,7 @@ export class WorkingGroupService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly eventEmitter: EventEmitter2,
+    private readonly auditService: AuditService,
   ) {}
 
   private async getRecentContributionCounts(contributorIds: string[], days = 30) {
@@ -208,8 +210,8 @@ export class WorkingGroupService {
           data: { memberCount: { increment: 1 } },
         });
 
-        await tx.auditLog.create({
-          data: {
+        await this.auditService.log(
+          {
             actorId: contributorId,
             action: 'working-group.member.joined',
             entityType: 'WorkingGroupMember',
@@ -217,7 +219,8 @@ export class WorkingGroupService {
             details: { workingGroupId, workingGroupName: workingGroup.name },
             correlationId,
           },
-        });
+          tx,
+        );
 
         return created;
       });
@@ -302,8 +305,8 @@ export class WorkingGroupService {
         data: { memberCount: { decrement: 1 } },
       });
 
-      await tx.auditLog.create({
-        data: {
+      await this.auditService.log(
+        {
           actorId: contributorId,
           action: 'working-group.member.left',
           entityType: 'WorkingGroupMember',
@@ -311,7 +314,8 @@ export class WorkingGroupService {
           details: { workingGroupId, workingGroupName: workingGroup.name },
           correlationId,
         },
-      });
+        tx,
+      );
     });
 
     this.eventEmitter.emit('working-group.member.left', {
@@ -472,20 +476,25 @@ export class WorkingGroupService {
         .filter((contributorId) => contributorId !== authorId);
 
       if (recipients.length > 0) {
-        await tx.auditLog.createMany({
-          data: recipients.map((recipientId) => ({
-            actorId: authorId,
-            action: 'working-group.announcement.notification.pending',
-            entityType: 'Announcement',
-            entityId: created.id,
-            details: {
-              recipientId,
-              workingGroupId,
-              message: content,
-            },
-            correlationId,
-          })),
-        });
+        await Promise.all(
+          recipients.map((recipientId) =>
+            this.auditService.log(
+              {
+                actorId: authorId,
+                action: 'working-group.announcement.notification.pending',
+                entityType: 'Announcement',
+                entityId: created.id,
+                details: {
+                  recipientId,
+                  workingGroupId,
+                  message: content,
+                },
+                correlationId,
+              },
+              tx,
+            ),
+          ),
+        );
       }
 
       return created;

@@ -192,7 +192,7 @@ export class ActivityService {
         domain: data.domain as never,
         contributionType: data.contributionType ?? null,
         entityId: data.entityId,
-        metadata: data.metadata ?? null,
+        metadata: (data.metadata as undefined | Record<string, never>) ?? undefined,
       },
       include: {
         contributor: {
@@ -201,7 +201,9 @@ export class ActivityService {
       },
     });
 
-    const contributor = event.contributor as { id: string; name: string; avatarUrl: string | null };
+    const contributor = (
+      event as unknown as { contributor: { id: string; name: string; avatarUrl: string | null } }
+    ).contributor;
 
     const ssePayload = {
       type: 'activity.new' as const,
@@ -280,7 +282,7 @@ export class ActivityService {
     await this.createActivityEvent({
       eventType: 'CONTRIBUTION_NEW',
       title: `New ${typeLabel}: ${contribution.title}`,
-      description: contribution.description?.slice(0, 200) ?? null,
+      description: contribution.description?.slice(0, 200) ?? undefined,
       contributorId: payload.contributorId,
       domain: contributorData.domain ?? ('Technology' as ContributorDomain),
       contributionType,

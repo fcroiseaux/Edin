@@ -7,6 +7,7 @@ import { PrismaService } from '../../../prisma/prisma.service.js';
 import { RedisService } from '../../../common/redis/redis.service.js';
 import { EvaluationModelRegistry } from '../models/evaluation-model.registry.js';
 import { EVALUATION_PROVIDER } from '../providers/evaluation-provider.interface.js';
+import { AuditService } from '../../compliance/audit/audit.service.js';
 import type { Job } from 'bullmq';
 import type { CodeEvaluationJobData } from './code-evaluation.processor.js';
 
@@ -16,9 +17,6 @@ const mockPrisma = {
   },
   evaluation: {
     update: vi.fn(),
-  },
-  auditLog: {
-    create: vi.fn(),
   },
   $transaction: vi.fn((fn: (tx: typeof mockPrisma) => Promise<unknown>) => fn(mockPrisma)),
 };
@@ -36,6 +34,8 @@ const mockModelRegistry = {
 const mockEvaluationProvider = {
   evaluateCode: vi.fn(),
 };
+
+const mockAuditService = { log: vi.fn().mockResolvedValue(undefined) };
 
 function createJob(data: Partial<CodeEvaluationJobData> = {}): Job<CodeEvaluationJobData> {
   return {
@@ -110,6 +110,7 @@ describe('CodeEvaluationProcessor', () => {
         { provide: RedisService, useValue: mockRedis },
         { provide: EvaluationModelRegistry, useValue: mockModelRegistry },
         { provide: EVALUATION_PROVIDER, useValue: mockEvaluationProvider },
+        { provide: AuditService, useValue: mockAuditService },
         { provide: getQueueToken('code-evaluation'), useValue: {} },
       ],
     }).compile();
@@ -123,7 +124,6 @@ describe('CodeEvaluationProcessor', () => {
     mockModelRegistry.getActiveModel.mockResolvedValue(mockModel);
     mockEvaluationProvider.evaluateCode.mockResolvedValue(mockEvaluationResult);
     mockPrisma.evaluation.update.mockResolvedValue({});
-    mockPrisma.auditLog.create.mockResolvedValue({});
 
     await processor.process(createJob());
 
@@ -141,7 +141,6 @@ describe('CodeEvaluationProcessor', () => {
     mockModelRegistry.getActiveModel.mockResolvedValue(mockModel);
     mockEvaluationProvider.evaluateCode.mockResolvedValue(mockEvaluationResult);
     mockPrisma.evaluation.update.mockResolvedValue({});
-    mockPrisma.auditLog.create.mockResolvedValue({});
 
     await processor.process(createJob());
 
@@ -162,7 +161,6 @@ describe('CodeEvaluationProcessor', () => {
     mockModelRegistry.getActiveModel.mockResolvedValue(mockModel);
     mockEvaluationProvider.evaluateCode.mockResolvedValue(mockEvaluationResult);
     mockPrisma.evaluation.update.mockResolvedValue({});
-    mockPrisma.auditLog.create.mockResolvedValue({});
 
     await processor.process(createJob());
 
@@ -187,7 +185,6 @@ describe('CodeEvaluationProcessor', () => {
     mockModelRegistry.getActiveModel.mockResolvedValue(mockModel);
     mockEvaluationProvider.evaluateCode.mockResolvedValue(mockEvaluationResult);
     mockPrisma.evaluation.update.mockResolvedValue({});
-    mockPrisma.auditLog.create.mockResolvedValue({});
 
     const emitSpy = vi.spyOn(eventEmitter, 'emit');
 
@@ -214,7 +211,6 @@ describe('CodeEvaluationProcessor', () => {
     mockModelRegistry.getActiveModel.mockResolvedValue(mockModel);
     mockEvaluationProvider.evaluateCode.mockResolvedValue(mockEvaluationResult);
     mockPrisma.evaluation.update.mockResolvedValue({});
-    mockPrisma.auditLog.create.mockResolvedValue({});
 
     await processor.process(createJob());
 
@@ -263,7 +259,6 @@ describe('CodeEvaluationProcessor', () => {
     mockModelRegistry.getActiveModel.mockResolvedValue(mockModel);
     mockEvaluationProvider.evaluateCode.mockResolvedValue(mockEvaluationResult);
     mockPrisma.evaluation.update.mockResolvedValue({});
-    mockPrisma.auditLog.create.mockResolvedValue({});
 
     await processor.process(createJob());
 

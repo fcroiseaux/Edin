@@ -12,11 +12,11 @@ import type { NotificationCategory } from '@edin/shared';
 const DASHBOARD_NAV_ITEMS = [
   { href: '/dashboard', label: 'Overview' },
   { href: '/dashboard/contributions', label: 'Contributions' },
-  { href: '/dashboard/evaluations', label: 'Evaluations' },
+  { href: '/evaluations', label: 'Evaluations' },
   { href: '/dashboard/tasks', label: 'Tasks' },
   { href: '/dashboard/activity', label: 'Activity' },
   { href: '/dashboard/feedback', label: 'Feedback' },
-  { href: '/dashboard/publication', label: 'Publication' },
+  { href: '/publication', label: 'Publication' },
   { href: '/dashboard/working-groups', label: 'Working Groups' },
   { href: '/dashboard/profile', label: 'Profile' },
 ];
@@ -25,7 +25,7 @@ const HREF_TO_CATEGORY: Record<string, NotificationCategory> = {
   '/dashboard/working-groups': 'working-groups',
   '/dashboard/tasks': 'tasks',
   '/dashboard/feedback': 'feedback',
-  '/dashboard/evaluations': 'evaluations',
+  '/evaluations': 'evaluations',
 };
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -78,7 +78,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <ToastProvider>
       <div className="min-h-screen bg-surface-base lg:flex">
-        <aside className="border-b border-surface-border bg-brand-primary text-surface-raised lg:min-h-screen lg:w-[240px] lg:border-b-0 lg:border-r">
+        <aside className="shrink-0 border-b border-surface-border bg-brand-primary text-surface-raised lg:min-h-screen lg:w-[240px] lg:border-b-0 lg:border-r">
           <div className="px-[var(--spacing-lg)] py-[var(--spacing-xl)]">
             <p className="font-serif text-[24px] font-bold">Edin</p>
             <p className="mt-[var(--spacing-xs)] font-sans text-[13px] text-surface-raised/70">

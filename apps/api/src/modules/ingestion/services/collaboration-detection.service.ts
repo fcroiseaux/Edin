@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { PrismaService } from '../../../prisma/prisma.service.js';
+import { AuditService } from '../../compliance/audit/audit.service.js';
 import { RedisService } from '../../../common/redis/redis.service.js';
 import { GitHubApiService } from '../github-api.service.js';
 import type { ContributionIngestedEvent } from '@edin/shared';
@@ -21,6 +22,7 @@ export class CollaborationDetectionService {
 
   constructor(
     private readonly prisma: PrismaService,
+    private readonly auditService: AuditService,
     private readonly eventEmitter: EventEmitter2,
     private readonly redisService: RedisService,
     private readonly githubApiService: GitHubApiService,
@@ -199,7 +201,7 @@ export class CollaborationDetectionService {
     contributionId: string,
     primaryContributorId: string,
     detectedCollaborators: DetectedCollaborator[],
-    contributionType: 'COMMIT' | 'PULL_REQUEST' | 'CODE_REVIEW',
+    contributionType: 'COMMIT' | 'PULL_REQUEST' | 'CODE_REVIEW' | 'DOCUMENTATION',
     correlationId: string,
   ): Promise<void> {
     const totalParticipants = 1 + detectedCollaborators.length;
@@ -249,8 +251,9 @@ export class CollaborationDetectionService {
       }
 
       // Create audit log
-      await tx.auditLog.create({
-        data: {
+      await this.auditService.log(
+        {
+          actorId: null,
           action: 'contribution.collaboration.detected',
           entityType: 'ContributionCollaboration',
           entityId: contributionId,
@@ -264,7 +267,8 @@ export class CollaborationDetectionService {
           },
           correlationId,
         },
-      });
+        tx,
+      );
     });
 
     this.logger.log('Collaboration records created', {

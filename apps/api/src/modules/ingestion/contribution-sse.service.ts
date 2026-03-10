@@ -1,7 +1,7 @@
 import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import { Observable, Subject } from 'rxjs';
 import type { MessageEvent } from '@nestjs/common';
-import type Redis from 'ioredis';
+import type { Redis } from 'ioredis';
 import { RedisService } from '../../common/redis/redis.service.js';
 
 @Injectable()

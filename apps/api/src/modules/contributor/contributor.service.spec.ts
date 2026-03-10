@@ -1,8 +1,12 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Test } from '@nestjs/testing';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ContributorService } from './contributor.service.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { DomainException } from '../../common/exceptions/domain.exception.js';
+import { AuditService } from '../compliance/audit/audit.service.js';
+
+const mockAuditService = { log: vi.fn().mockResolvedValue(undefined) };
 
 const mockPrisma = {
   contributor: {
@@ -11,10 +15,11 @@ const mockPrisma = {
     update: vi.fn(),
     count: vi.fn(),
   },
-  auditLog: {
-    create: vi.fn(),
-  },
   $transaction: vi.fn((callback: (tx: any) => unknown) => callback(mockPrisma)),
+};
+
+const mockEventEmitter = {
+  emit: vi.fn(),
 };
 
 describe('ContributorService', () => {
@@ -45,6 +50,14 @@ describe('ContributorService', () => {
           provide: PrismaService,
           useValue: mockPrisma,
         },
+        {
+          provide: EventEmitter2,
+          useValue: mockEventEmitter,
+        },
+        {
+          provide: AuditService,
+          useValue: mockAuditService,
+        },
       ],
     }).compile();
 
@@ -56,11 +69,10 @@ describe('ContributorService', () => {
       const updatedContributor = { ...mockContributor, role: 'EDITOR' };
       mockPrisma.contributor.findUnique.mockResolvedValueOnce(mockContributor);
       mockPrisma.contributor.update.mockResolvedValueOnce(updatedContributor);
-      mockPrisma.auditLog.create.mockResolvedValueOnce({});
 
       const result = await service.updateRole(
         'contributor-uuid-1',
-        { role: 'EDITOR' },
+        { role: 'EDITOR', reason: 'Promoted for editorial contributions' },
         'admin-uuid-1',
         'correlation-id-1',
       );
@@ -70,8 +82,8 @@ describe('ContributorService', () => {
         where: { id: 'contributor-uuid-1' },
         data: { role: 'EDITOR' },
       });
-      expect(mockPrisma.auditLog.create).toHaveBeenCalledWith({
-        data: {
+      expect(mockAuditService.log).toHaveBeenCalledWith(
+        expect.objectContaining({
           actorId: 'admin-uuid-1',
           action: 'ROLE_CHANGED',
           entityType: 'contributor',
@@ -79,11 +91,25 @@ describe('ContributorService', () => {
           details: {
             oldRole: 'CONTRIBUTOR',
             newRole: 'EDITOR',
+            reason: 'Promoted for editorial contributions',
             actorId: 'admin-uuid-1',
           },
           correlationId: 'correlation-id-1',
-        },
-      });
+        }),
+      );
+      expect(mockEventEmitter.emit).toHaveBeenCalledWith(
+        'contributor.role.changed',
+        expect.objectContaining({
+          eventType: 'contributor.role.changed',
+          actorId: 'admin-uuid-1',
+          payload: {
+            contributorId: 'contributor-uuid-1',
+            oldRole: 'CONTRIBUTOR',
+            newRole: 'EDITOR',
+            reason: 'Promoted for editorial contributions',
+          },
+        }),
+      );
     });
 
     it('throws CONTRIBUTOR_NOT_FOUND when contributor does not exist', async () => {
@@ -91,7 +117,11 @@ describe('ContributorService', () => {
 
       let caughtError: DomainException | undefined;
       try {
-        await service.updateRole('nonexistent-uuid', { role: 'ADMIN' }, 'admin-uuid-1');
+        await service.updateRole(
+          'nonexistent-uuid',
+          { role: 'ADMIN', reason: 'test' },
+          'admin-uuid-1',
+        );
       } catch (e) {
         caughtError = e as DomainException;
       }
@@ -106,7 +136,11 @@ describe('ContributorService', () => {
 
       let caughtError: DomainException | undefined;
       try {
-        await service.updateRole('contributor-uuid-1', { role: 'CONTRIBUTOR' }, 'admin-uuid-1');
+        await service.updateRole(
+          'contributor-uuid-1',
+          { role: 'CONTRIBUTOR', reason: 'test' },
+          'admin-uuid-1',
+        );
       } catch (e) {
         caughtError = e as DomainException;
       }
@@ -123,24 +157,22 @@ describe('ContributorService', () => {
         ...adminContributor,
         role: 'CONTRIBUTOR',
       });
-      mockPrisma.auditLog.create.mockResolvedValueOnce({});
 
       await service.updateRole(
         'contributor-uuid-1',
-        { role: 'CONTRIBUTOR' },
+        { role: 'CONTRIBUTOR', reason: 'Demoted per policy' },
         'admin-uuid-2',
         'corr-2',
       );
 
-      expect(mockPrisma.auditLog.create).toHaveBeenCalledWith(
+      expect(mockAuditService.log).toHaveBeenCalledWith(
         expect.objectContaining({
-          data: expect.objectContaining({
-            details: {
-              oldRole: 'ADMIN',
-              newRole: 'CONTRIBUTOR',
-              actorId: 'admin-uuid-2',
-            },
-          }),
+          details: {
+            oldRole: 'ADMIN',
+            newRole: 'CONTRIBUTOR',
+            reason: 'Demoted per policy',
+            actorId: 'admin-uuid-2',
+          },
         }),
       );
     });
@@ -151,20 +183,17 @@ describe('ContributorService', () => {
         ...mockContributor,
         role: 'ADMIN',
       });
-      mockPrisma.auditLog.create.mockResolvedValueOnce({});
 
       await service.updateRole(
         'contributor-uuid-1',
-        { role: 'ADMIN' },
+        { role: 'ADMIN', reason: 'Elevated to admin' },
         'admin-uuid-1',
         'my-correlation-id',
       );
 
-      expect(mockPrisma.auditLog.create).toHaveBeenCalledWith(
+      expect(mockAuditService.log).toHaveBeenCalledWith(
         expect.objectContaining({
-          data: expect.objectContaining({
-            correlationId: 'my-correlation-id',
-          }),
+          correlationId: 'my-correlation-id',
         }),
       );
     });
@@ -177,7 +206,7 @@ describe('ContributorService', () => {
       try {
         await service.updateRole(
           'contributor-uuid-1',
-          { role: 'CONTRIBUTOR' },
+          { role: 'CONTRIBUTOR', reason: 'test' },
           'admin-uuid-1',
           'corr-perm-1',
         );
@@ -199,7 +228,7 @@ describe('ContributorService', () => {
       try {
         await service.updateRole(
           'contributor-uuid-1',
-          { role: 'FOUNDING_CONTRIBUTOR' },
+          { role: 'FOUNDING_CONTRIBUTOR', reason: 'test' },
           'admin-uuid-1',
         );
       } catch (e) {
@@ -217,7 +246,6 @@ describe('ContributorService', () => {
       const updatedContributor = { ...mockContributor, role: 'FOUNDING_CONTRIBUTOR' };
       mockPrisma.contributor.findUnique.mockResolvedValueOnce(mockContributor);
       mockPrisma.contributor.update.mockResolvedValueOnce(updatedContributor);
-      mockPrisma.auditLog.create.mockResolvedValueOnce({});
 
       const result = await service.designateFoundingContributor(
         'contributor-uuid-1',
@@ -231,8 +259,8 @@ describe('ContributorService', () => {
         where: { id: 'contributor-uuid-1' },
         data: { role: 'FOUNDING_CONTRIBUTOR' },
       });
-      expect(mockPrisma.auditLog.create).toHaveBeenCalledWith({
-        data: {
+      expect(mockAuditService.log).toHaveBeenCalledWith(
+        expect.objectContaining({
           actorId: 'admin-uuid-1',
           action: 'FOUNDING_DESIGNATED',
           entityType: 'contributor',
@@ -243,8 +271,9 @@ describe('ContributorService', () => {
             actorId: 'admin-uuid-1',
           },
           correlationId: 'corr-founding-1',
-        },
-      });
+        }),
+        expect.anything(),
+      );
     });
 
     it('throws CONTRIBUTOR_ALREADY_EXISTS when contributor is already founding', async () => {
@@ -266,7 +295,7 @@ describe('ContributorService', () => {
       expect(caughtError!.errorCode).toBe('CONTRIBUTOR_ALREADY_EXISTS');
       expect(caughtError!.getStatus()).toBe(409);
       expect(mockPrisma.contributor.update).not.toHaveBeenCalled();
-      expect(mockPrisma.auditLog.create).not.toHaveBeenCalled();
+      expect(mockAuditService.log).not.toHaveBeenCalled();
     });
 
     it('throws CONTRIBUTOR_NOT_FOUND when contributor does not exist', async () => {
@@ -504,7 +533,6 @@ describe('ContributorService', () => {
       const updatedContributor = { ...mockContributor, bio: 'Updated bio' };
       mockPrisma.contributor.findUnique.mockResolvedValueOnce(mockContributor);
       mockPrisma.contributor.update.mockResolvedValueOnce(updatedContributor);
-      mockPrisma.auditLog.create.mockResolvedValueOnce({});
 
       const result = await service.updateProfile(
         'contributor-uuid-1',
@@ -517,16 +545,16 @@ describe('ContributorService', () => {
         where: { id: 'contributor-uuid-1' },
         data: { bio: 'Updated bio' },
       });
-      expect(mockPrisma.auditLog.create).toHaveBeenCalledWith({
-        data: {
+      expect(mockAuditService.log).toHaveBeenCalledWith(
+        expect.objectContaining({
           actorId: 'contributor-uuid-1',
           action: 'PROFILE_UPDATED',
           entityType: 'contributor',
           entityId: 'contributor-uuid-1',
           details: { changedFields: ['bio'], actorId: 'contributor-uuid-1' },
           correlationId: 'corr-profile-1',
-        },
-      });
+        }),
+      );
     });
 
     it('updates multiple fields and audit log reflects all changed fields', async () => {
@@ -538,7 +566,6 @@ describe('ContributorService', () => {
       };
       mockPrisma.contributor.findUnique.mockResolvedValueOnce(mockContributor);
       mockPrisma.contributor.update.mockResolvedValueOnce(updatedContributor);
-      mockPrisma.auditLog.create.mockResolvedValueOnce({});
 
       const result = await service.updateProfile(
         'contributor-uuid-1',
@@ -548,14 +575,14 @@ describe('ContributorService', () => {
 
       expect(result.bio).toBe('New bio');
       expect(result.domain).toBe('Fintech');
-      expect(mockPrisma.auditLog.create).toHaveBeenCalledWith({
-        data: expect.objectContaining({
+      expect(mockAuditService.log).toHaveBeenCalledWith(
+        expect.objectContaining({
           details: {
             changedFields: ['bio', 'domain', 'skillAreas'],
             actorId: 'contributor-uuid-1',
           },
         }),
-      });
+      );
     });
 
     it('throws CONTRIBUTOR_NOT_FOUND when contributor does not exist', async () => {
@@ -576,7 +603,6 @@ describe('ContributorService', () => {
     it('sends only changed fields to Prisma update', async () => {
       mockPrisma.contributor.findUnique.mockResolvedValueOnce(mockContributor);
       mockPrisma.contributor.update.mockResolvedValueOnce(mockContributor);
-      mockPrisma.auditLog.create.mockResolvedValueOnce({});
 
       // Send same bio as current — should not appear in update data
       await service.updateProfile('contributor-uuid-1', {
@@ -605,7 +631,7 @@ describe('ContributorService', () => {
 
       expect(result).toEqual(mockContributor);
       expect(mockPrisma.contributor.update).not.toHaveBeenCalled();
-      expect(mockPrisma.auditLog.create).not.toHaveBeenCalled();
+      expect(mockAuditService.log).not.toHaveBeenCalled();
     });
   });
 

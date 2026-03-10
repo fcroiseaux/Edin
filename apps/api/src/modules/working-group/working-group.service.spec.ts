@@ -4,6 +4,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { WorkingGroupService } from './working-group.service.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { DomainException } from '../../common/exceptions/domain.exception.js';
+import { AuditService } from '../compliance/audit/audit.service.js';
 
 const mockWorkingGroup = {
   id: 'wg-1',
@@ -66,12 +67,9 @@ describe('WorkingGroupService', () => {
     task: {
       findMany: ReturnType<typeof vi.fn>;
     };
-    auditLog: {
-      create: ReturnType<typeof vi.fn>;
-      createMany: ReturnType<typeof vi.fn>;
-    };
     $transaction: ReturnType<typeof vi.fn>;
   };
+  let mockAuditService: { log: ReturnType<typeof vi.fn> };
   let eventEmitter: { emit: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
@@ -106,12 +104,9 @@ describe('WorkingGroupService', () => {
       task: {
         findMany: vi.fn(),
       },
-      auditLog: {
-        create: vi.fn(),
-        createMany: vi.fn(),
-      },
       $transaction: vi.fn(<T>(fn: (tx: typeof prisma) => T) => fn(prisma)),
     };
+    mockAuditService = { log: vi.fn().mockResolvedValue(undefined) };
     eventEmitter = { emit: vi.fn() };
 
     const module = await Test.createTestingModule({
@@ -119,6 +114,7 @@ describe('WorkingGroupService', () => {
         WorkingGroupService,
         { provide: PrismaService, useValue: prisma },
         { provide: EventEmitter2, useValue: eventEmitter },
+        { provide: AuditService, useValue: mockAuditService },
       ],
     }).compile();
 
@@ -221,7 +217,6 @@ describe('WorkingGroupService', () => {
       prisma.workingGroupMember.findUnique.mockResolvedValue(null);
       prisma.workingGroupMember.create.mockResolvedValue(mockMember);
       prisma.workingGroup.update.mockResolvedValue({ ...mockWorkingGroup, memberCount: 6 });
-      prisma.auditLog.create.mockResolvedValue({});
 
       const result = await service.joinGroup('wg-1', 'contributor-1', 'corr-1');
 
@@ -268,7 +263,6 @@ describe('WorkingGroupService', () => {
       prisma.workingGroupMember.findUnique.mockResolvedValue(mockMember);
       prisma.workingGroupMember.delete.mockResolvedValue(mockMember);
       prisma.workingGroup.update.mockResolvedValue({ ...mockWorkingGroup, memberCount: 4 });
-      prisma.auditLog.create.mockResolvedValue({});
 
       await service.leaveGroup('wg-1', 'contributor-1', 'corr-1');
 
@@ -403,7 +397,6 @@ describe('WorkingGroupService', () => {
       prisma.workingGroup.findUnique.mockResolvedValue(mockWorkingGroup);
       prisma.announcement.create.mockResolvedValue(mockAnnouncement);
       prisma.workingGroupMember.findMany.mockResolvedValue([{ contributorId: 'member-2' }]);
-      prisma.auditLog.createMany.mockResolvedValue({ count: 1 });
 
       const result = await service.createAnnouncement(
         'wg-1',
@@ -434,7 +427,7 @@ describe('WorkingGroupService', () => {
           }),
         }),
       );
-      expect(prisma.auditLog.createMany).toHaveBeenCalled();
+      expect(mockAuditService.log).toHaveBeenCalled();
     });
 
     it('throws ANNOUNCEMENT_TOO_LONG when content exceeds 500 characters', async () => {

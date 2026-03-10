@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Test } from '@nestjs/testing';
 import { EvaluationRubricService } from './evaluation-rubric.service.js';
 import { PrismaService } from '../../../prisma/prisma.service.js';
+import { AuditService } from '../../compliance/audit/audit.service.js';
 
 const mockPrisma = {
   evaluationRubric: {
@@ -10,11 +11,10 @@ const mockPrisma = {
     create: vi.fn(),
     updateMany: vi.fn(),
   },
-  auditLog: {
-    create: vi.fn(),
-  },
   $transaction: vi.fn((fn: (tx: typeof mockPrisma) => Promise<unknown>) => fn(mockPrisma)),
 };
+
+const mockAuditService = { log: vi.fn().mockResolvedValue(undefined) };
 
 describe('EvaluationRubricService', () => {
   let service: EvaluationRubricService;
@@ -23,7 +23,11 @@ describe('EvaluationRubricService', () => {
     vi.clearAllMocks();
 
     const module = await Test.createTestingModule({
-      providers: [EvaluationRubricService, { provide: PrismaService, useValue: mockPrisma }],
+      providers: [
+        EvaluationRubricService,
+        { provide: PrismaService, useValue: mockPrisma },
+        { provide: AuditService, useValue: mockAuditService },
+      ],
     }).compile();
 
     service = module.get(EvaluationRubricService);
@@ -161,8 +165,6 @@ describe('EvaluationRubricService', () => {
         isActive: true,
         createdAt: new Date('2026-03-09'),
       });
-      mockPrisma.auditLog.create.mockResolvedValue({});
-
       await service.createRubricVersion(
         {
           evaluationType: 'DOCUMENTATION',
@@ -172,15 +174,16 @@ describe('EvaluationRubricService', () => {
         { actorId: 'admin-1', correlationId: 'corr-1' },
       );
 
-      expect(mockPrisma.auditLog.create).toHaveBeenCalledWith({
-        data: expect.objectContaining({
+      expect(mockAuditService.log).toHaveBeenCalledWith(
+        expect.objectContaining({
           actorId: 'admin-1',
           action: 'EVALUATION_RUBRIC_CREATED',
           entityType: 'EvaluationRubric',
           entityId: 'rubric-audit',
           correlationId: 'corr-1',
         }),
-      });
+        expect.anything(),
+      );
     });
   });
 });

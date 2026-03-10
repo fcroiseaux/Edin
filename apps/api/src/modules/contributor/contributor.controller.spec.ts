@@ -47,7 +47,7 @@ describe('ContributorController', () => {
 
       const result = await controller.updateRole(
         'contributor-uuid-1',
-        { role: 'EDITOR' },
+        { role: 'EDITOR', reason: 'Promoted for editorial contributions' },
         'admin-uuid-1',
         { correlationId: 'corr-1' } as any,
       );
@@ -55,7 +55,7 @@ describe('ContributorController', () => {
       expect(result).toEqual(updatedContributor);
       expect(mockContributorService.updateRole).toHaveBeenCalledWith(
         'contributor-uuid-1',
-        { role: 'EDITOR' },
+        { role: 'EDITOR', reason: 'Promoted for editorial contributions' },
         'admin-uuid-1',
         'corr-1',
       );
@@ -66,7 +66,7 @@ describe('ContributorController', () => {
       try {
         await controller.updateRole(
           'contributor-uuid-1',
-          { role: 'INVALID_ROLE' },
+          { role: 'INVALID_ROLE', reason: 'test' },
           'admin-uuid-1',
           { correlationId: 'corr-1' } as any,
         );
@@ -87,15 +87,28 @@ describe('ContributorController', () => {
       ).rejects.toThrow(DomainException);
     });
 
+    it('throws VALIDATION_ERROR for missing reason', async () => {
+      await expect(
+        controller.updateRole('contributor-uuid-1', { role: 'ADMIN' }, 'admin-uuid-1', {
+          correlationId: 'corr-1',
+        } as any),
+      ).rejects.toThrow(DomainException);
+    });
+
     it('propagates CONTRIBUTOR_NOT_FOUND from service', async () => {
       mockContributorService.updateRole.mockRejectedValueOnce(
         new DomainException('CONTRIBUTOR_NOT_FOUND' as any, 'Contributor not found', 404),
       );
 
       await expect(
-        controller.updateRole('nonexistent-uuid', { role: 'ADMIN' }, 'admin-uuid-1', {
-          correlationId: 'corr-1',
-        } as any),
+        controller.updateRole(
+          'nonexistent-uuid',
+          { role: 'ADMIN', reason: 'test' },
+          'admin-uuid-1',
+          {
+            correlationId: 'corr-1',
+          } as any,
+        ),
       ).rejects.toThrow(DomainException);
     });
 

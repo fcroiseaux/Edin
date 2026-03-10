@@ -4,6 +4,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import type { Job } from 'bullmq';
 import { PrismaService } from '../../../prisma/prisma.service.js';
 import { RedisService } from '../../../common/redis/redis.service.js';
+import { AuditService } from '../../compliance/audit/audit.service.js';
 import { EvaluationModelRegistry } from '../models/evaluation-model.registry.js';
 import { EvaluationRubricService } from '../services/evaluation-rubric.service.js';
 import {
@@ -39,6 +40,7 @@ export class DocEvaluationProcessor extends WorkerHost {
     @Inject(EVALUATION_PROVIDER)
     private readonly evaluationProvider: EvaluationProvider,
     private readonly eventEmitter: EventEmitter2,
+    private readonly auditService: AuditService,
   ) {
     super();
   }
@@ -129,8 +131,8 @@ export class DocEvaluationProcessor extends WorkerHost {
           },
         });
 
-        await tx.auditLog.create({
-          data: {
+        await this.auditService.log(
+          {
             actorId: null,
             action: 'EVALUATION_COMPLETED',
             entityType: 'Evaluation',
@@ -145,7 +147,8 @@ export class DocEvaluationProcessor extends WorkerHost {
               evaluationType: 'DOCUMENTATION',
             },
           },
-        });
+          tx,
+        );
       });
 
       await this.redisService.set(

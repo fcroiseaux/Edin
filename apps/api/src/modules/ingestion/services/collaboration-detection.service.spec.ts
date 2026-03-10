@@ -1,6 +1,7 @@
 import { Test } from '@nestjs/testing';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CollaborationDetectionService } from './collaboration-detection.service.js';
+import { AuditService } from '../../compliance/audit/audit.service.js';
 import { PrismaService } from '../../../prisma/prisma.service.js';
 import { RedisService } from '../../../common/redis/redis.service.js';
 import { GitHubApiService } from '../github-api.service.js';
@@ -8,11 +9,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 describe('CollaborationDetectionService', () => {
   let service: CollaborationDetectionService;
+  let mockAuditService: { log: ReturnType<typeof vi.fn> };
   let prisma: {
     contribution: { findUnique: ReturnType<typeof vi.fn>; count: ReturnType<typeof vi.fn> };
     contributor: { findUnique: ReturnType<typeof vi.fn> };
     contributionCollaboration: { upsert: ReturnType<typeof vi.fn> };
-    auditLog: { create: ReturnType<typeof vi.fn> };
     $transaction: ReturnType<typeof vi.fn>;
   };
   let eventEmitter: { emit: ReturnType<typeof vi.fn> };
@@ -20,11 +21,11 @@ describe('CollaborationDetectionService', () => {
   let githubApiService: { getIssue: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
+    mockAuditService = { log: vi.fn().mockResolvedValue(undefined) };
     prisma = {
       contribution: { findUnique: vi.fn(), count: vi.fn() },
       contributor: { findUnique: vi.fn() },
       contributionCollaboration: { upsert: vi.fn() },
-      auditLog: { create: vi.fn() },
       $transaction: vi.fn(<T>(fn: (tx: typeof prisma) => T) => fn(prisma)),
     };
     eventEmitter = { emit: vi.fn() };
@@ -38,6 +39,7 @@ describe('CollaborationDetectionService', () => {
       providers: [
         CollaborationDetectionService,
         { provide: PrismaService, useValue: prisma },
+        { provide: AuditService, useValue: mockAuditService },
         { provide: EventEmitter2, useValue: eventEmitter },
         { provide: RedisService, useValue: redisService },
         { provide: GitHubApiService, useValue: githubApiService },
@@ -72,7 +74,7 @@ describe('CollaborationDetectionService', () => {
     );
 
     prisma.contributionCollaboration.upsert.mockResolvedValue({});
-    prisma.auditLog.create.mockResolvedValue({});
+
     redisService.publish.mockResolvedValue(undefined);
 
     await service.detectCollaborators('contrib-1', 'corr-1');
@@ -112,7 +114,7 @@ describe('CollaborationDetectionService', () => {
     );
 
     prisma.contributionCollaboration.upsert.mockResolvedValue({});
-    prisma.auditLog.create.mockResolvedValue({});
+
     redisService.publish.mockResolvedValue(undefined);
 
     await service.detectCollaborators('contrib-1', 'corr-1');
@@ -161,7 +163,7 @@ describe('CollaborationDetectionService', () => {
     );
 
     prisma.contributionCollaboration.upsert.mockResolvedValue({});
-    prisma.auditLog.create.mockResolvedValue({});
+
     redisService.publish.mockResolvedValue(undefined);
 
     await service.detectCollaborators('contrib-1', 'corr-1');
@@ -196,7 +198,7 @@ describe('CollaborationDetectionService', () => {
     );
 
     prisma.contributionCollaboration.upsert.mockResolvedValue({});
-    prisma.auditLog.create.mockResolvedValue({});
+
     redisService.publish.mockResolvedValue(undefined);
 
     await service.detectCollaborators('contrib-1', 'corr-1');
@@ -283,7 +285,7 @@ describe('CollaborationDetectionService', () => {
     );
 
     prisma.contributionCollaboration.upsert.mockResolvedValue({});
-    prisma.auditLog.create.mockResolvedValue({});
+
     redisService.publish.mockResolvedValue(undefined);
 
     await service.detectCollaborators('contrib-1', 'corr-1');
@@ -320,7 +322,7 @@ describe('CollaborationDetectionService', () => {
     );
 
     prisma.contributionCollaboration.upsert.mockResolvedValue({});
-    prisma.auditLog.create.mockResolvedValue({});
+
     redisService.publish.mockResolvedValue(undefined);
 
     await service.detectCollaborators('contrib-1', 'corr-1');

@@ -8,6 +8,7 @@ import { RedisService } from '../../../common/redis/redis.service.js';
 import { EvaluationModelRegistry } from '../models/evaluation-model.registry.js';
 import { EvaluationRubricService } from '../services/evaluation-rubric.service.js';
 import { EVALUATION_PROVIDER } from '../providers/evaluation-provider.interface.js';
+import { AuditService } from '../../compliance/audit/audit.service.js';
 import type { Job } from 'bullmq';
 import type { DocEvaluationJobData } from './doc-evaluation.processor.js';
 
@@ -17,9 +18,6 @@ const mockPrisma = {
   },
   evaluation: {
     update: vi.fn(),
-  },
-  auditLog: {
-    create: vi.fn(),
   },
   $transaction: vi.fn((fn: (tx: typeof mockPrisma) => Promise<unknown>) => fn(mockPrisma)),
 };
@@ -42,6 +40,8 @@ const mockEvaluationProvider = {
   evaluateCode: vi.fn(),
   evaluateDocumentation: vi.fn(),
 };
+
+const mockAuditService = { log: vi.fn().mockResolvedValue(undefined) };
 
 function createJob(data: Partial<DocEvaluationJobData> = {}): Job<DocEvaluationJobData> {
   return {
@@ -128,6 +128,7 @@ describe('DocEvaluationProcessor', () => {
         { provide: EvaluationModelRegistry, useValue: mockModelRegistry },
         { provide: EvaluationRubricService, useValue: mockRubricService },
         { provide: EVALUATION_PROVIDER, useValue: mockEvaluationProvider },
+        { provide: AuditService, useValue: mockAuditService },
         { provide: getQueueToken('doc-evaluation'), useValue: {} },
       ],
     }).compile();
@@ -142,7 +143,6 @@ describe('DocEvaluationProcessor', () => {
     mockRubricService.getActiveRubric.mockResolvedValue(mockRubric);
     mockEvaluationProvider.evaluateDocumentation.mockResolvedValue(mockDocEvaluationResult);
     mockPrisma.evaluation.update.mockResolvedValue({});
-    mockPrisma.auditLog.create.mockResolvedValue({});
 
     await processor.process(createJob());
 
@@ -162,7 +162,6 @@ describe('DocEvaluationProcessor', () => {
     mockRubricService.getActiveRubric.mockResolvedValue(mockRubric);
     mockEvaluationProvider.evaluateDocumentation.mockResolvedValue(mockDocEvaluationResult);
     mockPrisma.evaluation.update.mockResolvedValue({});
-    mockPrisma.auditLog.create.mockResolvedValue({});
 
     await processor.process(createJob());
 
@@ -184,7 +183,6 @@ describe('DocEvaluationProcessor', () => {
     mockRubricService.getActiveRubric.mockResolvedValue(mockRubric);
     mockEvaluationProvider.evaluateDocumentation.mockResolvedValue(mockDocEvaluationResult);
     mockPrisma.evaluation.update.mockResolvedValue({});
-    mockPrisma.auditLog.create.mockResolvedValue({});
 
     await processor.process(createJob());
 
@@ -207,7 +205,6 @@ describe('DocEvaluationProcessor', () => {
     mockRubricService.getActiveRubric.mockResolvedValue(mockRubric);
     mockEvaluationProvider.evaluateDocumentation.mockResolvedValue(mockDocEvaluationResult);
     mockPrisma.evaluation.update.mockResolvedValue({});
-    mockPrisma.auditLog.create.mockResolvedValue({});
 
     const emitSpy = vi.spyOn(eventEmitter, 'emit');
 
@@ -234,7 +231,6 @@ describe('DocEvaluationProcessor', () => {
     mockRubricService.getActiveRubric.mockResolvedValue(mockRubric);
     mockEvaluationProvider.evaluateDocumentation.mockResolvedValue(mockDocEvaluationResult);
     mockPrisma.evaluation.update.mockResolvedValue({});
-    mockPrisma.auditLog.create.mockResolvedValue({});
 
     await processor.process(createJob());
 
@@ -255,7 +251,6 @@ describe('DocEvaluationProcessor', () => {
     mockRubricService.getActiveRubric.mockResolvedValue(null);
     mockEvaluationProvider.evaluateDocumentation.mockResolvedValue(mockDocEvaluationResult);
     mockPrisma.evaluation.update.mockResolvedValue({});
-    mockPrisma.auditLog.create.mockResolvedValue({});
 
     await processor.process(createJob());
 

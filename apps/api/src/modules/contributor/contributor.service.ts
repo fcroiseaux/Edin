@@ -1,15 +1,21 @@
 import { Injectable, Logger, HttpStatus } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ERROR_CODES } from '@edin/shared';
-import type { UpdateContributorDto } from '@edin/shared';
+import type { UpdateContributorDto, RoleChangeEvent } from '@edin/shared';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { DomainException } from '../../common/exceptions/domain.exception.js';
+import { AuditService } from '../compliance/audit/audit.service.js';
 import type { UpdateRoleDto } from './dto/update-role.dto.js';
 
 @Injectable()
 export class ContributorService {
   private readonly logger = new Logger(ContributorService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly eventEmitter: EventEmitter2,
+    private readonly auditService: AuditService,
+  ) {}
 
   private readonly publicProfileSelect = {
     id: true,
@@ -225,15 +231,13 @@ export class ContributorService {
       data: updateData,
     });
 
-    await this.prisma.auditLog.create({
-      data: {
-        actorId: contributorId,
-        action: 'PROFILE_UPDATED',
-        entityType: 'contributor',
-        entityId: contributorId,
-        details: { changedFields, actorId: contributorId },
-        correlationId,
-      },
+    await this.auditService.log({
+      actorId: contributorId,
+      action: 'PROFILE_UPDATED',
+      entityType: 'contributor',
+      entityId: contributorId,
+      details: { changedFields, actorId: contributorId },
+      correlationId,
     });
 
     this.logger.log('Contributor profile updated', {
@@ -293,15 +297,16 @@ export class ContributorService {
       data: { role: dto.role },
     });
 
-    await this.prisma.auditLog.create({
-      data: {
-        actorId,
-        action: 'ROLE_CHANGED',
-        entityType: 'contributor',
-        entityId: contributorId,
-        details: { oldRole, newRole: dto.role, actorId },
-        correlationId,
-      },
+    await this.auditService.log({
+      actorId,
+      action: 'ROLE_CHANGED',
+      entityType: 'contributor',
+      entityId: contributorId,
+      previousState: { role: oldRole },
+      newState: { role: dto.role },
+      reason: dto.reason,
+      details: { oldRole, newRole: dto.role, reason: dto.reason, actorId },
+      correlationId,
     });
 
     this.logger.log('Contributor role updated', {
@@ -311,6 +316,20 @@ export class ContributorService {
       actorId,
       correlationId,
     });
+
+    const event: RoleChangeEvent = {
+      eventType: 'contributor.role.changed',
+      timestamp: new Date().toISOString(),
+      correlationId,
+      actorId,
+      payload: {
+        contributorId,
+        oldRole,
+        newRole: dto.role,
+        reason: dto.reason,
+      },
+    };
+    this.eventEmitter.emit('contributor.role.changed', event);
 
     return updated;
   }
@@ -349,16 +368,20 @@ export class ContributorService {
         data: { role: 'FOUNDING_CONTRIBUTOR' },
       });
 
-      await tx.auditLog.create({
-        data: {
+      await this.auditService.log(
+        {
           actorId,
           action: 'FOUNDING_DESIGNATED',
           entityType: 'contributor',
           entityId: contributorId,
+          previousState: { role: previousRole },
+          newState: { role: 'FOUNDING_CONTRIBUTOR' },
+          reason,
           details: { previousRole, reason, actorId },
           correlationId,
         },
-      });
+        tx,
+      );
 
       return designatedContributor;
     });

@@ -18,6 +18,7 @@ import type {
   EditorApplicationSubmittedEvent,
   EditorApplicationReviewedEvent,
   EditorRoleRevokedEvent,
+  RoleChangeEvent,
 } from '@edin/shared';
 
 export interface NotificationJobData {
@@ -761,6 +762,29 @@ export class NotificationService {
         module: 'notification',
         contributionId: payload.contributionId,
         correlationId: payload.correlationId,
+        error: message,
+      });
+    }
+  }
+
+  @OnEvent('contributor.role.changed')
+  async handleRoleChanged(event: RoleChangeEvent): Promise<void> {
+    try {
+      await this.enqueueNotification({
+        contributorId: event.payload.contributorId,
+        type: 'ROLE_CHANGED',
+        title: 'Your role has been updated',
+        description: `Your role has been changed from ${event.payload.oldRole} to ${event.payload.newRole}`,
+        entityId: event.payload.contributorId,
+        category: 'account',
+        correlationId: event.correlationId ?? '',
+      });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      this.logger.error('Failed to process role change notification', {
+        module: 'notification',
+        contributorId: event.payload.contributorId,
+        correlationId: event.correlationId,
         error: message,
       });
     }

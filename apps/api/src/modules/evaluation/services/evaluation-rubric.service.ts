@@ -1,11 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service.js';
+import { AuditService } from '../../compliance/audit/audit.service.js';
 
 @Injectable()
 export class EvaluationRubricService {
   private readonly logger = new Logger(EvaluationRubricService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly auditService: AuditService,
+  ) {}
 
   async getActiveRubric(evaluationType: string, documentType?: string) {
     const rubric = await this.prisma.evaluationRubric.findFirst({
@@ -71,15 +75,15 @@ export class EvaluationRubricService {
         data: {
           evaluationType: data.evaluationType,
           documentType: data.documentType ?? null,
-          parameters: data.parameters,
+          parameters: JSON.parse(JSON.stringify(data.parameters)) as Record<string, unknown>,
           version: data.version,
           isActive: true,
         },
       });
 
       if (audit) {
-        await tx.auditLog.create({
-          data: {
+        await this.auditService.log(
+          {
             actorId: audit.actorId,
             action: 'EVALUATION_RUBRIC_CREATED',
             entityType: 'EvaluationRubric',
@@ -90,7 +94,8 @@ export class EvaluationRubricService {
               version: data.version,
             },
           },
-        });
+          tx,
+        );
       }
 
       this.logger.log('New rubric version created', {

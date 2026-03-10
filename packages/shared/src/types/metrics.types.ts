@@ -32,9 +32,19 @@ export interface GlossaryTerm {
   definition: string;
 }
 
+export interface WorkedExample {
+  name: string;
+  description: string;
+  monthlyContributions: number;
+  avgQualityScore: number;
+  months: number;
+  domain: string;
+}
+
 export interface RewardMethodology {
   overview: string;
   scalingCurve: ScalingDataPoint[];
   formulaComponents: FormulaComponent[];
   glossary: GlossaryTerm[];
+  workedExamples: WorkedExample[];
 }

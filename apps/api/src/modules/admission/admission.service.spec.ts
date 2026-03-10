@@ -2,8 +2,11 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Test } from '@nestjs/testing';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { AdmissionService } from './admission.service.js';
+import { AuditService } from '../compliance/audit/audit.service.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { DomainException } from '../../common/exceptions/domain.exception.js';
+
+const mockAuditService = { log: vi.fn().mockResolvedValue(undefined) };
 
 const mockPrisma = {
   application: {
@@ -47,9 +50,6 @@ const mockPrisma = {
     findMany: vi.fn(),
   },
   consentRecord: {
-    create: vi.fn(),
-  },
-  auditLog: {
     create: vi.fn(),
   },
   $transaction: vi.fn((callback: (tx: any) => unknown) => callback(mockPrisma)),
@@ -109,6 +109,7 @@ describe('AdmissionService', () => {
       providers: [
         AdmissionService,
         { provide: PrismaService, useValue: mockPrisma },
+        { provide: AuditService, useValue: mockAuditService },
         { provide: EventEmitter2, useValue: mockEventEmitter },
       ],
     }).compile();
@@ -120,7 +121,7 @@ describe('AdmissionService', () => {
     it('creates application with audit log and consent record in transaction', async () => {
       mockPrisma.application.create.mockResolvedValueOnce(mockApplication);
       mockPrisma.consentRecord.create.mockResolvedValueOnce({});
-      mockPrisma.auditLog.create.mockResolvedValueOnce({});
+      mockAuditService.log.mockResolvedValueOnce(undefined);
 
       const result = await service.createApplication(validDto, 'corr-1');
 
@@ -141,7 +142,7 @@ describe('AdmissionService', () => {
     it('creates consent record within the transaction', async () => {
       mockPrisma.application.create.mockResolvedValueOnce(mockApplication);
       mockPrisma.consentRecord.create.mockResolvedValueOnce({});
-      mockPrisma.auditLog.create.mockResolvedValueOnce({});
+      mockAuditService.log.mockResolvedValueOnce(undefined);
 
       await service.createApplication(validDto, 'corr-2');
 
@@ -159,12 +160,12 @@ describe('AdmissionService', () => {
     it('creates audit log entry with correct action and correlationId', async () => {
       mockPrisma.application.create.mockResolvedValueOnce(mockApplication);
       mockPrisma.consentRecord.create.mockResolvedValueOnce({});
-      mockPrisma.auditLog.create.mockResolvedValueOnce({});
+      mockAuditService.log.mockResolvedValueOnce(undefined);
 
       await service.createApplication(validDto, 'corr-3');
 
-      expect(mockPrisma.auditLog.create).toHaveBeenCalledWith({
-        data: expect.objectContaining({
+      expect(mockAuditService.log).toHaveBeenCalledWith(
+        expect.objectContaining({
           action: 'admission.application.submitted',
           entityType: 'Application',
           entityId: 'app-uuid-1',
@@ -174,7 +175,8 @@ describe('AdmissionService', () => {
             hasContributorContext: false,
           },
         }),
-      });
+        expect.anything(),
+      );
     });
 
     it('throws APPLICATION_ALREADY_EXISTS when applicant email already exists', async () => {
@@ -198,7 +200,7 @@ describe('AdmissionService', () => {
     it('emits admission.application.submitted event after creation', async () => {
       mockPrisma.application.create.mockResolvedValueOnce(mockApplication);
       mockPrisma.consentRecord.create.mockResolvedValueOnce({});
-      mockPrisma.auditLog.create.mockResolvedValueOnce({});
+      mockAuditService.log.mockResolvedValueOnce(undefined);
 
       await service.createApplication(validDto, 'corr-4');
 
@@ -217,7 +219,7 @@ describe('AdmissionService', () => {
         microTaskSubmissionUrl: null,
       });
       mockPrisma.consentRecord.create.mockResolvedValueOnce({});
-      mockPrisma.auditLog.create.mockResolvedValueOnce({});
+      mockAuditService.log.mockResolvedValueOnce(undefined);
 
       await service.createApplication(dtoWithoutUrl, 'corr-5');
 
@@ -396,7 +398,7 @@ describe('AdmissionService', () => {
       });
       mockPrisma.applicationReview.create.mockResolvedValueOnce({ id: 'review-1' });
       mockPrisma.application.update.mockResolvedValueOnce({});
-      mockPrisma.auditLog.create.mockResolvedValueOnce({});
+      mockAuditService.log.mockResolvedValueOnce(undefined);
 
       const result = await service.assignReviewer(
         'app-uuid-1',
@@ -468,7 +470,7 @@ describe('AdmissionService', () => {
         recommendation: 'APPROVE',
         feedback: 'Great application',
       });
-      mockPrisma.auditLog.create.mockResolvedValueOnce({});
+      mockAuditService.log.mockResolvedValueOnce(undefined);
 
       const result = await service.submitReview(
         'app-uuid-1',
@@ -531,7 +533,7 @@ describe('AdmissionService', () => {
         status: 'APPROVED',
       });
       mockPrisma.contributor.update.mockResolvedValueOnce({});
-      mockPrisma.auditLog.create.mockResolvedValueOnce({});
+      mockAuditService.log.mockResolvedValueOnce(undefined);
 
       const result = await service.approveApplication(
         'app-uuid-1',
@@ -574,7 +576,7 @@ describe('AdmissionService', () => {
         status: 'DECLINED',
         declineReason: 'Insufficient experience',
       });
-      mockPrisma.auditLog.create.mockResolvedValueOnce({});
+      mockAuditService.log.mockResolvedValueOnce(undefined);
 
       const result = await service.declineApplication(
         'app-uuid-1',
@@ -608,7 +610,7 @@ describe('AdmissionService', () => {
         ...mockApplication,
         status: 'UNDER_REVIEW',
       });
-      mockPrisma.auditLog.create.mockResolvedValueOnce({});
+      mockAuditService.log.mockResolvedValueOnce(undefined);
 
       const result = await service.requestMoreInfo(
         'app-uuid-1',
@@ -618,12 +620,12 @@ describe('AdmissionService', () => {
       );
 
       expect(result.status).toBe('UNDER_REVIEW');
-      expect(mockPrisma.auditLog.create).toHaveBeenCalledWith({
-        data: expect.objectContaining({
+      expect(mockAuditService.log).toHaveBeenCalledWith(
+        expect.objectContaining({
           action: 'admission.application.info.requested',
           entityId: 'app-uuid-1',
         }),
-      });
+      );
       expect(mockEventEmitter.emit).toHaveBeenCalledWith(
         'admission.application.info.requested',
         expect.any(Object),
@@ -750,7 +752,7 @@ describe('AdmissionService', () => {
         ...createDto,
         isActive: true,
       });
-      mockPrisma.auditLog.create.mockResolvedValueOnce({});
+      mockAuditService.log.mockResolvedValueOnce(undefined);
 
       const result = await service.createMicroTask(createDto, 'admin-1', 'corr-create-mt');
 
@@ -759,12 +761,13 @@ describe('AdmissionService', () => {
         where: { id: 'old-active' },
         data: { isActive: false, deactivatedAt: expect.any(Date) },
       });
-      expect(mockPrisma.auditLog.create).toHaveBeenCalledWith({
-        data: expect.objectContaining({
+      expect(mockAuditService.log).toHaveBeenCalledWith(
+        expect.objectContaining({
           action: 'admission.microtask.created',
           entityType: 'MicroTask',
         }),
-      });
+        expect.anything(),
+      );
       expect(mockEventEmitter.emit).toHaveBeenCalledWith(
         'admission.microtask.created',
         expect.any(Object),
@@ -778,7 +781,7 @@ describe('AdmissionService', () => {
         ...createDto,
         isActive: true,
       });
-      mockPrisma.auditLog.create.mockResolvedValueOnce({});
+      mockAuditService.log.mockResolvedValueOnce(undefined);
 
       await service.createMicroTask(createDto, 'admin-1', 'corr-create-mt-new');
 
@@ -810,7 +813,7 @@ describe('AdmissionService', () => {
         id: 'mt-1',
         title: 'Updated Title',
       });
-      mockPrisma.auditLog.create.mockResolvedValueOnce({});
+      mockAuditService.log.mockResolvedValueOnce(undefined);
 
       const result = await service.updateMicroTask(
         'mt-1',
@@ -820,11 +823,12 @@ describe('AdmissionService', () => {
       );
 
       expect(result.title).toBe('Updated Title');
-      expect(mockPrisma.auditLog.create).toHaveBeenCalledWith({
-        data: expect.objectContaining({
+      expect(mockAuditService.log).toHaveBeenCalledWith(
+        expect.objectContaining({
           action: 'admission.microtask.updated',
         }),
-      });
+        expect.anything(),
+      );
       expect(mockEventEmitter.emit).toHaveBeenCalledWith(
         'admission.microtask.updated',
         expect.any(Object),
@@ -842,7 +846,7 @@ describe('AdmissionService', () => {
       mockPrisma.microTask.update
         .mockResolvedValueOnce({}) // deactivate current
         .mockResolvedValueOnce({ ...mockMicroTask, id: 'mt-inactive', isActive: true }); // activate target
-      mockPrisma.auditLog.create.mockResolvedValueOnce({});
+      mockAuditService.log.mockResolvedValueOnce(undefined);
 
       await service.updateMicroTask('mt-inactive', { isActive: true }, 'admin-1', 'corr-activate');
 
@@ -890,16 +894,17 @@ describe('AdmissionService', () => {
         id: 'mt-1',
         isActive: false,
       });
-      mockPrisma.auditLog.create.mockResolvedValueOnce({});
+      mockAuditService.log.mockResolvedValueOnce(undefined);
 
       const result = await service.deactivateMicroTask('mt-1', 'admin-1', 'corr-deact');
 
       expect(result.isActive).toBe(false);
-      expect(mockPrisma.auditLog.create).toHaveBeenCalledWith({
-        data: expect.objectContaining({
+      expect(mockAuditService.log).toHaveBeenCalledWith(
+        expect.objectContaining({
           action: 'admission.microtask.deactivated',
         }),
-      });
+        expect.anything(),
+      );
       expect(mockEventEmitter.emit).toHaveBeenCalledWith(
         'admission.microtask.deactivated',
         expect.any(Object),
@@ -989,7 +994,7 @@ describe('AdmissionService', () => {
       mockPrisma.buddyAssignment.findFirst.mockResolvedValueOnce(null);
       mockPrisma.contributor.findMany.mockResolvedValueOnce([mockBuddy]);
       mockPrisma.buddyAssignment.create.mockResolvedValueOnce(mockBuddyAssignment);
-      mockPrisma.auditLog.create.mockResolvedValueOnce({});
+      mockAuditService.log.mockResolvedValueOnce(undefined);
 
       const result = await service.assignBuddy('contrib-uuid-1', 'corr-1');
 
@@ -1050,7 +1055,7 @@ describe('AdmissionService', () => {
       mockPrisma.contributor.findUnique.mockResolvedValueOnce(newBuddy);
       mockPrisma.buddyAssignment.update.mockResolvedValueOnce({});
       mockPrisma.buddyAssignment.create.mockResolvedValueOnce(newAssignment);
-      mockPrisma.auditLog.create.mockResolvedValueOnce({});
+      mockAuditService.log.mockResolvedValueOnce(undefined);
 
       const result = await service.overrideBuddyAssignment(
         'assignment-uuid-1',
@@ -1137,7 +1142,7 @@ describe('AdmissionService', () => {
     it('updates buddy opt-in and creates audit log', async () => {
       const updatedContributor = { id: 'contrib-uuid-1', buddyOptIn: true };
       mockPrisma.contributor.update.mockResolvedValueOnce(updatedContributor);
-      mockPrisma.auditLog.create.mockResolvedValueOnce({});
+      mockAuditService.log.mockResolvedValueOnce(undefined);
 
       const result = await service.updateBuddyOptIn('contrib-uuid-1', true, 'corr-1');
 
@@ -1230,7 +1235,7 @@ describe('AdmissionService', () => {
       mockPrisma.buddyAssignment.findFirst.mockResolvedValueOnce(null);
       mockPrisma.contributor.findMany.mockResolvedValueOnce([mockBuddy]);
       mockPrisma.buddyAssignment.create.mockResolvedValueOnce(mockBuddyAssignment);
-      mockPrisma.auditLog.create.mockResolvedValue({});
+      mockAuditService.log.mockResolvedValue(undefined);
 
       await service.handleApplicationApproved({
         applicationId: 'app-uuid-1',
@@ -1248,7 +1253,7 @@ describe('AdmissionService', () => {
       mockPrisma.contributor.findUnique.mockResolvedValueOnce(mockContributor);
       mockPrisma.buddyAssignment.findFirst.mockResolvedValueOnce(null);
       mockPrisma.contributor.findMany.mockResolvedValueOnce([]);
-      mockPrisma.auditLog.create.mockResolvedValue({});
+      mockAuditService.log.mockResolvedValue(undefined);
 
       // Should not throw
       await service.handleApplicationApproved({
@@ -1258,11 +1263,9 @@ describe('AdmissionService', () => {
       });
 
       // Should log the skipped assignment
-      expect(mockPrisma.auditLog.create).toHaveBeenCalledWith(
+      expect(mockAuditService.log).toHaveBeenCalledWith(
         expect.objectContaining({
-          data: expect.objectContaining({
-            action: 'admission.buddy.assignment.skipped',
-          }),
+          action: 'admission.buddy.assignment.skipped',
         }),
       );
     });
@@ -1309,7 +1312,7 @@ describe('AdmissionService', () => {
       };
 
       mockPrisma.onboardingMilestone.create.mockResolvedValueOnce(mockMilestone);
-      mockPrisma.auditLog.create.mockResolvedValueOnce({});
+      mockAuditService.log.mockResolvedValueOnce(undefined);
 
       const result = await service.recordMilestone(
         'contributor-uuid-1',
@@ -1325,12 +1328,13 @@ describe('AdmissionService', () => {
           milestoneType: 'ACCOUNT_ACTIVATED',
         }),
       });
-      expect(mockPrisma.auditLog.create).toHaveBeenCalledWith({
-        data: expect.objectContaining({
+      expect(mockAuditService.log).toHaveBeenCalledWith(
+        expect.objectContaining({
           action: 'admission.onboarding.milestone.completed',
           entityType: 'OnboardingMilestone',
         }),
-      });
+        expect.anything(),
+      );
     });
 
     it('returns null for duplicate milestone (idempotent)', async () => {
@@ -1360,7 +1364,7 @@ describe('AdmissionService', () => {
       };
 
       mockPrisma.onboardingMilestone.create.mockResolvedValueOnce(mockMilestone);
-      mockPrisma.auditLog.create.mockResolvedValueOnce({});
+      mockAuditService.log.mockResolvedValueOnce(undefined);
 
       const result = await service.recordMilestone(
         'contributor-uuid-1',
@@ -1620,7 +1624,7 @@ describe('AdmissionService', () => {
         completedAt: new Date(),
         metadata: null,
       });
-      mockPrisma.auditLog.create.mockResolvedValueOnce({});
+      mockAuditService.log.mockResolvedValueOnce(undefined);
 
       await service.handleApprovedForOnboarding({
         applicationId: 'app-uuid-1',
@@ -1658,7 +1662,7 @@ describe('AdmissionService', () => {
         completedAt: new Date(),
         metadata: null,
       });
-      mockPrisma.auditLog.create.mockResolvedValueOnce({});
+      mockAuditService.log.mockResolvedValueOnce(undefined);
 
       await service.handleBuddyAssignedForOnboarding({
         contributorId: 'contributor-uuid-1',

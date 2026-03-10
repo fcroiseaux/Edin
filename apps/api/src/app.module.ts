@@ -22,6 +22,8 @@ import { FeedbackModule } from './modules/feedback/feedback.module.js';
 import { EvaluationModule } from './modules/evaluation/evaluation.module.js';
 import { PublicationModule } from './modules/publication/publication.module.js';
 import { RewardModule } from './modules/reward/reward.module.js';
+import { AdminModule } from './modules/admin/admin.module.js';
+import { ComplianceModule } from './modules/compliance/compliance.module.js';
 import { validateConfig } from './config/app.config.js';
 import type { AppConfig } from './config/app.config.js';
 
@@ -82,6 +84,7 @@ import type { AppConfig } from './config/app.config.js';
       },
     }),
     PrismaModule,
+    ComplianceModule,
     RedisModule,
     HealthModule,
     AuthModule,
@@ -97,6 +100,7 @@ import type { AppConfig } from './config/app.config.js';
     EvaluationModule,
     PublicationModule,
     RewardModule,
+    AdminModule,
   ],
 })
 export class AppModule {}

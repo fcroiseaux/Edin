@@ -4,6 +4,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { EvaluationReviewService } from './evaluation-review.service.js';
 import { PrismaService } from '../../../prisma/prisma.service.js';
 import { RedisService } from '../../../common/redis/redis.service.js';
+import { AuditService } from '../../compliance/audit/audit.service.js';
 
 const mockPrisma = {
   evaluation: {
@@ -16,9 +17,6 @@ const mockPrisma = {
     findMany: vi.fn(),
     count: vi.fn(),
     update: vi.fn(),
-  },
-  auditLog: {
-    create: vi.fn(),
   },
   contributor: {
     findMany: vi.fn(),
@@ -34,6 +32,8 @@ const mockEventEmitter = {
   emit: vi.fn(),
 };
 
+const mockAuditService = { log: vi.fn().mockResolvedValue(undefined) };
+
 describe('EvaluationReviewService', () => {
   let service: EvaluationReviewService;
 
@@ -46,6 +46,7 @@ describe('EvaluationReviewService', () => {
         { provide: PrismaService, useValue: mockPrisma },
         { provide: RedisService, useValue: mockRedis },
         { provide: EventEmitter2, useValue: mockEventEmitter },
+        { provide: AuditService, useValue: mockAuditService },
       ],
     }).compile();
 
@@ -79,7 +80,6 @@ describe('EvaluationReviewService', () => {
           'The complexity score does not reflect the actual complexity of the changes made',
         flaggedAt: new Date(),
       });
-      mockPrisma.auditLog.create.mockResolvedValue({});
 
       const result = await service.flagEvaluation(
         'eval-1',
@@ -159,7 +159,6 @@ describe('EvaluationReviewService', () => {
         reviewReason: 'AI assessment is accurate',
         resolvedAt: new Date(),
       });
-      mockPrisma.auditLog.create.mockResolvedValue({});
 
       const result = await service.resolveReview(
         'review-1',
@@ -187,7 +186,6 @@ describe('EvaluationReviewService', () => {
         reviewReason: 'Scores adjusted',
         resolvedAt: new Date(),
       });
-      mockPrisma.auditLog.create.mockResolvedValue({});
 
       const overrideScores = {
         compositeScore: 90,

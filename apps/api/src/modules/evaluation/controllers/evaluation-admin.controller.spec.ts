@@ -5,6 +5,7 @@ import { PrismaService } from '../../../prisma/prisma.service.js';
 import { EvaluationRubricService } from '../services/evaluation-rubric.service.js';
 import { EvaluationReviewService } from '../services/evaluation-review.service.js';
 import { CaslAbilityFactory } from '../../auth/casl/ability.factory.js';
+import { AuditService } from '../../compliance/audit/audit.service.js';
 import type { CurrentUserPayload } from '../../../common/decorators/current-user.decorator.js';
 
 const adminUser: CurrentUserPayload = {
@@ -25,9 +26,6 @@ const mockPrisma = {
     groupBy: vi.fn(),
     findMany: vi.fn(),
   },
-  auditLog: {
-    create: vi.fn(),
-  },
   $transaction: vi.fn((fn: (tx: typeof mockPrisma) => Promise<unknown>) => fn(mockPrisma)),
 };
 
@@ -35,6 +33,8 @@ const mockRubricService = {
   listRubrics: vi.fn(),
   createRubricVersion: vi.fn(),
 };
+
+const mockAuditService = { log: vi.fn().mockResolvedValue(undefined) };
 
 const mockReviewService = {
   getReviewQueue: vi.fn(),
@@ -56,6 +56,7 @@ describe('EvaluationAdminController', () => {
         { provide: EvaluationRubricService, useValue: mockRubricService },
         { provide: EvaluationReviewService, useValue: mockReviewService },
         { provide: CaslAbilityFactory, useValue: {} },
+        { provide: AuditService, useValue: mockAuditService },
       ],
     }).compile();
 
@@ -140,7 +141,6 @@ describe('EvaluationAdminController', () => {
         createdAt: new Date(),
       };
       mockPrisma.evaluationModel.create.mockResolvedValue(created);
-      mockPrisma.auditLog.create.mockResolvedValue({});
 
       const result = await controller.registerModel(
         { name: 'doc-evaluator', version: 'v1.0.0', provider: 'anthropic' },
@@ -177,7 +177,6 @@ describe('EvaluationAdminController', () => {
         parameters: {},
       };
       mockRubricService.createRubricVersion.mockResolvedValue(rubric);
-      mockPrisma.auditLog.create.mockResolvedValue({});
 
       const result = await controller.createRubric(
         {

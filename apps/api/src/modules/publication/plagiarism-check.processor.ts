@@ -92,7 +92,10 @@ export class PlagiarismCheckProcessor extends WorkerHost {
           aiContentScore,
           flagType,
           isFlagged,
-          flaggedPassages: allPassages.length > 0 ? allPassages : undefined,
+          flaggedPassages:
+            allPassages.length > 0
+              ? (JSON.parse(JSON.stringify(allPassages)) as Record<string, unknown>[])
+              : undefined,
           status: isFlagged ? 'FLAGGED' : 'CLEAN',
         },
       });

@@ -2,15 +2,18 @@ import { Test } from '@nestjs/testing';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { getQueueToken } from '@nestjs/bullmq';
 import { ModerationService } from './moderation.service.js';
+import { AuditService } from '../compliance/audit/audit.service.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 
 describe('ModerationService', () => {
   let service: ModerationService;
+  let mockAuditService: { log: ReturnType<typeof vi.fn> };
   let prisma: { [key: string]: { [key: string]: ReturnType<typeof vi.fn> } };
   let eventEmitter: { emit: ReturnType<typeof vi.fn> };
   let queue: { add: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
+    mockAuditService = { log: vi.fn().mockResolvedValue(undefined) };
     prisma = {
       article: {
         findUnique: vi.fn(),
@@ -22,9 +25,6 @@ describe('ModerationService', () => {
         findMany: vi.fn(),
         update: vi.fn(),
       },
-      auditLog: {
-        create: vi.fn(),
-      },
       $transaction: vi.fn((cb: (tx: typeof prisma) => Promise<unknown>) => cb(prisma)),
     };
 
@@ -35,6 +35,7 @@ describe('ModerationService', () => {
       providers: [
         ModerationService,
         { provide: PrismaService, useValue: prisma },
+        { provide: AuditService, useValue: mockAuditService },
         { provide: EventEmitter2, useValue: eventEmitter },
         { provide: getQueueToken('plagiarism-check'), useValue: queue },
       ],
@@ -181,7 +182,7 @@ describe('ModerationService', () => {
         flaggedPassages: null,
         createdAt: new Date(),
       });
-      prisma.auditLog.create.mockResolvedValue({});
+
       prisma.article.findUnique.mockResolvedValue({
         authorId: 'u1',
         domain: 'TECHNOLOGY',
@@ -228,7 +229,7 @@ describe('ModerationService', () => {
         createdAt: new Date(),
       });
       prisma.article.update.mockResolvedValue({});
-      prisma.auditLog.create.mockResolvedValue({});
+
       prisma.article.findUnique.mockResolvedValue({ authorId: 'u1' });
 
       const result = await service.adminRequestCorrections(
@@ -273,7 +274,7 @@ describe('ModerationService', () => {
         createdAt: new Date(),
       });
       prisma.article.update.mockResolvedValue({});
-      prisma.auditLog.create.mockResolvedValue({});
+
       prisma.article.findUnique.mockResolvedValue({ authorId: 'u1' });
 
       const result = await service.adminRejectArticle(
@@ -307,7 +308,6 @@ describe('ModerationService', () => {
         authorId: 'u1',
       });
       prisma.article.update.mockResolvedValue({});
-      prisma.auditLog.create.mockResolvedValue({});
 
       await service.adminUnpublishArticle('a1', 'admin1', 'Policy violation', 'corr-1');
 

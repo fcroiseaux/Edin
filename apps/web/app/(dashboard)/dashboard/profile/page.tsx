@@ -38,7 +38,7 @@ export default function ProfilePage() {
 
   return (
     <main className="min-h-screen bg-surface-base px-[var(--spacing-lg)] py-[var(--spacing-xl)]">
-      <div className="mx-auto max-w-2xl">
+      <div className="mx-auto max-w-[42rem]">
         <h1 className="font-serif text-[32px] leading-[1.25] font-bold text-brand-primary">
           Edit Profile
         </h1>

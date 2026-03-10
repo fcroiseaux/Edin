@@ -75,7 +75,11 @@ export class ModerationAdminController {
       parsed.data.limit,
     );
 
-    return createSuccessResponse(result.items, req.correlationId ?? '', result.pagination);
+    return createSuccessResponse(result.items, req.correlationId ?? '', {
+      cursor: result.pagination.cursor ?? null,
+      hasMore: result.pagination.hasMore,
+      total: result.items.length,
+    });
   }
 
   @Get(':articleId/report')

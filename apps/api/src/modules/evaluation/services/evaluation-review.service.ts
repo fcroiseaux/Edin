@@ -3,6 +3,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { randomUUID } from 'crypto';
 import { PrismaService } from '../../../prisma/prisma.service.js';
 import { RedisService } from '../../../common/redis/redis.service.js';
+import { AuditService } from '../../compliance/audit/audit.service.js';
 import { DomainException } from '../../../common/exceptions/domain.exception.js';
 import { ERROR_CODES } from '@edin/shared';
 import type { Prisma } from '../../../../generated/prisma/client/client.js';
@@ -23,6 +24,7 @@ export class EvaluationReviewService {
     private readonly prisma: PrismaService,
     private readonly redisService: RedisService,
     private readonly eventEmitter: EventEmitter2,
+    private readonly auditService: AuditService,
   ) {}
 
   async flagEvaluation(
@@ -93,8 +95,8 @@ export class EvaluationReviewService {
         },
       });
 
-      await tx.auditLog.create({
-        data: {
+      await this.auditService.log(
+        {
           actorId: contributorId,
           action: 'EVALUATION_REVIEW_FLAGGED',
           entityType: 'EvaluationReview',
@@ -105,7 +107,8 @@ export class EvaluationReviewService {
             flagReason,
           },
         },
-      });
+        tx,
+      );
 
       return created;
     });
@@ -367,8 +370,8 @@ export class EvaluationReviewService {
         data: updateData,
       });
 
-      await tx.auditLog.create({
-        data: {
+      await this.auditService.log(
+        {
           actorId: adminId,
           action: 'EVALUATION_REVIEW_RESOLVED',
           entityType: 'EvaluationReview',
@@ -383,7 +386,8 @@ export class EvaluationReviewService {
               : {}),
           },
         },
-      });
+        tx,
+      );
 
       return updated;
     });

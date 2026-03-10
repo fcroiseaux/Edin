@@ -1,6 +1,7 @@
 import { Test } from '@nestjs/testing';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { AdminContributionController } from './admin-contribution.controller.js';
+import { AuditService } from '../compliance/audit/audit.service.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { RedisService } from '../../common/redis/redis.service.js';
 import { DomainException } from '../../common/exceptions/domain.exception.js';
@@ -10,6 +11,7 @@ import { CollaborationDetectionService } from './services/collaboration-detectio
 
 describe('AdminContributionController', () => {
   let controller: AdminContributionController;
+  let mockAuditService: { log: ReturnType<typeof vi.fn> };
   let prisma: {
     contribution: { findUnique: ReturnType<typeof vi.fn> };
     contributor: { findUnique: ReturnType<typeof vi.fn> };
@@ -18,7 +20,6 @@ describe('AdminContributionController', () => {
       update: ReturnType<typeof vi.fn>;
       create: ReturnType<typeof vi.fn>;
     };
-    auditLog: { create: ReturnType<typeof vi.fn> };
     $transaction: ReturnType<typeof vi.fn>;
   };
   let eventEmitter: { emit: ReturnType<typeof vi.fn> };
@@ -40,6 +41,7 @@ describe('AdminContributionController', () => {
   const mockReq = { correlationId: 'corr-1' } as never;
 
   beforeEach(async () => {
+    mockAuditService = { log: vi.fn().mockResolvedValue(undefined) };
     prisma = {
       contribution: { findUnique: vi.fn() },
       contributor: { findUnique: vi.fn() },
@@ -48,7 +50,6 @@ describe('AdminContributionController', () => {
         update: vi.fn(),
         create: vi.fn(),
       },
-      auditLog: { create: vi.fn() },
       $transaction: vi.fn(<T>(fn: (tx: typeof prisma) => T) => fn(prisma)),
     };
     eventEmitter = { emit: vi.fn() };
@@ -59,6 +60,7 @@ describe('AdminContributionController', () => {
       controllers: [AdminContributionController],
       providers: [
         { provide: PrismaService, useValue: prisma },
+        { provide: AuditService, useValue: mockAuditService },
         { provide: EventEmitter2, useValue: eventEmitter },
         { provide: RedisService, useValue: redisService },
         { provide: CollaborationDetectionService, useValue: collaborationDetectionService },
@@ -104,7 +106,6 @@ describe('AdminContributionController', () => {
           status: 'OVERRIDDEN',
         });
 
-      prisma.auditLog.create.mockResolvedValue({});
       redisService.publish.mockResolvedValue(undefined);
       collaborationDetectionService.updateAttributionMetrics.mockResolvedValue(undefined);
 
@@ -183,7 +184,7 @@ describe('AdminContributionController', () => {
         splitPercentage: 100,
         status: 'OVERRIDDEN',
       });
-      prisma.auditLog.create.mockResolvedValue({});
+
       redisService.publish.mockResolvedValue(undefined);
       collaborationDetectionService.updateAttributionMetrics.mockResolvedValue(undefined);
 
@@ -196,12 +197,11 @@ describe('AdminContributionController', () => {
         mockReq,
       );
 
-      expect(prisma.auditLog.create).toHaveBeenCalledWith(
+      expect(mockAuditService.log).toHaveBeenCalledWith(
         expect.objectContaining({
-          data: expect.objectContaining({
-            action: 'contribution.attribution.overridden',
-          }),
+          action: 'contribution.attribution.overridden',
         }),
+        expect.anything(),
       );
     });
   });

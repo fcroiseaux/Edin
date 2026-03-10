@@ -60,6 +60,7 @@ export type {
   ScalingDataPoint,
   FormulaComponent,
   GlossaryTerm,
+  WorkedExample,
 } from './types/metrics.types.js';
 
 export { REWARD_METHODOLOGY } from './constants/reward-methodology.js';
@@ -506,7 +507,57 @@ export type {
   CreateFormulaVersionInput,
   RewardScoreCalculatedEvent,
   RewardScoreAggregatedEvent,
+  TrajectoryTimeRange,
+  TrajectoryPointDto,
+  TrajectorySummaryDto,
+  TrajectoryResponseDto,
+  CalculatorInput,
+  CalculatorProjectedPoint,
+  CalculatorResultSummary,
+  CalculatorResult,
 } from './types/scoring.types.js';
+
+export type {
+  DomainDistributionMetric,
+  RetentionCohort,
+  MetricTrendPoint,
+  MetricCard,
+  CommunityVitals,
+  KpiMetric,
+  HealthMetrics,
+  AlertType,
+  AlertSeverity,
+  SystemAlert,
+  ReportFormat,
+  ReportStatus,
+  ReportConfig,
+  GeneratedReport,
+  ContributorListItem,
+  ContributorListFilters,
+  ContributorListResponse,
+  SettingsSectionKey,
+  PlatformSettingsSection,
+  PlatformSettingsResponse,
+  RoleChangeEvent,
+  SettingsUpdatedEvent,
+  AuditLogEntry,
+  AuditLogFilters,
+  AuditLogListResponse,
+  AuditEventType,
+  DataExportRequestStatus,
+  DataExportRequestDto,
+  DataDeletionRequestStatus,
+  DataDeletionRequestDto,
+  ComplianceDocumentTypeValue,
+  ComplianceDocumentDto,
+  ComplianceDocumentDetailDto,
+  ComplianceDocumentListResponse,
+} from './types/admin.types.js';
+
+export { AUDIT_EVENT_TYPES } from './types/admin.types.js';
+
+export { KPI_DEFINITIONS } from './constants/kpi-definitions.js';
+export type { KpiDefinition } from './constants/kpi-definitions.js';
 
 export type {
   RepositoryStatus,

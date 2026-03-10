@@ -6,6 +6,7 @@ import { randomBytes, createHmac, timingSafeEqual } from 'crypto';
 import { ERROR_CODES } from '@edin/shared';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { DomainException } from '../../common/exceptions/domain.exception.js';
+import { AuditService } from '../compliance/audit/audit.service.js';
 import { GitHubApiService, GitHubApiError, GitHubRateLimitError } from './github-api.service.js';
 import type { AddRepositoryDto } from './dto/add-repository.dto.js';
 import type { ListRepositoriesQueryDto } from './dto/list-repositories-query.dto.js';
@@ -17,6 +18,7 @@ export class IngestionService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly eventEmitter: EventEmitter2,
+    private readonly auditService: AuditService,
     private readonly gitHubApiService: GitHubApiService,
     @InjectQueue('github-ingestion') private readonly githubIngestionQueue: Queue,
   ) {}
@@ -46,8 +48,8 @@ export class IngestionService {
           },
         });
 
-        await tx.auditLog.create({
-          data: {
+        await this.auditService.log(
+          {
             actorId: adminId,
             action: 'ingestion.repository.added',
             entityType: 'MonitoredRepository',
@@ -55,7 +57,8 @@ export class IngestionService {
             details: { owner: input.owner, repo: input.repo, fullName },
             correlationId,
           },
-        });
+          tx,
+        );
 
         return created;
       });
@@ -182,8 +185,8 @@ export class IngestionService {
 
     // Delete repository record and create audit log in transaction
     await this.prisma.$transaction(async (tx) => {
-      await tx.auditLog.create({
-        data: {
+      await this.auditService.log(
+        {
           actorId: adminId,
           action: 'ingestion.repository.removed',
           entityType: 'MonitoredRepository',
@@ -195,7 +198,8 @@ export class IngestionService {
           },
           correlationId,
         },
-      });
+        tx,
+      );
 
       await tx.monitoredRepository.delete({
         where: { id: repositoryId },
@@ -305,8 +309,8 @@ export class IngestionService {
           include: { addedBy: { select: { name: true } } },
         });
 
-        await tx.auditLog.create({
-          data: {
+        await this.auditService.log(
+          {
             actorId: adminId,
             action: 'ingestion.webhook.retried',
             entityType: 'MonitoredRepository',
@@ -320,7 +324,8 @@ export class IngestionService {
             },
             correlationId,
           },
-        });
+          tx,
+        );
 
         return repo;
       });
