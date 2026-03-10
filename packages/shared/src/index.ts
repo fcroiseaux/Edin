@@ -406,6 +406,7 @@ export {
   EDITORIAL_DECISIONS as EDITORIAL_DECISION_VALUES,
   articleDomainEnum,
   ARTICLE_DOMAINS,
+  publicArticleFilterSchema,
 } from './schemas/article.schema.js';
 export type {
   CreateArticleDto,
@@ -414,6 +415,7 @@ export type {
   EditorialFeedbackInput,
   InlineCommentInput,
   ResubmitArticleInput,
+  PublicArticleFilterDto,
 } from './schemas/article.schema.js';
 
 export {
@@ -463,6 +465,12 @@ export type {
   ArticleRevisionRequestedEvent,
   ArticleApprovedEvent,
   ArticlePublishedEvent,
+  PublicArticleAuthorDto,
+  PublicArticleEditorDto,
+  PublicArticleListItemDto,
+  PublicArticleDetailDto,
+  ArticleFilterParams,
+  SitemapArticleDto,
 } from './types/article.types.js';
 
 export type {

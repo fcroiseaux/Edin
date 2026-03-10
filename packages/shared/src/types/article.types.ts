@@ -144,3 +144,51 @@ export interface ArticlePublishedEvent {
   timestamp: string;
   correlationId: string;
 }
+
+// ─── Public Article Types ────────────────────────────────────────────────────
+
+export interface PublicArticleAuthorDto {
+  id: string;
+  name: string;
+  avatarUrl: string | null;
+  domain: string | null;
+  bio: string | null;
+}
+
+export interface PublicArticleEditorDto {
+  id: string;
+  name: string;
+  avatarUrl: string | null;
+  domain: string | null;
+}
+
+export interface PublicArticleListItemDto {
+  id: string;
+  title: string;
+  slug: string;
+  abstract: string;
+  domain: string;
+  publishedAt: string;
+  readingTimeMinutes: number;
+  author: PublicArticleAuthorDto;
+}
+
+export interface PublicArticleDetailDto extends PublicArticleListItemDto {
+  body: string;
+  editor: PublicArticleEditorDto | null;
+  evaluationScore: number | null;
+  evaluationNarrative: string | null;
+}
+
+export interface ArticleFilterParams {
+  domain?: string;
+  authorId?: string;
+  dateFrom?: string;
+  dateTo?: string;
+}
+
+export interface SitemapArticleDto {
+  slug: string;
+  publishedAt: string;
+  updatedAt: string;
+}

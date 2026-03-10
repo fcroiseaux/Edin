@@ -176,3 +176,98 @@ body {
     animation: none;
   }
 }
+
+/* ─── Article Prose — Editorial Typography ─────────────────────────── */
+.article-prose h2 {
+  font-family: var(--font-libre-baskerville), serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  color: var(--color-brand-primary);
+  line-height: 1.3;
+}
+
+.article-prose h3 {
+  font-family: var(--font-libre-baskerville), serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  color: var(--color-brand-primary);
+  line-height: 1.3;
+}
+
+.article-prose h4 {
+  font-family: var(--font-libre-baskerville), serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--color-brand-primary);
+}
+
+.article-prose p {
+  font-size: 17px;
+  line-height: 1.8;
+  margin-bottom: 1.25rem;
+  color: var(--color-brand-primary);
+}
+
+.article-prose blockquote {
+  border-left: 3px solid var(--color-brand-accent);
+  padding-left: 1.5rem;
+  font-style: italic;
+  color: var(--color-brand-secondary);
+  margin: 1.5rem 0;
+}
+
+.article-prose pre {
+  background: var(--color-surface-sunken);
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.article-prose code {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.9em;
+}
+
+.article-prose ul,
+.article-prose ol {
+  padding-left: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.article-prose li {
+  font-size: 17px;
+  line-height: 1.8;
+  margin-bottom: 0.25rem;
+  color: var(--color-brand-primary);
+}
+
+.article-prose a {
+  color: var(--color-brand-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.article-prose a:hover {
+  opacity: 0.8;
+}
+
+.article-prose img {
+  max-width: 100%;
+  border-radius: 8px;
+  margin: 1.5rem 0;
+}
+
+.article-prose hr {
+  border: none;
+  border-top: 1px solid var(--color-surface-border);
+  margin: 2rem 0;
+}

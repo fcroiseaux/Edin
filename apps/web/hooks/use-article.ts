@@ -14,6 +14,8 @@ import type {
   AuthorRevisionViewDto,
   ArticleVersionDto,
   EditorialFeedbackInput,
+  PublicArticleListItemDto,
+  PublicArticleDetailDto,
 } from '@edin/shared';
 
 // ─── Queries ──────────────────────────────────────────────────────────────────
@@ -269,4 +271,77 @@ export function useAllArticles(status?: string) {
   const articles = data?.pages.flatMap((page) => page.data) ?? [];
 
   return { articles, isPending, error, fetchNextPage, hasNextPage, isFetchingNextPage };
+}
+
+// ─── Public Article Queries ──────────────────────────────────────────────────
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
+interface PublicArticlesPageResponse {
+  data: PublicArticleListItemDto[];
+  meta: { timestamp: string; correlationId: string; pagination: PaginationMeta };
+}
+
+export function usePublicArticles(filters?: {
+  domain?: string;
+  initialData?: { articles: PublicArticleListItemDto[]; total: number };
+}) {
+  const { data, isPending, error, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useInfiniteQuery<PublicArticlesPageResponse>({
+      queryKey: ['articles', 'published', filters?.domain],
+      queryFn: async ({ pageParam }) => {
+        const params = new URLSearchParams({ limit: '20' });
+        if (filters?.domain) params.set('domain', filters.domain);
+        if (pageParam) params.set('cursor', pageParam as string);
+
+        const response = await fetch(
+          `${API_BASE_URL}/api/v1/articles/published?${params.toString()}`,
+        );
+        if (!response.ok) throw new Error(`Failed to fetch articles: ${response.status}`);
+        return response.json();
+      },
+      initialPageParam: undefined as string | undefined,
+      getNextPageParam: (lastPage) =>
+        lastPage.meta.pagination.hasMore ? lastPage.meta.pagination.cursor : undefined,
+      ...(filters?.initialData && filters.initialData.articles.length > 0
+        ? {
+            initialData: {
+              pages: [
+                {
+                  data: filters.initialData.articles,
+                  meta: {
+                    timestamp: new Date().toISOString(),
+                    correlationId: '',
+                    pagination: {
+                      cursor: null,
+                      hasMore: filters.initialData.total > filters.initialData.articles.length,
+                      total: filters.initialData.total,
+                    },
+                  },
+                },
+              ],
+              pageParams: [undefined],
+            },
+          }
+        : {}),
+    });
+
+  const articles = data?.pages.flatMap((page) => page.data) ?? [];
+
+  return { articles, isPending, error, fetchNextPage, hasNextPage, isFetchingNextPage };
+}
+
+export function usePublicArticle(slug: string | undefined) {
+  const { data, isLoading, error } = useQuery<PublicArticleDetailDto>({
+    queryKey: ['articles', 'published', slug],
+    enabled: !!slug,
+    queryFn: async () => {
+      const response = await fetch(`${API_BASE_URL}/api/v1/articles/published/${slug}`);
+      if (!response.ok) throw new Error(`Failed to fetch article: ${response.status}`);
+      const body: ApiSuccessResponse<PublicArticleDetailDto> = await response.json();
+      return body.data;
+    },
+  });
+
+  return { article: data ?? null, isLoading, error };
 }

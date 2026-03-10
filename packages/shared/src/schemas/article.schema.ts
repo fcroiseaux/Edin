@@ -83,6 +83,20 @@ export const resubmitArticleSchema = z.object({
   body: z.string().min(500, 'Article body must be at least 500 characters'),
 });
 
+/**
+ * Schema for public article listing query parameters.
+ */
+export const publicArticleFilterSchema = z.object({
+  domain: articleDomainEnum.optional(),
+  authorId: z.string().uuid().optional(),
+  dateFrom: z.string().datetime({ offset: true }).optional(),
+  dateTo: z.string().datetime({ offset: true }).optional(),
+  cursor: z.string().optional(),
+  limit: z.coerce.number().int().min(1).max(100).default(20).optional(),
+});
+
+export type PublicArticleFilterDto = z.infer<typeof publicArticleFilterSchema>;
+
 export type CreateArticleDto = z.infer<typeof createArticleSchema>;
 export type UpdateArticleDto = z.infer<typeof updateArticleSchema>;
 export type SubmitArticleValidation = z.infer<typeof submitArticleSchema>;

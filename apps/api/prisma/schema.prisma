@@ -700,6 +700,7 @@ model Article {
   @@index([authorId, status], map: "idx_articles_author_id_status")
   @@index([editorId, status], map: "idx_articles_editor_id_status")
   @@index([domain, status], map: "idx_articles_domain_status")
+  @@index([status, publishedAt(sort: Desc)], map: "idx_articles_status_published_at")
   @@map("articles")
   @@schema("publication")
 }

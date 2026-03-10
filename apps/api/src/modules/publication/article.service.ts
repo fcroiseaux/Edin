@@ -10,6 +10,10 @@ import type {
   ArticleListItemDto,
   CreateArticleDto,
   UpdateArticleDto,
+  PublicArticleListItemDto,
+  PublicArticleDetailDto,
+  ArticleFilterParams,
+  SitemapArticleDto,
 } from '@edin/shared';
 
 @Injectable()
@@ -307,6 +311,250 @@ export class ArticleService {
       articleId: id,
       authorId: userId,
     });
+  }
+
+  // ─── Public Article Methods ─────────────────────────────────────────────────
+
+  async listPublished(
+    filters: ArticleFilterParams,
+    cursor?: string,
+    limit: number = 20,
+  ): Promise<{
+    items: PublicArticleListItemDto[];
+    pagination: { cursor: string | null; hasMore: boolean; total: number };
+  }> {
+    const take = Math.min(limit, 100);
+
+    const where: Prisma.ArticleWhereInput = { status: 'PUBLISHED' };
+    if (filters.domain) {
+      where.domain = filters.domain as Prisma.ArticleWhereInput['domain'];
+    }
+    if (filters.authorId) {
+      where.authorId = filters.authorId;
+    }
+    if (filters.dateFrom || filters.dateTo) {
+      where.publishedAt = {};
+      if (filters.dateFrom) {
+        (where.publishedAt as Prisma.DateTimeNullableFilter).gte = new Date(filters.dateFrom);
+      }
+      if (filters.dateTo) {
+        (where.publishedAt as Prisma.DateTimeNullableFilter).lte = new Date(filters.dateTo);
+      }
+    }
+
+    const findWhere: Prisma.ArticleWhereInput = { ...where };
+    if (cursor) {
+      try {
+        const decoded = JSON.parse(Buffer.from(cursor, 'base64url').toString('utf-8')) as {
+          id: string;
+          publishedAt: string;
+        };
+        // Use AND to safely combine date range filter with cursor condition
+        const andConditions: Prisma.ArticleWhereInput[] = [];
+        if (findWhere.publishedAt) {
+          andConditions.push({
+            publishedAt: findWhere.publishedAt as Prisma.DateTimeNullableFilter,
+          });
+          delete findWhere.publishedAt;
+        }
+        andConditions.push({
+          OR: [
+            { publishedAt: { lt: new Date(decoded.publishedAt) } },
+            {
+              publishedAt: new Date(decoded.publishedAt),
+              id: { lt: decoded.id },
+            },
+          ],
+        });
+        findWhere.AND = andConditions;
+      } catch {
+        // Invalid cursor, ignore
+      }
+    }
+
+    // Note: body is fetched to compute readingTimeMinutes. This could be optimized
+    // by storing readingTimeMinutes as a computed column at publish time.
+    const [articles, total] = await Promise.all([
+      this.prisma.article.findMany({
+        where: findWhere,
+        orderBy: [{ publishedAt: 'desc' }, { id: 'desc' }],
+        take: take + 1,
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          abstract: true,
+          domain: true,
+          body: true,
+          publishedAt: true,
+          author: {
+            select: {
+              id: true,
+              name: true,
+              avatarUrl: true,
+              domain: true,
+              bio: true,
+            },
+          },
+        },
+      }),
+      this.prisma.article.count({ where }),
+    ]);
+
+    const hasMore = articles.length > take;
+    const items = hasMore ? articles.slice(0, take) : articles;
+
+    let nextCursor: string | null = null;
+    if (hasMore && items.length > 0) {
+      const last = items[items.length - 1];
+      nextCursor = Buffer.from(
+        JSON.stringify({ id: last.id, publishedAt: last.publishedAt!.toISOString() }),
+      ).toString('base64url');
+    }
+
+    return {
+      items: items.map((a) => ({
+        id: a.id,
+        title: a.title,
+        slug: a.slug,
+        abstract: a.abstract,
+        domain: a.domain,
+        publishedAt: a.publishedAt!.toISOString(),
+        readingTimeMinutes: this.calculateReadingTime(a.body),
+        author: {
+          id: a.author.id,
+          name: a.author.name,
+          avatarUrl: a.author.avatarUrl,
+          domain: a.author.domain,
+          bio: a.author.bio,
+        },
+      })),
+      pagination: {
+        cursor: nextCursor,
+        hasMore,
+        total,
+      },
+    };
+  }
+
+  async getPublishedBySlug(slug: string): Promise<PublicArticleDetailDto> {
+    const article = await this.prisma.article.findUnique({
+      where: { slug },
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            avatarUrl: true,
+            domain: true,
+            bio: true,
+          },
+        },
+        editor: {
+          select: {
+            id: true,
+            name: true,
+            avatarUrl: true,
+            domain: true,
+          },
+        },
+      },
+    });
+
+    if (!article || article.status !== 'PUBLISHED') {
+      throw new DomainException(
+        ERROR_CODES.ARTICLE_NOT_FOUND,
+        `Published article not found`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    // Evaluation scores for articles will be available once article evaluation pipeline is integrated.
+    // For now, return null — the frontend conditionally renders the evaluation section.
+    const evaluationScore: number | null = null;
+    const evaluationNarrative: string | null = null;
+
+    return {
+      id: article.id,
+      title: article.title,
+      slug: article.slug,
+      abstract: article.abstract,
+      body: article.body,
+      domain: article.domain,
+      publishedAt: article.publishedAt!.toISOString(),
+      readingTimeMinutes: this.calculateReadingTime(article.body),
+      author: {
+        id: article.author.id,
+        name: article.author.name,
+        avatarUrl: article.author.avatarUrl,
+        domain: article.author.domain,
+        bio: article.author.bio,
+      },
+      editor: article.editor
+        ? {
+            id: article.editor.id,
+            name: article.editor.name,
+            avatarUrl: article.editor.avatarUrl,
+            domain: article.editor.domain,
+          }
+        : null,
+      evaluationScore,
+      evaluationNarrative,
+    };
+  }
+
+  async getSitemapArticles(): Promise<SitemapArticleDto[]> {
+    const articles = await this.prisma.article.findMany({
+      where: { status: 'PUBLISHED' },
+      select: {
+        slug: true,
+        publishedAt: true,
+        updatedAt: true,
+      },
+      orderBy: { publishedAt: 'desc' },
+    });
+
+    return articles.map((a) => ({
+      slug: a.slug,
+      publishedAt: a.publishedAt!.toISOString(),
+      updatedAt: a.updatedAt.toISOString(),
+    }));
+  }
+
+  calculateReadingTime(body: string): number {
+    const text = this.extractTextFromBody(body);
+    const words = text.split(/\s+/).filter(Boolean).length;
+    return Math.max(1, Math.ceil(words / 200));
+  }
+
+  private extractTextFromBody(body: string): string {
+    try {
+      const parsed = JSON.parse(body) as {
+        text?: string;
+        content?: Array<{ text?: string; content?: unknown[] }>;
+      };
+      return this.extractTextFromNode(parsed);
+    } catch {
+      // Body is plain text (not JSON)
+      return body;
+    }
+  }
+
+  private extractTextFromNode(node: {
+    text?: string;
+    content?: Array<{ text?: string; content?: unknown[] }>;
+  }): string {
+    if (node.text) return node.text;
+    if (node.content && Array.isArray(node.content)) {
+      return node.content
+        .map((child) =>
+          this.extractTextFromNode(
+            child as { text?: string; content?: Array<{ text?: string; content?: unknown[] }> },
+          ),
+        )
+        .join(' ');
+    }
+    return '';
   }
 
   // ─── Private Helpers ────────────────────────────────────────────────────────
