@@ -10,10 +10,8 @@ RUN pnpm --filter @edin/shared build
 RUN cd apps/api && npx prisma generate
 RUN pnpm --filter api build
 # Create standalone deployment with flat node_modules (no symlinks)
+# "files" field in package.json ensures dist/ and generated/ are included
 RUN pnpm --filter api deploy --legacy /app/deployed
-# dist/ and generated/ are excluded by .gitignore so pnpm deploy skips them
-RUN cp -r /app/apps/api/dist /app/deployed/dist
-RUN cp -r /app/apps/api/generated /app/deployed/generated
 
 # ── Production ────────────────────────────────────────────────────
 FROM node:20-alpine AS runner
