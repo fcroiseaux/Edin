@@ -58,6 +58,7 @@ export class CaslAbilityFactory {
 
   private addApplicantPermissions(builder: AbilityBuilder<AppAbility>): void {
     const { can } = builder;
+    can(Action.Read, 'Contributor');
     can(Action.Read, 'Application');
     can(Action.Create, 'Application');
     can(Action.Read, 'MicroTask');
