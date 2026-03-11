@@ -17,6 +17,31 @@ interface MonitoredRepo {
 export function GithubReposSettings({ section, onSave, isPending }: GithubReposSettingsProps) {
   const repos = (section.settings['github.monitored_repos'] as MonitoredRepo[]) ?? [];
   const [pendingToggle, setPendingToggle] = useState<number | null>(null);
+  const [newRepoUrl, setNewRepoUrl] = useState('');
+  const [addError, setAddError] = useState<string | null>(null);
+
+  const handleAddRepo = () => {
+    const trimmed = newRepoUrl.trim();
+    if (!trimmed) return;
+
+    const githubRepoPattern = /^https:\/\/github\.com\/[\w.-]+\/[\w.-]+$/;
+    if (!githubRepoPattern.test(trimmed)) {
+      setAddError(
+        'Please enter a valid GitHub repository URL (e.g. https://github.com/owner/repo)',
+      );
+      return;
+    }
+
+    if (repos.some((r) => r.repoUrl === trimmed)) {
+      setAddError('This repository is already monitored.');
+      return;
+    }
+
+    const updated = [...repos, { repoUrl: trimmed, isActive: true }];
+    onSave({ 'github.monitored_repos': updated });
+    setNewRepoUrl('');
+    setAddError(null);
+  };
 
   const handleToggle = (index: number) => {
     setPendingToggle(index);
@@ -61,6 +86,33 @@ export function GithubReposSettings({ section, onSave, isPending }: GithubReposS
           ))}
         </ul>
       )}
+
+      {/* Add new repository */}
+      <div className="mt-[var(--spacing-md)]">
+        <h3 className="mb-[var(--spacing-xs)] font-sans text-[13px] font-medium text-brand-secondary">
+          Add Repository
+        </h3>
+        <div className="flex gap-[var(--spacing-sm)]">
+          <input
+            type="url"
+            value={newRepoUrl}
+            onChange={(e) => {
+              setNewRepoUrl(e.target.value);
+              setAddError(null);
+            }}
+            placeholder="https://github.com/owner/repo"
+            className="flex-1 rounded-[var(--radius-md)] border border-surface-border bg-surface-base px-[var(--spacing-md)] py-[var(--spacing-sm)] font-mono text-[13px] text-brand-primary placeholder:text-brand-secondary/50 focus:border-brand-accent focus:outline-none"
+          />
+          <button
+            onClick={handleAddRepo}
+            disabled={isPending || !newRepoUrl.trim()}
+            className="rounded-[var(--radius-md)] bg-brand-accent px-[var(--spacing-lg)] py-[var(--spacing-sm)] text-[13px] font-medium text-white hover:bg-brand-accent/90 disabled:opacity-50"
+          >
+            {isPending ? 'Adding...' : 'Add'}
+          </button>
+        </div>
+        {addError && <p className="mt-[var(--spacing-xs)] text-[12px] text-red-600">{addError}</p>}
+      </div>
 
       {/* Confirmation dialog for toggle */}
       {pendingToggle !== null && repos[pendingToggle] && (
