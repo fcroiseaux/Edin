@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '../../hooks/use-auth';
@@ -42,9 +43,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       >
         <div className="mx-auto flex max-w-[1200px] items-center gap-[var(--spacing-md)] px-[var(--spacing-lg)] py-[var(--spacing-sm)]">
           <Link
-            href="/dashboard"
-            className="mr-[var(--spacing-md)] font-serif text-[18px] font-bold text-brand-primary"
+            href="/"
+            className="mr-[var(--spacing-md)] flex items-center gap-[var(--spacing-sm)] font-serif text-[18px] font-bold text-brand-primary transition-colors duration-[var(--transition-fast)] hover:text-brand-accent"
           >
+            <Image src="/edin-logo.png" alt="" width={24} height={24} className="rounded-full" />
             Edin Admin
           </Link>
           {ADMIN_NAV_ITEMS.map((item) => {

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '../../hooks/use-auth';
@@ -80,7 +81,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <div className="min-h-screen bg-surface-base lg:flex">
         <aside className="shrink-0 border-b border-surface-border bg-brand-primary text-surface-raised lg:min-h-screen lg:w-[240px] lg:border-b-0 lg:border-r">
           <div className="px-[var(--spacing-lg)] py-[var(--spacing-xl)]">
-            <p className="font-serif text-[24px] font-bold">Edin</p>
+            <Link
+              href="/"
+              className="flex items-center gap-[var(--spacing-sm)] transition-opacity duration-[var(--transition-fast)] hover:opacity-80"
+            >
+              <Image src="/edin-logo.png" alt="" width={32} height={32} className="rounded-full" />
+              <p className="font-serif text-[24px] font-bold">Edin</p>
+            </Link>
             <p className="mt-[var(--spacing-xs)] font-sans text-[13px] text-surface-raised/70">
               Contributor Dashboard
             </p>

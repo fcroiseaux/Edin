@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '../../../hooks/use-auth';
@@ -21,8 +22,9 @@ export function PublicNav() {
       <div className="mx-auto flex max-w-[1200px] items-center justify-between px-[var(--spacing-lg)] py-[var(--spacing-md)]">
         <Link
           href="/"
-          className="font-serif text-[20px] font-bold text-brand-primary transition-colors duration-[var(--transition-fast)] hover:text-brand-accent"
+          className="flex items-center gap-[var(--spacing-sm)] font-serif text-[20px] font-bold text-brand-primary transition-colors duration-[var(--transition-fast)] hover:text-brand-accent"
         >
+          <Image src="/edin-logo.png" alt="" width={28} height={28} className="rounded-full" />
           Edin
         </Link>
 
