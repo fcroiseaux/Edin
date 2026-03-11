@@ -21,4 +21,4 @@ ENV NODE_ENV=production
 COPY --from=builder /app/deployed ./
 
 EXPOSE 3001
-CMD ["dumb-init", "sh", "-c", "npx prisma migrate reset --force && node dist/src/main.js"]
+CMD ["dumb-init", "sh", "-c", "printf 'DROP SCHEMA IF EXISTS core CASCADE; DROP SCHEMA IF EXISTS audit CASCADE; DROP SCHEMA IF EXISTS evaluation CASCADE; DROP SCHEMA IF EXISTS publication CASCADE; DROP SCHEMA IF EXISTS public CASCADE; CREATE SCHEMA public;' | npx prisma db execute --stdin && npx prisma migrate deploy && node dist/src/main.js"]
