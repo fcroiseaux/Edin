@@ -2,6 +2,9 @@
 CREATE SCHEMA IF NOT EXISTS "audit";
 
 -- CreateSchema
+CREATE SCHEMA IF NOT EXISTS "core";
+
+-- CreateSchema
 CREATE SCHEMA IF NOT EXISTS "evaluation";
 
 -- CreateSchema
@@ -1132,3 +1135,4 @@ ALTER TABLE "evaluation"."evaluation_reviews" ADD CONSTRAINT "evaluation_reviews
 
 -- AddForeignKey
 ALTER TABLE "evaluation"."contribution_scores" ADD CONSTRAINT "contribution_scores_formula_version_id_fkey" FOREIGN KEY ("formula_version_id") REFERENCES "evaluation"."scoring_formula_versions"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+

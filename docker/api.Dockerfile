@@ -21,4 +21,4 @@ ENV NODE_ENV=production
 COPY --from=builder /app/deployed ./
 
 EXPOSE 3001
-CMD ["dumb-init", "sh", "-c", "npx prisma migrate deploy && node dist/src/main.js"]
+CMD ["dumb-init", "sh", "-c", "npx prisma migrate reset --force --skip-seed && node dist/src/main.js"]
