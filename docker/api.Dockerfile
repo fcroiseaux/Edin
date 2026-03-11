@@ -8,12 +8,9 @@ COPY . .
 RUN pnpm install --frozen-lockfile
 RUN pnpm --filter @edin/shared build
 RUN cd apps/api && npx prisma generate
-# Build API, deploy standalone, and copy build artifacts in one layer
-RUN pnpm --filter api build \
-    && pnpm --filter api deploy --legacy /app/deployed \
-    && cp -r apps/api/dist /app/deployed/dist \
-    && cp -r apps/api/generated /app/deployed/generated \
-    && ls /app/deployed/dist/main.js
+RUN pnpm --filter api build
+# "files" field in package.json ensures dist/ and generated/ are included
+RUN pnpm --filter api deploy --legacy /app/deployed
 
 # ── Production ────────────────────────────────────────────────────
 FROM node:20-alpine AS runner
@@ -24,4 +21,4 @@ ENV NODE_ENV=production
 COPY --from=builder /app/deployed ./
 
 EXPOSE 3001
-CMD ["dumb-init", "sh", "-c", "npx prisma migrate deploy && node dist/main.js"]
+CMD ["dumb-init", "sh", "-c", "npx prisma migrate deploy && node dist/src/main.js"]
