@@ -21,8 +21,8 @@ const mockContributor2: PublicContributorProfile = {
   id: '550e8400-e29b-41d4-a716-446655440001',
   name: 'John Doe',
   avatarUrl: null,
-  bio: 'Fintech specialist building the future of finance.',
-  domain: 'Fintech',
+  bio: 'Finance specialist building the future of finance.',
+  domain: 'Finance',
   skillAreas: ['Python', 'ML'],
   role: 'FOUNDING_CONTRIBUTOR',
   createdAt: '2025-07-01T10:00:00Z',
@@ -101,11 +101,11 @@ describe('FoundingContributorCard', () => {
     expect(badge).toHaveClass('bg-domain-technology');
   });
 
-  it('renders domain badge with correct color for Fintech', () => {
+  it('renders domain badge with correct color for Finance', () => {
     render(<FoundingContributorCard contributor={mockContributor2} />);
 
-    const badge = screen.getByText('Fintech');
-    expect(badge).toHaveClass('bg-domain-fintech');
+    const badge = screen.getByText('Finance');
+    expect(badge).toHaveClass('bg-domain-finance');
   });
 
   it('renders domain badge with correct color for Impact', () => {
@@ -135,7 +135,7 @@ describe('FoundingContributorCard', () => {
     const initial = screen.getByText('J');
 
     expect(initial).toBeInTheDocument();
-    expect(initial.parentElement).toHaveClass('bg-domain-fintech');
+    expect(initial.parentElement).toHaveClass('bg-domain-finance');
     expect(screen.queryByRole('img')).not.toBeInTheDocument();
   });
 });
