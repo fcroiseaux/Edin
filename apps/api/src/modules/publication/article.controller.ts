@@ -9,12 +9,17 @@ import {
   Query,
   Req,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard.js';
 import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
 import { ArticleService } from './article.service.js';
+import { FileImportService } from './file-import.service.js';
 import { createArticleSchema, updateArticleSchema } from '@edin/shared';
 import { createSuccessResponse } from '../../common/types/api-response.type.js';
 import { DomainException } from '../../common/exceptions/domain.exception.js';
@@ -24,7 +29,10 @@ import type { Request } from 'express';
 @Controller({ path: 'articles', version: '1' })
 @UseGuards(JwtAuthGuard)
 export class ArticleController {
-  constructor(private readonly articleService: ArticleService) {}
+  constructor(
+    private readonly articleService: ArticleService,
+    private readonly fileImportService: FileImportService,
+  ) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -45,6 +53,30 @@ export class ArticleController {
 
     const article = await this.articleService.createArticle(userId, parsed.data);
     return createSuccessResponse(article, req.correlationId ?? '');
+  }
+
+  @Post('import')
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { ttl: 60000, limit: 5 } })
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: 5 * 1024 * 1024 },
+    }),
+  )
+  async importFile(
+    @UploadedFile() file: Express.Multer.File,
+    @CurrentUser('id') _userId: string,
+    @Req() req: Request & { correlationId?: string },
+  ) {
+    if (!file) {
+      throw new DomainException(
+        ERROR_CODES.VALIDATION_ERROR,
+        'No file provided',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const result = await this.fileImportService.importFile(file);
+    return createSuccessResponse(result, req.correlationId ?? '');
   }
 
   @Get(':id')

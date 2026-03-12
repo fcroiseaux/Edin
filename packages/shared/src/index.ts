@@ -409,6 +409,7 @@ export {
   articleDomainEnum,
   ARTICLE_DOMAINS,
   publicArticleFilterSchema,
+  fileImportResultSchema,
 } from './schemas/article.schema.js';
 export type {
   CreateArticleDto,
@@ -460,6 +461,7 @@ export type {
   ArticleStatus,
   ArticleDto,
   ArticleListItemDto,
+  FileImportResultDto,
   ArticleSubmittedEvent,
   EditorialDecision,
   RevisionRequestItem,

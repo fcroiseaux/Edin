@@ -3,6 +3,7 @@ import { Test } from '@nestjs/testing';
 import type { TestingModule } from '@nestjs/testing';
 import { ArticleController } from './article.controller.js';
 import { ArticleService } from './article.service.js';
+import { FileImportService } from './file-import.service.js';
 
 const mockArticleDto = {
   id: '550e8400-e29b-41d4-a716-446655440000',
@@ -40,7 +41,10 @@ describe('ArticleController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ArticleController],
-      providers: [{ provide: ArticleService, useValue: mockArticleService }],
+      providers: [
+        { provide: ArticleService, useValue: mockArticleService },
+        { provide: FileImportService, useValue: { importFile: vi.fn() } },
+      ],
     }).compile();
 
     controller = module.get(ArticleController);

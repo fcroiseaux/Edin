@@ -2,6 +2,7 @@
 
 import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../lib/api-client';
+import { getAccessToken } from '../lib/auth';
 import type {
   ArticleDto,
   ArticleListItemDto,
@@ -20,6 +21,7 @@ import type {
   ArticleRewardAllocationDto,
   AuthorRewardSummaryDto,
   EditorRewardSummaryDto,
+  FileImportResultDto,
 } from '@edin/shared';
 
 // ─── Queries ──────────────────────────────────────────────────────────────────
@@ -113,6 +115,35 @@ export function useSubmitArticle() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['articles'] });
+    },
+  });
+}
+
+const UPLOAD_API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
+export function useImportArticleFile() {
+  return useMutation<FileImportResultDto, Error, File>({
+    mutationFn: async (file) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      const token = getAccessToken();
+      const headers: Record<string, string> = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const response = await fetch(`${UPLOAD_API_BASE_URL}/api/v1/articles/import`, {
+        method: 'POST',
+        body: formData,
+        headers,
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        const errorBody = await response.json().catch(() => null);
+        throw new Error(errorBody?.error?.message || `Upload failed: ${response.status}`);
+      }
+
+      const body: ApiSuccessResponse<FileImportResultDto> = await response.json();
+      return body.data;
     },
   });
 }

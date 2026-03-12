@@ -103,3 +103,12 @@ export type SubmitArticleValidation = z.infer<typeof submitArticleSchema>;
 export type EditorialFeedbackInput = z.infer<typeof editorialFeedbackSchema>;
 export type InlineCommentInput = z.infer<typeof inlineCommentInputSchema>;
 export type ResubmitArticleInput = z.infer<typeof resubmitArticleSchema>;
+
+/**
+ * Schema for file import result validation.
+ */
+export const fileImportResultSchema = z.object({
+  title: z.string().max(200),
+  abstract: z.string().max(300),
+  body: z.string(),
+});

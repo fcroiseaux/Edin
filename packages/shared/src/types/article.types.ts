@@ -47,6 +47,14 @@ export interface ArticleSubmittedEvent {
   correlationId: string;
 }
 
+// ─── File Import Types ──────────────────────────────────────────────────────
+
+export interface FileImportResultDto {
+  title: string;
+  abstract: string;
+  body: string; // Tiptap JSON string
+}
+
 // ─── Editorial Types ────────────────────────────────────────────────────────
 
 export const EDITORIAL_DECISIONS = ['APPROVE', 'REQUEST_REVISIONS', 'REJECT'] as const;

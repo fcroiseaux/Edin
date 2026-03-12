@@ -4,17 +4,23 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { TiptapEditor } from './tiptap-editor';
 import { AutoSaveIndicator } from './auto-save-indicator';
+import { FileDropZone } from './file-drop-zone';
+import { ImportConflictDialog } from './import-conflict-dialog';
 import type { SaveStatus } from './auto-save-indicator';
 import {
   useCreateArticle,
   useUpdateArticle,
   useSubmitArticle,
+  useImportArticleFile,
 } from '../../../../hooks/use-article';
 import { submitArticleSchema, ARTICLE_DOMAINS } from '@edin/shared';
 import type { ArticleDto } from '@edin/shared';
 import { DOMAIN_COLORS } from '../domain-colors';
+import { useToast } from '../../../ui/toast';
 
 const AUTO_SAVE_INTERVAL = 30_000; // 30 seconds
+const ACCEPTED_EXTENSIONS = ['.md', '.txt', '.docx'];
+const MAX_FILE_SIZE_MB = 5;
 
 interface ArticleEditorProps {
   initialArticle?: ArticleDto | null;
@@ -30,6 +36,7 @@ export function ArticleEditor({
   isResubmitting,
 }: ArticleEditorProps) {
   const router = useRouter();
+  const { toast } = useToast();
   const [articleId, setArticleId] = useState<string | undefined>(initialArticle?.id);
   const [title, setTitle] = useState(initialArticle?.title ?? '');
   const [abstract, setAbstract] = useState(initialArticle?.abstract ?? '');
@@ -42,12 +49,18 @@ export function ArticleEditor({
   const [wordCount, setWordCount] = useState({ words: 0, characters: 0 });
   const [isDirty, setIsDirty] = useState(false);
 
+  // File import state
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [showConflictDialog, setShowConflictDialog] = useState(false);
+
   const isDirtyRef = useRef(false);
   const autoSaveTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const createArticle = useCreateArticle();
   const updateArticle = useUpdateArticle(articleId);
   const submitArticle = useSubmitArticle();
+  const importFile = useImportArticleFile();
 
   // Mark as dirty when any field changes
   const markDirty = useCallback(() => {
@@ -114,6 +127,81 @@ export function ArticleEditor({
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [save]);
 
+  // Check if editor has content
+  const editorHasContent = title.trim() !== '' || abstract.trim() !== '' || body.trim() !== '';
+
+  // Perform the actual import
+  const performImport = async (file: File, mode: 'replace' | 'append') => {
+    try {
+      const result = await importFile.mutateAsync(file);
+
+      if (mode === 'replace') {
+        setTitle(result.title);
+        setAbstract(result.abstract);
+        setBody(result.body);
+      } else {
+        // Append: keep title/abstract, merge body content arrays
+        try {
+          const existingDoc = body ? JSON.parse(body) : { type: 'doc', content: [] };
+          const importedDoc = JSON.parse(result.body);
+          const mergedContent = [...(existingDoc.content || []), ...(importedDoc.content || [])];
+          setBody(JSON.stringify({ type: 'doc', content: mergedContent }));
+        } catch {
+          setBody(result.body);
+        }
+      }
+
+      markDirty();
+      toast({ title: 'File imported successfully' });
+    } catch (error) {
+      toast({
+        title: error instanceof Error ? error.message : 'Failed to import file',
+        variant: 'error',
+      });
+    }
+  };
+
+  // Handle file selection (from button or drop)
+  const handleFileSelected = (file: File) => {
+    const ext = '.' + file.name.split('.').pop()?.toLowerCase();
+    if (!ACCEPTED_EXTENSIONS.includes(ext)) {
+      toast({
+        title: `Unsupported file type: ${ext}. Allowed: ${ACCEPTED_EXTENSIONS.join(', ')}`,
+        variant: 'error',
+      });
+      return;
+    }
+
+    const maxBytes = MAX_FILE_SIZE_MB * 1024 * 1024;
+    if (file.size > maxBytes) {
+      toast({
+        title: `File too large. Maximum size: ${MAX_FILE_SIZE_MB}MB`,
+        variant: 'error',
+      });
+      return;
+    }
+
+    if (editorHasContent) {
+      setPendingFile(file);
+      setShowConflictDialog(true);
+    } else {
+      performImport(file, 'replace');
+    }
+  };
+
+  // Handle conflict dialog action
+  const handleImportAction = (action: 'replace' | 'append' | 'cancel') => {
+    setShowConflictDialog(false);
+
+    if (action === 'cancel' || !pendingFile) {
+      setPendingFile(null);
+      return;
+    }
+
+    performImport(pendingFile, action);
+    setPendingFile(null);
+  };
+
   // Handle submission
   const handleSubmit = async () => {
     setSubmitError(null);
@@ -163,15 +251,35 @@ export function ArticleEditor({
   }
 
   const domainAccent = domain ? DOMAIN_COLORS[domain] : undefined;
+  const isImporting = importFile.isPending;
 
   return (
     <div
       className="mx-auto max-w-[800px] px-[var(--spacing-lg)] py-[var(--spacing-xl)]"
       style={domainAccent ? { borderTop: `3px solid ${domainAccent}` } : undefined}
     >
-      {/* Save indicator + Save Draft button */}
+      {/* Save indicator + Import button + Save Draft button */}
       <div className="mb-[var(--spacing-lg)] flex items-center justify-end gap-[var(--spacing-md)]">
         <AutoSaveIndicator status={saveStatus} />
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".md,.txt,.docx"
+          className="hidden"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) handleFileSelected(file);
+            e.target.value = '';
+          }}
+        />
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={isImporting}
+          className="rounded-[var(--radius-md)] border border-surface-border px-[var(--spacing-md)] py-[var(--spacing-xs)] font-sans text-[13px] font-medium text-brand-secondary transition-colors hover:bg-surface-sunken hover:text-brand-primary disabled:opacity-50"
+        >
+          {isImporting ? 'Importing...' : 'Import from file'}
+        </button>
         <button
           type="button"
           onClick={save}
@@ -191,7 +299,8 @@ export function ArticleEditor({
           markDirty();
         }}
         placeholder="Article title"
-        className="mb-[var(--spacing-lg)] w-full border-none bg-transparent font-serif text-[2.5rem] font-bold leading-[1.2] text-brand-primary outline-none placeholder:text-brand-secondary/40"
+        disabled={isImporting}
+        className="mb-[var(--spacing-lg)] w-full border-none bg-transparent font-serif text-[2.5rem] font-bold leading-[1.2] text-brand-primary outline-none placeholder:text-brand-secondary/40 disabled:opacity-50"
         aria-label="Article title"
       />
 
@@ -206,7 +315,8 @@ export function ArticleEditor({
             setDomain(e.target.value);
             markDirty();
           }}
-          className="rounded-[var(--radius-md)] border border-surface-border bg-surface-raised px-[var(--spacing-md)] py-[var(--spacing-sm)] font-sans text-[15px] text-brand-primary outline-none focus:border-brand-accent"
+          disabled={isImporting}
+          className="rounded-[var(--radius-md)] border border-surface-border bg-surface-raised px-[var(--spacing-md)] py-[var(--spacing-sm)] font-sans text-[15px] text-brand-primary outline-none focus:border-brand-accent disabled:opacity-50"
           aria-label="Article domain"
         >
           <option value="">Select domain...</option>
@@ -233,7 +343,8 @@ export function ArticleEditor({
           }}
           placeholder="Brief summary of your article (50-300 characters)"
           rows={3}
-          className="w-full resize-none rounded-[var(--radius-md)] border border-surface-border bg-surface-raised px-[var(--spacing-md)] py-[var(--spacing-sm)] font-sans text-[15px] text-brand-primary outline-none focus:border-brand-accent"
+          disabled={isImporting}
+          className="w-full resize-none rounded-[var(--radius-md)] border border-surface-border bg-surface-raised px-[var(--spacing-md)] py-[var(--spacing-sm)] font-sans text-[15px] text-brand-primary outline-none focus:border-brand-accent disabled:opacity-50"
           aria-label="Article abstract"
         />
         <span className="mt-[var(--spacing-xs)] block text-right font-sans text-[12px] text-brand-secondary">
@@ -241,16 +352,31 @@ export function ArticleEditor({
         </span>
       </div>
 
-      {/* Editor */}
-      <div className="mb-[var(--spacing-xl)]">
-        <TiptapEditor
-          content={body}
-          onChange={(newBody) => {
-            setBody(newBody);
-            markDirty();
-          }}
-          onWordCountChange={setWordCount}
-        />
+      {/* Editor with drop zone */}
+      <div className="relative mb-[var(--spacing-xl)]">
+        <FileDropZone
+          onFileDrop={handleFileSelected}
+          disabled={isImporting}
+          accept={ACCEPTED_EXTENSIONS}
+          maxSizeMB={MAX_FILE_SIZE_MB}
+        >
+          <TiptapEditor
+            content={body}
+            onChange={(newBody) => {
+              setBody(newBody);
+              markDirty();
+            }}
+            onWordCountChange={setWordCount}
+            editable={!isImporting}
+          />
+        </FileDropZone>
+        {isImporting && (
+          <div className="absolute inset-0 z-30 flex items-center justify-center rounded-[var(--radius-md)] bg-surface-raised/80">
+            <span className="font-sans text-[15px] font-medium text-brand-secondary">
+              Importing file...
+            </span>
+          </div>
+        )}
         <div className="mt-[var(--spacing-sm)] flex items-center justify-end gap-[var(--spacing-md)] font-sans text-[12px] text-brand-secondary">
           <span>{wordCount.words.toLocaleString()} words</span>
           <span>{wordCount.characters.toLocaleString()} characters</span>
@@ -291,6 +417,13 @@ export function ArticleEditor({
           </button>
         )}
       </div>
+
+      {/* Import conflict dialog */}
+      <ImportConflictDialog
+        open={showConflictDialog}
+        onAction={handleImportAction}
+        fileName={pendingFile?.name ?? ''}
+      />
     </div>
   );
 }

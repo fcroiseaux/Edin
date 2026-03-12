@@ -12,6 +12,7 @@ import { EditorialService } from './editorial.service.js';
 import { EditorEligibilityService } from './editor-eligibility.service.js';
 import { ArticleMetricsService } from './article-metrics.service.js';
 import { ArticleRewardService } from './article-reward.service.js';
+import { FileImportService } from './file-import.service.js';
 import { ModerationService } from './moderation.service.js';
 import { PlagiarismCheckProcessor } from './plagiarism-check.processor.js';
 
@@ -48,6 +49,7 @@ import { PlagiarismCheckProcessor } from './plagiarism-check.processor.js';
   ],
   providers: [
     ArticleService,
+    FileImportService,
     EditorialService,
     EditorEligibilityService,
     ArticleMetricsService,
