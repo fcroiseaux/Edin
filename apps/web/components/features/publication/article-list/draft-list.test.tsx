@@ -40,6 +40,11 @@ vi.mock('../../../../hooks/use-article', () => ({
     hasNextPage: false,
     isFetchingNextPage: false,
   }),
+  useDeleteArticle: () => ({
+    mutate: vi.fn(),
+    isPending: false,
+    isError: false,
+  }),
 }));
 
 import { DraftList } from './draft-list';

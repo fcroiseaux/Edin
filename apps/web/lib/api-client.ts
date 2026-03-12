@@ -73,6 +73,10 @@ export async function apiClient<T>(path: string, options?: RequestInit): Promise
         throw new Error(errorBody?.error?.message || `API error: ${retryResponse.status}`);
       }
 
+      if (retryResponse.status === 204) {
+        return undefined as T;
+      }
+
       return retryResponse.json();
     }
 
@@ -82,6 +86,10 @@ export async function apiClient<T>(path: string, options?: RequestInit): Promise
   if (!response.ok) {
     const errorBody = await response.json().catch(() => null);
     throw new Error(errorBody?.error?.message || `API error: ${response.status}`);
+  }
+
+  if (response.status === 204) {
+    return undefined as T;
   }
 
   return response.json();

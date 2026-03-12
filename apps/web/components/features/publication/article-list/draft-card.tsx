@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import type { ArticleListItemDto } from '@edin/shared';
+import { useDeleteArticle } from '../../../../hooks/use-article';
 import { DOMAIN_COLORS } from '../domain-colors';
 import { StatusBadge } from '../editorial-workflow/article-lifecycle';
 
@@ -16,6 +17,7 @@ function getCardLink(article: ArticleListItemDto): string {
 }
 
 export function DraftCard({ article }: DraftCardProps) {
+  const deleteMutation = useDeleteArticle();
   const domainColor = DOMAIN_COLORS[article.domain] ?? '#6B7B8D';
   const updatedDate = new Date(article.updatedAt).toLocaleDateString('en-US', {
     month: 'short',
@@ -63,6 +65,25 @@ export function DraftCard({ article }: DraftCardProps) {
           >
             View Metrics
           </Link>
+        )}
+        {article.status === 'DRAFT' && (
+          <button
+            type="button"
+            disabled={deleteMutation.isPending}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              if (window.confirm(`Delete "${article.title || 'Untitled'}"?`)) {
+                deleteMutation.mutate(article.id);
+              }
+            }}
+            className="ml-auto min-h-[44px] rounded-[4px] px-[var(--spacing-xs)] py-[1px] text-[11px] font-medium text-semantic-error hover:underline disabled:opacity-50"
+          >
+            {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
+          </button>
+        )}
+        {deleteMutation.isError && (
+          <span className="text-[11px] font-medium text-semantic-error">Delete failed</span>
         )}
       </div>
     </Link>

@@ -125,7 +125,7 @@ export function useDeleteArticle() {
       await apiClient(`/api/v1/articles/${id}`, { method: 'DELETE' });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['articles', 'drafts'] });
+      queryClient.invalidateQueries({ queryKey: ['articles'] });
     },
   });
 }
