@@ -187,6 +187,8 @@ export class EvaluationService {
             name: true,
             version: true,
             provider: true,
+            apiModelId: true,
+            evaluationType: true,
           },
         },
         rubric: {
@@ -524,7 +526,13 @@ export class EvaluationService {
       contributionType: string;
       sourceRef: string;
     };
-    model: { name: string; version: string; provider: string } | null;
+    model: {
+      name: string;
+      version: string;
+      provider: string;
+      apiModelId: string;
+      evaluationType: string;
+    } | null;
     rubric: { version: string; parameters: unknown } | null;
   }) {
     const base = this.mapEvaluationWithContribution(evaluation);
@@ -537,6 +545,8 @@ export class EvaluationService {
             name: evaluation.model.name,
             version: evaluation.model.version,
             provider: evaluation.model.provider,
+            apiModelId: evaluation.model.apiModelId,
+            evaluationType: evaluation.model.evaluationType,
           }
         : null,
       provenance: meta

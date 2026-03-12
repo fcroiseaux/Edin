@@ -5,10 +5,15 @@ import { AnthropicEvaluationProvider } from './anthropic-evaluation.provider.js'
 
 const mockCreate = vi.fn();
 
+const mockModelsList = vi.fn();
+
 vi.mock('@anthropic-ai/sdk', () => {
   return {
     default: class MockAnthropic {
       messages = { create: mockCreate };
+      models = {
+        list: mockModelsList,
+      };
     },
   };
 });
@@ -296,5 +301,67 @@ describe('AnthropicEvaluationProvider', () => {
         system: expect.stringContaining('Maximum recommended sentence length: 25 words'),
       }),
     );
+  });
+
+  it('uses input.modelId when provided instead of default', async () => {
+    mockCreate.mockResolvedValue({
+      content: [{ type: 'text', text: validResponse }],
+      usage: { input_tokens: 100, output_tokens: 200 },
+    });
+
+    await provider.evaluateCode({ ...codeInput, modelId: 'claude-opus-4-20250514' });
+
+    expect(mockCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        model: 'claude-opus-4-20250514',
+      }),
+    );
+  });
+
+  it('uses default model ID when input.modelId is not provided', async () => {
+    mockCreate.mockResolvedValue({
+      content: [{ type: 'text', text: validResponse }],
+      usage: { input_tokens: 100, output_tokens: 200 },
+    });
+
+    await provider.evaluateCode(codeInput);
+
+    expect(mockCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        model: 'claude-test-model',
+      }),
+    );
+  });
+
+  it('listAvailableModels returns models from Anthropic API', async () => {
+    const mockModels = [
+      {
+        id: 'claude-sonnet-4-5-20250514',
+        display_name: 'Claude Sonnet 4.5',
+        created_at: '2025-05-14T00:00:00Z',
+      },
+      {
+        id: 'claude-opus-4-20250514',
+        display_name: 'Claude Opus 4',
+        created_at: '2025-05-14T00:00:00Z',
+      },
+    ];
+
+    mockModelsList.mockReturnValue({
+      [Symbol.asyncIterator]: function* () {
+        for (const model of mockModels) {
+          yield model;
+        }
+      },
+    });
+
+    const result = await provider.listAvailableModels();
+
+    expect(result).toHaveLength(2);
+    expect(result[0]).toEqual({
+      id: 'claude-sonnet-4-5-20250514',
+      displayName: 'Claude Sonnet 4.5',
+      createdAt: '2025-05-14T00:00:00Z',
+    });
   });
 });

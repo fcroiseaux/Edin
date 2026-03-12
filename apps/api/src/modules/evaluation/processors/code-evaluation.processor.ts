@@ -67,6 +67,7 @@ export class CodeEvaluationProcessor extends WorkerHost {
       const model = await this.modelRegistry.getActiveModel('code');
 
       const input = this.buildEvaluationInput(contribution);
+      input.modelId = model.apiModelId;
 
       this.logger.log('Calling evaluation provider', {
         module: 'evaluation',

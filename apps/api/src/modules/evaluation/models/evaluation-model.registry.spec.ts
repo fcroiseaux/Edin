@@ -30,6 +30,8 @@ describe('EvaluationModelRegistry', () => {
         name: 'code-evaluator',
         version: 'v1.0.0',
         provider: 'anthropic',
+        apiModelId: 'claude-sonnet-4-5-20250514',
+        evaluationType: 'CODE',
         status: 'ACTIVE',
         config: { modelId: 'claude-sonnet-4-5-20250514' },
         createdAt: new Date(),
@@ -39,9 +41,35 @@ describe('EvaluationModelRegistry', () => {
       const result = await registry.getActiveModel('code');
 
       expect(result).toEqual(model);
+      expect(result.apiModelId).toBe('claude-sonnet-4-5-20250514');
       expect(mockPrisma.evaluationModel.findFirst).toHaveBeenCalledWith({
         where: {
-          name: { startsWith: 'code-evaluator' },
+          evaluationType: 'CODE',
+          status: 'ACTIVE',
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+    });
+
+    it('returns active model for documentation type', async () => {
+      const model = {
+        id: 'model-2',
+        name: 'doc-evaluator',
+        version: 'v1.0.0',
+        provider: 'anthropic',
+        apiModelId: 'claude-sonnet-4-5-20250514',
+        evaluationType: 'DOCUMENTATION',
+        status: 'ACTIVE',
+        createdAt: new Date(),
+      };
+      mockPrisma.evaluationModel.findFirst.mockResolvedValue(model);
+
+      const result = await registry.getActiveModel('documentation');
+
+      expect(result).toEqual(model);
+      expect(mockPrisma.evaluationModel.findFirst).toHaveBeenCalledWith({
+        where: {
+          evaluationType: 'DOCUMENTATION',
           status: 'ACTIVE',
         },
         orderBy: { createdAt: 'desc' },

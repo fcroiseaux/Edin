@@ -18,6 +18,7 @@ export interface CodeEvaluationInput {
   commitMessage?: string;
   pullRequestTitle?: string;
   pullRequestDescription?: string;
+  modelId?: string;
 }
 
 export interface CodeEvaluationOutput {
@@ -34,6 +35,7 @@ export interface DocEvaluationInput {
   documentContent: string;
   documentType?: string;
   rubricParameters?: EvaluationRubricParameters;
+  modelId?: string;
 }
 
 export interface DocEvaluationOutput {
@@ -42,9 +44,16 @@ export interface DocEvaluationOutput {
   rawModelOutput: string;
 }
 
+export interface AvailableModel {
+  id: string;
+  displayName: string;
+  createdAt: string;
+}
+
 export interface EvaluationProvider {
   evaluateCode(input: CodeEvaluationInput): Promise<CodeEvaluationOutput>;
   evaluateDocumentation(input: DocEvaluationInput): Promise<DocEvaluationOutput>;
+  listAvailableModels(): Promise<AvailableModel[]>;
 }
 
 export const EVALUATION_PROVIDER = 'EVALUATION_PROVIDER';

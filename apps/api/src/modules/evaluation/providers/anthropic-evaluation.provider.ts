@@ -69,12 +69,12 @@ interface DocEvaluationResponse {
 export class AnthropicEvaluationProvider implements EvaluationProvider {
   private readonly logger = new Logger(AnthropicEvaluationProvider.name);
   private readonly client: Anthropic;
-  private readonly modelId: string;
+  private readonly defaultModelId: string;
 
   constructor(private readonly configService: ConfigService) {
     const apiKey = this.configService.get<string>('ANTHROPIC_API_KEY');
     this.client = new Anthropic({ apiKey });
-    this.modelId = this.configService.get<string>(
+    this.defaultModelId = this.configService.get<string>(
       'EVALUATION_MODEL_ID',
       'claude-sonnet-4-5-20250514',
     );
@@ -90,16 +90,17 @@ export class AnthropicEvaluationProvider implements EvaluationProvider {
 
   async evaluateCode(input: CodeEvaluationInput): Promise<CodeEvaluationOutput> {
     const userPrompt = this.buildUserPrompt(input);
+    const effectiveModelId = input.modelId ?? this.defaultModelId;
 
     this.logger.log('Calling Anthropic API for code evaluation', {
       module: 'evaluation',
       contributionId: input.contributionId,
-      modelId: this.modelId,
+      modelId: effectiveModelId,
       fileCount: input.files.length,
     });
 
     const response = await this.client.messages.create({
-      model: this.modelId,
+      model: effectiveModelId,
       max_tokens: 2048,
       system: SYSTEM_PROMPT,
       messages: [{ role: 'user', content: userPrompt }],
@@ -169,11 +170,12 @@ export class AnthropicEvaluationProvider implements EvaluationProvider {
 
   async evaluateDocumentation(input: DocEvaluationInput): Promise<DocEvaluationOutput> {
     const userPrompt = this.buildDocUserPrompt(input);
+    const effectiveModelId = input.modelId ?? this.defaultModelId;
 
     this.logger.log('Calling Anthropic API for documentation evaluation', {
       module: 'evaluation',
       contributionId: input.contributionId,
-      modelId: this.modelId,
+      modelId: effectiveModelId,
       documentType: input.documentType,
     });
 
@@ -182,7 +184,7 @@ export class AnthropicEvaluationProvider implements EvaluationProvider {
       : DOC_SYSTEM_PROMPT;
 
     const response = await this.client.messages.create({
-      model: this.modelId,
+      model: effectiveModelId,
       max_tokens: 2048,
       system: systemPrompt,
       messages: [{ role: 'user', content: userPrompt }],
@@ -310,5 +312,30 @@ export class AnthropicEvaluationProvider implements EvaluationProvider {
     }
 
     return parsed;
+  }
+
+  async listAvailableModels(): Promise<
+    Array<{ id: string; displayName: string; createdAt: string }>
+  > {
+    this.logger.log('Fetching available models from Anthropic API', {
+      module: 'evaluation',
+    });
+
+    const models: Array<{ id: string; displayName: string; createdAt: string }> = [];
+
+    for await (const model of this.client.models.list({ limit: 100 })) {
+      models.push({
+        id: model.id,
+        displayName: model.display_name,
+        createdAt: model.created_at,
+      });
+    }
+
+    this.logger.log('Available models fetched', {
+      module: 'evaluation',
+      count: models.length,
+    });
+
+    return models;
   }
 }

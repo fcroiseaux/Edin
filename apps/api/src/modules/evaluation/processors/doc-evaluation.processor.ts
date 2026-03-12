@@ -73,6 +73,7 @@ export class DocEvaluationProcessor extends WorkerHost {
       const rubric = await this.rubricService.getActiveRubric('DOCUMENTATION', documentType);
 
       const input = this.buildEvaluationInput(contribution, rubric?.parameters);
+      input.modelId = model.apiModelId;
 
       this.logger.log('Calling evaluation provider for documentation', {
         module: 'evaluation',

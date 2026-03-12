@@ -379,6 +379,7 @@ export type {
   EvaluationModelVersionDto,
   EvaluationModelMetricsDto,
   EvaluationModelInfoDto,
+  AvailableAnthropicModelDto,
   EvaluationRubricInfoDto,
   EvaluationDetailDto,
   EvaluationHistoryItemDto,

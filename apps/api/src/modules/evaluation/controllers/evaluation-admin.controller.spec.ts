@@ -4,6 +4,7 @@ import { EvaluationAdminController } from './evaluation-admin.controller.js';
 import { PrismaService } from '../../../prisma/prisma.service.js';
 import { EvaluationRubricService } from '../services/evaluation-rubric.service.js';
 import { EvaluationReviewService } from '../services/evaluation-review.service.js';
+import { EVALUATION_PROVIDER } from '../providers/evaluation-provider.interface.js';
 import { CaslAbilityFactory } from '../../auth/casl/ability.factory.js';
 import { AuditService } from '../../compliance/audit/audit.service.js';
 import type { CurrentUserPayload } from '../../../common/decorators/current-user.decorator.js';
@@ -43,6 +44,12 @@ const mockReviewService = {
   getAgreementRates: vi.fn(),
 };
 
+const mockEvaluationProvider = {
+  evaluateCode: vi.fn(),
+  evaluateDocumentation: vi.fn(),
+  listAvailableModels: vi.fn(),
+};
+
 describe('EvaluationAdminController', () => {
   let controller: EvaluationAdminController;
 
@@ -57,6 +64,7 @@ describe('EvaluationAdminController', () => {
         { provide: EvaluationReviewService, useValue: mockReviewService },
         { provide: CaslAbilityFactory, useValue: {} },
         { provide: AuditService, useValue: mockAuditService },
+        { provide: EVALUATION_PROVIDER, useValue: mockEvaluationProvider },
       ],
     }).compile();
 
@@ -71,6 +79,8 @@ describe('EvaluationAdminController', () => {
           name: 'code-evaluator',
           version: 'v1.0.0',
           provider: 'anthropic',
+          apiModelId: 'claude-sonnet-4-5-20250514',
+          evaluationType: 'CODE',
           status: 'ACTIVE',
           configHash: 'abc',
           deployedAt: new Date('2026-03-01'),
@@ -127,12 +137,14 @@ describe('EvaluationAdminController', () => {
   });
 
   describe('registerModel', () => {
-    it('creates a new model version', async () => {
+    it('creates a new model version with apiModelId', async () => {
       const created = {
         id: 'model-new',
-        name: 'doc-evaluator',
+        name: 'Claude Sonnet 4.5',
         version: 'v1.0.0',
         provider: 'anthropic',
+        apiModelId: 'claude-sonnet-4-5-20250514',
+        evaluationType: 'CODE',
         status: 'ACTIVE',
         configHash: null,
         config: null,
@@ -143,17 +155,49 @@ describe('EvaluationAdminController', () => {
       mockPrisma.evaluationModel.create.mockResolvedValue(created);
 
       const result = await controller.registerModel(
-        { name: 'doc-evaluator', version: 'v1.0.0', provider: 'anthropic' },
+        {
+          apiModelId: 'claude-sonnet-4-5-20250514',
+          evaluationType: 'CODE',
+          version: 'v1.0.0',
+          name: 'Claude Sonnet 4.5',
+        },
         adminUser,
       );
 
-      expect(result.data.name).toBe('doc-evaluator');
+      expect(result.data.apiModelId).toBe('claude-sonnet-4-5-20250514');
+      expect(result.data.evaluationType).toBe('CODE');
     });
 
     it('rejects missing required fields', async () => {
       await expect(
-        controller.registerModel({ name: '', version: '', provider: '' }, adminUser),
+        controller.registerModel({ apiModelId: '', evaluationType: '', version: '' }, adminUser),
       ).rejects.toThrow();
+    });
+
+    it('rejects invalid evaluation type', async () => {
+      await expect(
+        controller.registerModel(
+          { apiModelId: 'claude-sonnet-4-5-20250514', evaluationType: 'INVALID', version: 'v1' },
+          adminUser,
+        ),
+      ).rejects.toThrow('evaluationType must be one of');
+    });
+  });
+
+  describe('listAvailableModels', () => {
+    it('returns available models from provider', async () => {
+      mockEvaluationProvider.listAvailableModels.mockResolvedValue([
+        {
+          id: 'claude-sonnet-4-5-20250514',
+          displayName: 'Claude Sonnet 4.5',
+          createdAt: '2025-05-14T00:00:00Z',
+        },
+      ]);
+
+      const result = await controller.listAvailableModels();
+
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0].id).toBe('claude-sonnet-4-5-20250514');
     });
   });
 

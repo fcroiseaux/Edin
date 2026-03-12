@@ -6,6 +6,7 @@ import {
   Param,
   Body,
   Query,
+  Inject,
   UseGuards,
   Logger,
   HttpStatus,
@@ -23,6 +24,10 @@ import { PrismaService } from '../../../prisma/prisma.service.js';
 import { AuditService } from '../../compliance/audit/audit.service.js';
 import { EvaluationRubricService } from '../services/evaluation-rubric.service.js';
 import { EvaluationReviewService } from '../services/evaluation-review.service.js';
+import {
+  EVALUATION_PROVIDER,
+  type EvaluationProvider,
+} from '../providers/evaluation-provider.interface.js';
 import { CurrentUser } from '../../../common/decorators/current-user.decorator.js';
 import type { CurrentUserPayload } from '../../../common/decorators/current-user.decorator.js';
 
@@ -36,9 +41,27 @@ export class EvaluationAdminController {
     private readonly rubricService: EvaluationRubricService,
     private readonly reviewService: EvaluationReviewService,
     private readonly auditService: AuditService,
+    @Inject(EVALUATION_PROVIDER)
+    private readonly evaluationProvider: EvaluationProvider,
   ) {}
 
   // ─── Model Registry Endpoints ──────────────────────────────────────────────
+
+  @Get('available-models')
+  @CheckAbility((ability) => ability.can(Action.Manage, 'all'))
+  async listAvailableModels() {
+    const correlationId = randomUUID();
+
+    const models = await this.evaluationProvider.listAvailableModels();
+
+    this.logger.debug('Listed available Anthropic models', {
+      module: 'evaluation',
+      count: models.length,
+      correlationId,
+    });
+
+    return createSuccessResponse(models, correlationId);
+  }
 
   @Get('models')
   @CheckAbility((ability) => ability.can(Action.Manage, 'all'))
@@ -63,6 +86,8 @@ export class EvaluationAdminController {
       name: m.name,
       version: m.version,
       provider: m.provider,
+      apiModelId: m.apiModelId,
+      evaluationType: m.evaluationType,
       status: m.status,
       configHash: m.configHash,
       deployedAt: m.deployedAt?.toISOString() ?? null,
@@ -140,22 +165,36 @@ export class EvaluationAdminController {
   async registerModel(
     @Body()
     body: {
-      name: string;
+      apiModelId: string;
+      evaluationType: string;
       version: string;
-      provider: string;
+      name?: string;
+      provider?: string;
       config?: Record<string, unknown>;
     },
     @CurrentUser() user: CurrentUserPayload,
   ) {
     const correlationId = randomUUID();
 
-    if (!body.name || !body.version || !body.provider) {
+    if (!body.apiModelId || !body.evaluationType || !body.version) {
       throw new DomainException(
         ERROR_CODES.VALIDATION_ERROR,
-        'name, version, and provider are required',
+        'apiModelId, evaluationType, and version are required',
         HttpStatus.BAD_REQUEST,
       );
     }
+
+    const validTypes = ['CODE', 'DOCUMENTATION'];
+    if (!validTypes.includes(body.evaluationType)) {
+      throw new DomainException(
+        ERROR_CODES.VALIDATION_ERROR,
+        `evaluationType must be one of: ${validTypes.join(', ')}`,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const displayName = body.name || body.apiModelId;
+    const provider = body.provider || 'anthropic';
 
     const configHash = body.config
       ? createHash('sha256').update(JSON.stringify(body.config)).digest('hex')
@@ -165,9 +204,11 @@ export class EvaluationAdminController {
       const created = await tx.evaluationModel.create({
         data: {
           id: randomUUID(),
-          name: body.name,
+          name: displayName,
           version: body.version,
-          provider: body.provider,
+          provider,
+          apiModelId: body.apiModelId,
+          evaluationType: body.evaluationType,
           config: (body.config ?? undefined) as
             | import('../../../../generated/prisma/client/client.js').Prisma.InputJsonValue
             | undefined,
@@ -185,9 +226,11 @@ export class EvaluationAdminController {
           entityId: created.id,
           correlationId,
           details: {
-            name: body.name,
+            apiModelId: body.apiModelId,
+            evaluationType: body.evaluationType,
+            name: displayName,
             version: body.version,
-            provider: body.provider,
+            provider,
           },
         },
         tx,
@@ -199,6 +242,8 @@ export class EvaluationAdminController {
     this.logger.log('Evaluation model registered', {
       module: 'evaluation',
       modelId: model.id,
+      apiModelId: model.apiModelId,
+      evaluationType: model.evaluationType,
       name: model.name,
       version: model.version,
       userId: user.id,
@@ -211,6 +256,8 @@ export class EvaluationAdminController {
         name: model.name,
         version: model.version,
         provider: model.provider,
+        apiModelId: model.apiModelId,
+        evaluationType: model.evaluationType,
         status: model.status,
         configHash: model.configHash,
         deployedAt: model.deployedAt?.toISOString() ?? null,
@@ -292,6 +339,8 @@ export class EvaluationAdminController {
         name: updatedModel.name,
         version: updatedModel.version,
         provider: updatedModel.provider,
+        apiModelId: updatedModel.apiModelId,
+        evaluationType: updatedModel.evaluationType,
         status: updatedModel.status,
         configHash: updatedModel.configHash,
         deployedAt: updatedModel.deployedAt?.toISOString() ?? null,

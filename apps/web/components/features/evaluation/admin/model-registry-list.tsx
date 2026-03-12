@@ -8,6 +8,11 @@ const STATUS_STYLES: Record<string, string> = {
   RETIRED: 'bg-gray-100 text-gray-500',
 };
 
+const TYPE_STYLES: Record<string, string> = {
+  CODE: 'bg-blue-100 text-blue-800',
+  DOCUMENTATION: 'bg-purple-100 text-purple-800',
+};
+
 interface ModelRegistryListProps {
   models: EvaluationModelVersionDto[];
   onSelectModel: (modelId: string) => void;
@@ -36,10 +41,13 @@ export function ModelRegistryList({
               Name
             </th>
             <th className="px-[var(--spacing-md)] py-[var(--spacing-sm)] font-medium text-brand-secondary">
-              Version
+              API Model
             </th>
             <th className="px-[var(--spacing-md)] py-[var(--spacing-sm)] font-medium text-brand-secondary">
-              Provider
+              Type
+            </th>
+            <th className="px-[var(--spacing-md)] py-[var(--spacing-sm)] font-medium text-brand-secondary">
+              Version
             </th>
             <th className="px-[var(--spacing-md)] py-[var(--spacing-sm)] font-medium text-brand-secondary">
               Status
@@ -64,11 +72,20 @@ export function ModelRegistryList({
               <td className="px-[var(--spacing-md)] py-[var(--spacing-sm)] font-medium text-brand-primary">
                 {model.name}
               </td>
+              <td className="px-[var(--spacing-md)] py-[var(--spacing-sm)] font-mono text-[12px] text-brand-secondary">
+                {model.apiModelId}
+              </td>
+              <td className="px-[var(--spacing-md)] py-[var(--spacing-sm)]">
+                <span
+                  className={`inline-block rounded-full px-[var(--spacing-sm)] py-[2px] text-[12px] font-medium ${
+                    TYPE_STYLES[model.evaluationType] ?? 'bg-gray-100 text-gray-600'
+                  }`}
+                >
+                  {model.evaluationType}
+                </span>
+              </td>
               <td className="px-[var(--spacing-md)] py-[var(--spacing-sm)] font-mono text-[13px] text-brand-secondary">
                 {model.version}
-              </td>
-              <td className="px-[var(--spacing-md)] py-[var(--spacing-sm)] text-brand-secondary">
-                {model.provider}
               </td>
               <td className="px-[var(--spacing-md)] py-[var(--spacing-sm)]">
                 <span

@@ -81,6 +81,8 @@ const mockModel = {
   name: 'code-evaluator',
   version: 'v1.0.0',
   provider: 'anthropic',
+  apiModelId: 'claude-sonnet-4-5-20250514',
+  evaluationType: 'CODE',
   config: { modelId: 'claude-sonnet-4-5-20250514', promptVersion: 'code-eval-v1' },
 };
 
@@ -238,6 +240,21 @@ describe('CodeEvaluationProcessor', () => {
       where: { id: 'eval-1' },
       data: { status: 'FAILED' },
     });
+  });
+
+  it('passes apiModelId from registry to evaluation provider', async () => {
+    mockPrisma.contribution.findUniqueOrThrow.mockResolvedValue(mockContribution);
+    mockModelRegistry.getActiveModel.mockResolvedValue(mockModel);
+    mockEvaluationProvider.evaluateCode.mockResolvedValue(mockEvaluationResult);
+    mockPrisma.evaluation.update.mockResolvedValue({});
+
+    await processor.process(createJob());
+
+    expect(mockEvaluationProvider.evaluateCode).toHaveBeenCalledWith(
+      expect.objectContaining({
+        modelId: 'claude-sonnet-4-5-20250514',
+      }),
+    );
   });
 
   it('applies task complexity multiplier based on contribution size', async () => {

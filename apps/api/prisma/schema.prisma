@@ -974,20 +974,23 @@ enum ScoreTrend {
 // ─── Evaluation Schema ──────────────────────────────────────────────────────
 
 model EvaluationModel {
-  id          String                @id @db.Uuid
-  name        String
-  version     String
-  provider    String
-  config      Json?
-  configHash  String?               @map("config_hash")
-  status      EvaluationModelStatus @default(ACTIVE)
-  deployedAt  DateTime?             @map("deployed_at")
-  retiredAt   DateTime?             @map("retired_at")
-  createdAt   DateTime              @default(now()) @map("created_at")
+  id             String                @id @db.Uuid
+  name           String
+  version        String
+  provider       String
+  apiModelId     String                @map("api_model_id")
+  evaluationType String                @map("evaluation_type")
+  config         Json?
+  configHash     String?               @map("config_hash")
+  status         EvaluationModelStatus @default(ACTIVE)
+  deployedAt     DateTime?             @map("deployed_at")
+  retiredAt      DateTime?             @map("retired_at")
+  createdAt      DateTime              @default(now()) @map("created_at")
 
   evaluations Evaluation[]
 
-  @@unique([name, version])
+  @@unique([apiModelId, version, evaluationType])
+  @@index([evaluationType, status])
   @@map("evaluation_models")
   @@schema("evaluation")
 }

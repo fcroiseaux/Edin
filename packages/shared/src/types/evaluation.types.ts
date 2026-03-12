@@ -48,6 +48,8 @@ export interface EvaluationModelDto {
   name: string;
   version: string;
   provider: string;
+  apiModelId: string;
+  evaluationType: string;
   status: EvaluationModelStatus;
   createdAt: string;
 }
@@ -119,6 +121,8 @@ export interface EvaluationModelVersionDto {
   name: string;
   version: string;
   provider: string;
+  apiModelId: string;
+  evaluationType: string;
   status: EvaluationModelStatus;
   configHash: string | null;
   deployedAt: string | null;
@@ -151,6 +155,14 @@ export interface EvaluationModelInfoDto {
   name: string;
   version: string;
   provider: string;
+  apiModelId: string;
+  evaluationType: string;
+}
+
+export interface AvailableAnthropicModelDto {
+  id: string;
+  displayName: string;
+  createdAt: string;
 }
 
 export interface EvaluationRubricInfoDto {

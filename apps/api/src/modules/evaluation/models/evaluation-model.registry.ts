@@ -11,11 +11,11 @@ export class EvaluationModelRegistry {
   constructor(private readonly prisma: PrismaService) {}
 
   async getActiveModel(type: 'code' | 'documentation') {
-    const prefix = type === 'code' ? 'code-evaluator' : 'doc-evaluator';
+    const evaluationType = type === 'code' ? 'CODE' : 'DOCUMENTATION';
 
     const model = await this.prisma.evaluationModel.findFirst({
       where: {
-        name: { startsWith: prefix },
+        evaluationType,
         status: 'ACTIVE',
       },
       orderBy: { createdAt: 'desc' },
@@ -25,7 +25,7 @@ export class EvaluationModelRegistry {
       this.logger.error('No active evaluation model found', {
         module: 'evaluation',
         type,
-        prefix,
+        evaluationType,
       });
       throw new DomainException(
         ERROR_CODES.EVALUATION_MODEL_UNAVAILABLE,

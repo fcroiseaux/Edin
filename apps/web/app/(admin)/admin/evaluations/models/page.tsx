@@ -5,6 +5,7 @@ import {
   useEvaluationModels,
   useEvaluationModelMetrics,
   useCreateEvaluationModel,
+  useAvailableModels,
 } from '../../../../../hooks/use-evaluation-models';
 import { useAgreementRates } from '../../../../../hooks/use-evaluation-review';
 import { ModelRegistryList } from '../../../../../components/features/evaluation/admin/model-registry-list';
@@ -14,12 +15,27 @@ import { AgreementRateCard } from '../../../../../components/features/evaluation
 export default function EvaluationModelsPage() {
   const [selectedModelId, setSelectedModelId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState({ name: '', version: '', provider: '' });
+  const [formData, setFormData] = useState({
+    apiModelId: '',
+    evaluationType: 'CODE' as 'CODE' | 'DOCUMENTATION',
+    version: '',
+  });
   const [formError, setFormError] = useState<string | null>(null);
   const { models, isLoading: modelsLoading, error: modelsError } = useEvaluationModels();
   const createModel = useCreateEvaluationModel();
+  const {
+    availableModels,
+    isLoading: availableModelsLoading,
+    error: availableModelsError,
+  } = useAvailableModels();
   const { metrics, isLoading: metricsLoading } = useEvaluationModelMetrics(selectedModelId);
   const { rates, isLoading: ratesLoading } = useAgreementRates(selectedModelId ?? undefined);
+
+  const clearForm = () => {
+    setFormData({ apiModelId: '', evaluationType: 'CODE', version: '' });
+    setFormError(null);
+    createModel.reset();
+  };
 
   if (modelsLoading) {
     return (
@@ -63,32 +79,69 @@ export default function EvaluationModelsPage() {
               Register New Model
             </h2>
             <div className="flex flex-wrap gap-[var(--spacing-md)]">
-              <div className="flex-1 min-w-[180px]">
+              <div className="flex-[2] min-w-[240px]">
                 <label
-                  htmlFor="model-name"
+                  htmlFor="api-model-id"
                   className="mb-[var(--spacing-xs)] block text-[13px] font-medium text-brand-secondary"
                 >
-                  Name
+                  Anthropic Model
                 </label>
-                <input
-                  id="model-name"
-                  type="text"
-                  value={formData.name}
+                {availableModelsLoading ? (
+                  <div className="h-[38px] animate-pulse rounded-[var(--radius-md)] bg-surface-border" />
+                ) : availableModelsError ? (
+                  <p className="text-[12px] text-red-600">
+                    Failed to load models from Anthropic API.
+                  </p>
+                ) : (
+                  <select
+                    id="api-model-id"
+                    value={formData.apiModelId}
+                    onChange={(e) => {
+                      setFormData((f) => ({ ...f, apiModelId: e.target.value }));
+                      setFormError(null);
+                      if (createModel.error) createModel.reset();
+                    }}
+                    className="w-full rounded-[var(--radius-md)] border border-surface-border bg-surface-base px-[var(--spacing-md)] py-[var(--spacing-sm)] font-sans text-[14px] text-brand-primary focus:border-brand-accent focus:outline-none"
+                  >
+                    <option value="">Select a model...</option>
+                    {availableModels.map((m) => (
+                      <option key={m.id} value={m.id}>
+                        {m.displayName} ({m.id})
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
+              <div className="min-w-[180px]">
+                <label
+                  htmlFor="evaluation-type"
+                  className="mb-[var(--spacing-xs)] block text-[13px] font-medium text-brand-secondary"
+                >
+                  Evaluation Type
+                </label>
+                <select
+                  id="evaluation-type"
+                  value={formData.evaluationType}
                   onChange={(e) => {
-                    setFormData((f) => ({ ...f, name: e.target.value }));
+                    setFormData((f) => ({
+                      ...f,
+                      evaluationType: e.target.value as 'CODE' | 'DOCUMENTATION',
+                    }));
                     setFormError(null);
                     if (createModel.error) createModel.reset();
                   }}
-                  placeholder="e.g. gpt-4o"
-                  className="w-full rounded-[var(--radius-md)] border border-surface-border bg-surface-base px-[var(--spacing-md)] py-[var(--spacing-sm)] font-sans text-[14px] text-brand-primary placeholder:text-brand-secondary/50 focus:border-brand-accent focus:outline-none"
-                />
+                  className="w-full rounded-[var(--radius-md)] border border-surface-border bg-surface-base px-[var(--spacing-md)] py-[var(--spacing-sm)] font-sans text-[14px] text-brand-primary focus:border-brand-accent focus:outline-none"
+                >
+                  <option value="CODE">Code</option>
+                  <option value="DOCUMENTATION">Documentation</option>
+                </select>
               </div>
               <div className="flex-1 min-w-[140px]">
                 <label
                   htmlFor="model-version"
                   className="mb-[var(--spacing-xs)] block text-[13px] font-medium text-brand-secondary"
                 >
-                  Version
+                  Version Label
                 </label>
                 <input
                   id="model-version"
@@ -99,27 +152,7 @@ export default function EvaluationModelsPage() {
                     setFormError(null);
                     if (createModel.error) createModel.reset();
                   }}
-                  placeholder="e.g. 2024-05-13"
-                  className="w-full rounded-[var(--radius-md)] border border-surface-border bg-surface-base px-[var(--spacing-md)] py-[var(--spacing-sm)] font-sans text-[14px] text-brand-primary placeholder:text-brand-secondary/50 focus:border-brand-accent focus:outline-none"
-                />
-              </div>
-              <div className="flex-1 min-w-[140px]">
-                <label
-                  htmlFor="model-provider"
-                  className="mb-[var(--spacing-xs)] block text-[13px] font-medium text-brand-secondary"
-                >
-                  Provider
-                </label>
-                <input
-                  id="model-provider"
-                  type="text"
-                  value={formData.provider}
-                  onChange={(e) => {
-                    setFormData((f) => ({ ...f, provider: e.target.value }));
-                    setFormError(null);
-                    if (createModel.error) createModel.reset();
-                  }}
-                  placeholder="e.g. OpenAI"
+                  placeholder="e.g. v1, 2025-03-11"
                   className="w-full rounded-[var(--radius-md)] border border-surface-border bg-surface-base px-[var(--spacing-md)] py-[var(--spacing-sm)] font-sans text-[14px] text-brand-primary placeholder:text-brand-secondary/50 focus:border-brand-accent focus:outline-none"
                 />
               </div>
@@ -135,18 +168,23 @@ export default function EvaluationModelsPage() {
             <div className="mt-[var(--spacing-md)] flex gap-[var(--spacing-sm)]">
               <button
                 onClick={() => {
-                  const { name, version, provider } = formData;
-                  if (!name.trim() || !version.trim() || !provider.trim()) {
-                    setFormError('All fields are required.');
+                  const { apiModelId, evaluationType, version } = formData;
+                  if (!apiModelId || !version.trim()) {
+                    setFormError('Please select a model and provide a version label.');
                     return;
                   }
+                  const selectedModel = availableModels.find((m) => m.id === apiModelId);
                   createModel.mutate(
-                    { name: name.trim(), version: version.trim(), provider: provider.trim() },
+                    {
+                      apiModelId,
+                      evaluationType,
+                      version: version.trim(),
+                      name: selectedModel?.displayName,
+                    },
                     {
                       onSuccess: () => {
-                        setFormData({ name: '', version: '', provider: '' });
+                        clearForm();
                         setShowForm(false);
-                        setFormError(null);
                       },
                     },
                   );
@@ -159,9 +197,7 @@ export default function EvaluationModelsPage() {
               <button
                 onClick={() => {
                   setShowForm(false);
-                  setFormData({ name: '', version: '', provider: '' });
-                  setFormError(null);
-                  createModel.reset();
+                  clearForm();
                 }}
                 disabled={createModel.isPending}
                 className="rounded-[var(--radius-md)] border border-surface-border px-[var(--spacing-lg)] py-[var(--spacing-sm)] text-[13px] text-brand-secondary hover:bg-surface-base"

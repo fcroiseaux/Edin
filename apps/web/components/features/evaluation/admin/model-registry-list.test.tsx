@@ -10,6 +10,8 @@ const mockModels: EvaluationModelVersionDto[] = [
     name: 'GPT-4o Evaluator',
     version: '1.2.0',
     provider: 'OpenAI',
+    apiModelId: 'gpt-4o-2024-05-13',
+    evaluationType: 'CODE',
     status: 'ACTIVE',
     configHash: 'abc123',
     deployedAt: '2026-01-15T10:00:00.000Z',
@@ -22,6 +24,8 @@ const mockModels: EvaluationModelVersionDto[] = [
     name: 'Claude Scorer',
     version: '2.0.1',
     provider: 'Anthropic',
+    apiModelId: 'claude-sonnet-4-5-20250514',
+    evaluationType: 'DOCUMENTATION',
     status: 'DEPRECATED',
     configHash: 'def456',
     deployedAt: null,
@@ -45,16 +49,18 @@ describe('ModelRegistryList', () => {
 
     // Column headers
     expect(screen.getByText('Name')).toBeInTheDocument();
+    expect(screen.getByText('API Model')).toBeInTheDocument();
+    expect(screen.getByText('Type')).toBeInTheDocument();
     expect(screen.getByText('Version')).toBeInTheDocument();
-    expect(screen.getByText('Provider')).toBeInTheDocument();
     expect(screen.getByText('Status')).toBeInTheDocument();
     expect(screen.getByText('Evaluations')).toBeInTheDocument();
     expect(screen.getByText('Deployed')).toBeInTheDocument();
 
     // First model data
     expect(screen.getByText('GPT-4o Evaluator')).toBeInTheDocument();
+    expect(screen.getByText('gpt-4o-2024-05-13')).toBeInTheDocument();
+    expect(screen.getByText('CODE')).toBeInTheDocument();
     expect(screen.getByText('1.2.0')).toBeInTheDocument();
-    expect(screen.getByText('OpenAI')).toBeInTheDocument();
     expect(screen.getByText('ACTIVE')).toBeInTheDocument();
     expect(screen.getByText('142')).toBeInTheDocument();
     expect(
@@ -63,8 +69,9 @@ describe('ModelRegistryList', () => {
 
     // Second model data
     expect(screen.getByText('Claude Scorer')).toBeInTheDocument();
+    expect(screen.getByText('claude-sonnet-4-5-20250514')).toBeInTheDocument();
+    expect(screen.getByText('DOCUMENTATION')).toBeInTheDocument();
     expect(screen.getByText('2.0.1')).toBeInTheDocument();
-    expect(screen.getByText('Anthropic')).toBeInTheDocument();
     expect(screen.getByText('DEPRECATED')).toBeInTheDocument();
     expect(screen.getByText('58')).toBeInTheDocument();
     // deployedAt is null → em dash

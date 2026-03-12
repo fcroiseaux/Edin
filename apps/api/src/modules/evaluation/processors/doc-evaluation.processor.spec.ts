@@ -86,6 +86,8 @@ const mockModel = {
   name: 'doc-evaluator',
   version: 'v1.0.0',
   provider: 'anthropic',
+  apiModelId: 'claude-sonnet-4-5-20250514',
+  evaluationType: 'DOCUMENTATION',
   config: { modelId: 'claude-sonnet-4-5-20250514', promptVersion: 'doc-eval-v1' },
 };
 
@@ -242,6 +244,22 @@ describe('DocEvaluationProcessor', () => {
         compositeScore: 83,
       }),
       86400,
+    );
+  });
+
+  it('passes apiModelId from registry to evaluation provider', async () => {
+    mockPrisma.contribution.findUniqueOrThrow.mockResolvedValue(mockContribution);
+    mockModelRegistry.getActiveModel.mockResolvedValue(mockModel);
+    mockRubricService.getActiveRubric.mockResolvedValue(mockRubric);
+    mockEvaluationProvider.evaluateDocumentation.mockResolvedValue(mockDocEvaluationResult);
+    mockPrisma.evaluation.update.mockResolvedValue({});
+
+    await processor.process(createJob());
+
+    expect(mockEvaluationProvider.evaluateDocumentation).toHaveBeenCalledWith(
+      expect.objectContaining({
+        modelId: 'claude-sonnet-4-5-20250514',
+      }),
     );
   });
 
