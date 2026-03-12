@@ -19,6 +19,9 @@ export const appConfigSchema = z.object({
   OTEL_SERVICE_NAME: z.string().default('edin-api'),
   OTEL_EXPORTER_OTLP_ENDPOINT: z.string().url().optional(),
   PSEUDONYM_SALT: z.string().min(32).optional(),
+  ANTHROPIC_API_KEY: z.string().min(1).optional(),
+  EVALUATION_MODEL_ID: z.string().optional(),
+  EVALUATION_ENABLED: z.string().optional(),
 });
 
 export type AppConfig = z.infer<typeof appConfigSchema>;

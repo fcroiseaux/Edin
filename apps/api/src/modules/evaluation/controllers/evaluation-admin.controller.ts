@@ -52,15 +52,31 @@ export class EvaluationAdminController {
   async listAvailableModels() {
     const correlationId = randomUUID();
 
-    const models = await this.evaluationProvider.listAvailableModels();
+    try {
+      const models = await this.evaluationProvider.listAvailableModels();
 
-    this.logger.debug('Listed available Anthropic models', {
-      module: 'evaluation',
-      count: models.length,
-      correlationId,
-    });
+      this.logger.debug('Listed available Anthropic models', {
+        module: 'evaluation',
+        count: models.length,
+        correlationId,
+      });
 
-    return createSuccessResponse(models, correlationId);
+      return createSuccessResponse(models, correlationId);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error fetching models';
+
+      this.logger.warn('Failed to fetch available models from Anthropic API', {
+        module: 'evaluation',
+        error: message,
+        correlationId,
+      });
+
+      throw new DomainException(
+        ERROR_CODES.VALIDATION_ERROR,
+        `Anthropic API unavailable: ${message}`,
+        HttpStatus.SERVICE_UNAVAILABLE,
+      );
+    }
   }
 
   @Get('models')

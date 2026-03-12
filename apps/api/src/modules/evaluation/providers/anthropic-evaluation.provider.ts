@@ -73,6 +73,11 @@ export class AnthropicEvaluationProvider implements EvaluationProvider {
 
   constructor(private readonly configService: ConfigService) {
     const apiKey = this.configService.get<string>('ANTHROPIC_API_KEY');
+    if (!apiKey) {
+      this.logger.warn(
+        'ANTHROPIC_API_KEY is not configured — evaluation and model listing will fail',
+      );
+    }
     this.client = new Anthropic({ apiKey });
     this.defaultModelId = this.configService.get<string>(
       'EVALUATION_MODEL_ID',
