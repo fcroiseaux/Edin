@@ -52,6 +52,9 @@ apps/api/generated/
 postgres-data/
 redis-data/
 
+# Commercial fonts (ABC Normal — must not be in public repo)
+packages/ui/src/fonts/*.woff2
+
 # Misc
 *.pem
 .vercel

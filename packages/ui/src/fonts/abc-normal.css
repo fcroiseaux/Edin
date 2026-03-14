@@ -1,0 +1,60 @@
+/* ABC Normal — ROSE Design System Typography
+ * 7 weights: Light 300, Book 400, Neutral 450, Medium 500, Bold 700, Black 800, Super 900
+ * Commercial font — WOFF2 files must not be committed to public repositories
+ */
+
+@font-face {
+  font-family: 'ABC Normal';
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+  src: url('./ABCNormal-Light.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'ABC Normal';
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url('./ABCNormal-Book.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'ABC Normal';
+  font-weight: 450;
+  font-style: normal;
+  font-display: swap;
+  src: url('./ABCNormal-Neutral.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'ABC Normal';
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+  src: url('./ABCNormal-Medium.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'ABC Normal';
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  src: url('./ABCNormal-Bold.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'ABC Normal';
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+  src: url('./ABCNormal-Black.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'ABC Normal';
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+  src: url('./ABCNormal-Super.woff2') format('woff2');
+}

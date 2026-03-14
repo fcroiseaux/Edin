@@ -39,7 +39,19 @@ project_key: NOKEY
 tracking_system: file-system
 story_location: _bmad-output/implementation-artifacts
 
+last_updated: 2026-03-14
+
 development_status:
+  # Epic 0: ROSE Design System Foundation
+  epic-0: in-progress
+  0-1-rose-design-tokens-abc-normal-font-integration: done
+  0-2-foundation-ui-primitives: backlog
+  0-3-radix-ui-wrappers-with-rose-theming: backlog
+  0-4-dashboard-shell-and-sidebar-nav: backlog
+  0-5-reading-canvas-and-public-portal: backlog
+  0-6-domain-identity-and-content-display-components: backlog
+  epic-0-retrospective: optional
+
   # Epic 1: Project Foundation & Contributor Authentication
   epic-1: done
   1-1-initialize-monorepo-and-development-environment: done
