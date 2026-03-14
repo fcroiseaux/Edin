@@ -3,77 +3,78 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Edin — Design Direction Mockups</title>
+    <title>Edin — ROSE Design Direction Mockups</title>
     <style>
       /* ═══════════════════════════════════════════════════════════
-     EDIN DESIGN DIRECTION SHOWCASE
-     Visual exploration of the "Calm Confidence" design system
-     ═══════════════════════════════════════════════════════════ */
+         EDIN DESIGN DIRECTION SHOWCASE
+         Dark-first visual exploration — ROSE design language
+         ═══════════════════════════════════════════════════════════ */
 
-      /* === DESIGN TOKENS === */
+      /* === DESIGN TOKENS (ROSE Deck) === */
       :root {
-        /* Brand */
-        --brand-primary: #2d3b45;
-        --brand-secondary: #6b7b8d;
-        --brand-accent: #c4956a;
-        --brand-accent-subtle: #e8d5c0;
-        --brand-accent-hover: #b8865c;
+        /* Surfaces — Dark First */
+        --surface-base: #1a1a1d;
+        --surface-raised: #222225;
+        --surface-overlay: #2a2a2e;
+        --surface-subtle: #32323a;
+        --surface-reading: #1e1e22;
+        --surface-editor: #252528;
 
-        /* Surfaces */
-        --surface-base: #fafaf7;
-        --surface-raised: #ffffff;
-        --surface-sunken: #f2f0eb;
-        --surface-overlay: rgba(45, 59, 69, 0.6);
+        /* Accents — ROSE */
+        --accent-primary: #ff5a00;
+        --accent-primary-hover: #ff7a2e;
+        --accent-secondary: #e4bdb8;
+        --accent-secondary-muted: #c9a09a;
 
-        /* Domain Accents */
-        --domain-technology: #3a7d7e;
-        --domain-finance: #c49a3c;
-        --domain-impact: #b06b6b;
-        --domain-governance: #7b6b8a;
-
-        /* Domain Backgrounds (10% opacity) */
-        --domain-technology-bg: #3a7d7e18;
-        --domain-finance-bg: #c49a3c18;
-        --domain-impact-bg: #b06b6b18;
-        --domain-governance-bg: #7b6b8a18;
+        /* Pillar Colors */
+        --pillar-tech: #ff5a00;
+        --pillar-impact: #00e87b;
+        --pillar-governance: #00c4e8;
+        --pillar-finance: #e8aa00;
 
         /* Semantic */
-        --semantic-success: #5a8a6b;
-        --semantic-warning: #c49a3c;
-        --semantic-info: #5a7a8a;
-        --semantic-error: #a85a5a;
+        --success: #00e87b;
+        --warning: #e8aa00;
+        --error: #e85a5a;
+        --info: #00c4e8;
 
-        /* Typography */
-        --font-serif: 'Source Serif Pro', 'Libre Baskerville', Georgia, 'Times New Roman', serif;
-        --font-sans:
-          'Inter', 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        --font-mono: 'JetBrains Mono', 'Source Code Pro', 'Fira Code', monospace;
+        /* Text */
+        --text-primary: #f0f0f0;
+        --text-secondary: #a0a0a8;
+        --text-tertiary: #6a6a72;
+        --text-heading: #e4bdb8;
+        --text-accent: #ff5a00;
+        --text-inverse: #1a1a1d;
 
         /* Spacing */
-        --space-xs: 4px;
-        --space-sm: 8px;
-        --space-md: 16px;
-        --space-lg: 24px;
-        --space-xl: 32px;
-        --space-2xl: 48px;
-        --space-3xl: 64px;
-        --space-4xl: 96px;
+        --space-1: 4px;
+        --space-2: 8px;
+        --space-3: 12px;
+        --space-4: 16px;
+        --space-5: 20px;
+        --space-6: 24px;
+        --space-8: 32px;
+        --space-10: 40px;
+        --space-12: 48px;
+        --space-16: 64px;
 
-        /* Borders */
-        --radius-sm: 8px;
-        --radius-md: 12px;
-        --radius-lg: 16px;
-        --border-light: 1px solid #e8e6e1;
-        --border-warm: 1px solid #d8d4ce;
+        /* Radius */
+        --radius-sm: 4px;
+        --radius-md: 8px;
+        --radius-lg: 12px;
+        --radius-full: 9999px;
 
         /* Shadows */
-        --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06);
-        --shadow-narrative: 0 2px 8px rgba(0, 0, 0, 0.04);
-        --shadow-modal: 0 8px 32px rgba(0, 0, 0, 0.12);
-        --shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.08);
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+        --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+        --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+
+        /* Typography */
+        --font-primary: 'ABC Normal', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
       }
 
-      /* === RESET & BASE === */
+      /* === GLOBAL === */
       *,
       *::before,
       *::after {
@@ -81,2077 +82,861 @@
         margin: 0;
         padding: 0;
       }
-
       html {
-        font-size: 16px;
         scroll-behavior: smooth;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
       }
-
       body {
-        font-family: var(--font-sans);
-        color: var(--brand-primary);
-        background: var(--brand-primary);
-        line-height: 1.5;
-      }
-
-      /* === NAVIGATION === */
-      .showcase-nav {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 1000;
-        background: var(--brand-primary);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        padding: 0 var(--space-xl);
-        display: flex;
-        align-items: center;
-        height: 56px;
-        gap: var(--space-md);
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-      }
-
-      .showcase-nav::-webkit-scrollbar {
-        display: none;
-      }
-
-      .nav-brand {
-        display: flex;
-        align-items: center;
-        gap: var(--space-sm);
-        font-family: var(--font-serif);
-        font-size: 1.125rem;
-        font-weight: 700;
-        color: var(--surface-base);
-        white-space: nowrap;
-        margin-right: var(--space-lg);
-        letter-spacing: 0.02em;
-      }
-
-      .nav-brand img {
-        height: 28px;
-        width: auto;
-      }
-
-      .nav-brand span {
-        color: var(--brand-accent);
-      }
-
-      .nav-item {
-        background: none;
-        border: none;
-        color: rgba(250, 250, 247, 0.6);
-        font-family: var(--font-sans);
-        font-size: 0.8125rem;
-        font-weight: 500;
-        padding: var(--space-sm) var(--space-md);
-        cursor: pointer;
-        white-space: nowrap;
-        border-radius: var(--radius-sm);
-        transition: all 200ms ease-out;
-        letter-spacing: 0.01em;
-      }
-
-      .nav-item:hover {
-        color: var(--surface-base);
-        background: rgba(255, 255, 255, 0.08);
-      }
-      .nav-item.active {
-        color: var(--surface-base);
-        background: rgba(196, 149, 106, 0.25);
-      }
-
-      /* === SECTION LAYOUT === */
-      .direction-section {
-        min-height: 100vh;
-        padding: 80px var(--space-xl) var(--space-3xl);
+        font-family: var(--font-primary);
         background: var(--surface-base);
-        position: relative;
-      }
-
-      .direction-section:nth-child(even) {
-        background: var(--surface-sunken);
-      }
-
-      .section-header {
-        max-width: 900px;
-        margin: 0 auto var(--space-2xl);
-        text-align: center;
-      }
-
-      .section-number {
-        font-family: var(--font-sans);
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.15em;
-        color: var(--brand-accent);
-        margin-bottom: var(--space-sm);
-      }
-
-      .section-title {
-        font-family: var(--font-serif);
-        font-size: 2rem;
-        font-weight: 700;
-        color: var(--brand-primary);
-        margin-bottom: var(--space-md);
-        line-height: 1.25;
-      }
-
-      .section-subtitle {
-        font-family: var(--font-sans);
-        font-size: 0.9375rem;
-        color: var(--brand-secondary);
+        color: var(--text-primary);
+        font-size: 16px;
         line-height: 1.6;
-        max-width: 640px;
-        margin: 0 auto;
+        font-weight: 400;
       }
 
-      /* === HERO SECTION === */
-      .hero-section {
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        background: var(--brand-primary);
-        color: var(--surface-base);
-        padding: var(--space-4xl) var(--space-xl);
-        text-align: center;
-      }
-
-      .hero-logo {
-        height: 80px;
-        width: auto;
-        margin-bottom: var(--space-xl);
-      }
-
-      .hero-overline {
-        font-family: var(--font-sans);
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.2em;
-        color: var(--brand-accent);
-        margin-bottom: var(--space-lg);
-      }
-
-      .hero-title {
-        font-family: var(--font-serif);
-        font-size: clamp(2.5rem, 5vw, 4rem);
-        font-weight: 700;
-        line-height: 1.15;
-        margin-bottom: var(--space-lg);
-        max-width: 700px;
-      }
-
-      .hero-title em {
-        font-style: italic;
-        color: var(--brand-accent);
-      }
-
-      .hero-description {
-        font-family: var(--font-sans);
-        font-size: 1.0625rem;
-        line-height: 1.7;
-        color: rgba(250, 250, 247, 0.7);
-        max-width: 560px;
-        margin-bottom: var(--space-2xl);
-      }
-
-      .hero-domains {
-        display: flex;
-        gap: var(--space-md);
-        flex-wrap: wrap;
-        justify-content: center;
-        margin-bottom: var(--space-3xl);
-      }
-
-      .domain-pill {
-        font-family: var(--font-sans);
-        font-size: 0.8125rem;
-        font-weight: 500;
-        padding: var(--space-sm) var(--space-md);
-        border-radius: 100px;
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        color: rgba(250, 250, 247, 0.8);
-        transition: all 200ms ease-out;
-      }
-
-      .domain-pill[data-domain='technology'] {
-        border-color: var(--domain-technology);
-        color: var(--domain-technology);
-      }
-      .domain-pill[data-domain='finance'] {
-        border-color: var(--domain-finance);
-        color: var(--domain-finance);
-      }
-      .domain-pill[data-domain='impact'] {
-        border-color: var(--domain-impact);
-        color: var(--domain-impact);
-      }
-      .domain-pill[data-domain='governance'] {
-        border-color: var(--domain-governance);
-        color: var(--domain-governance);
-      }
-
-      .hero-scroll-hint {
-        font-family: var(--font-sans);
-        font-size: 0.75rem;
-        color: rgba(250, 250, 247, 0.4);
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        animation: gentle-pulse 3s ease-in-out infinite;
-      }
-
-      @keyframes gentle-pulse {
-        0%,
-        100% {
-          opacity: 0.4;
-        }
-        50% {
-          opacity: 0.8;
-        }
-      }
-
-      /* === DIRECTION 1: ARTICLE READING === */
-      .article-mockup {
-        max-width: 720px;
-        margin: 0 auto;
-        background: var(--surface-raised);
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow-modal);
-        overflow: hidden;
-      }
-
-      .article-header-image {
-        width: 100%;
-        height: 320px;
-        background: linear-gradient(
-          135deg,
-          var(--domain-finance-bg) 0%,
-          var(--brand-accent-subtle) 50%,
-          var(--domain-governance-bg) 100%
-        );
-        position: relative;
-        display: flex;
-        align-items: flex-end;
-        padding: var(--space-2xl);
-      }
-
-      .article-header-image .domain-tag {
-        position: absolute;
-        top: var(--space-lg);
-        left: var(--space-lg);
-        font-family: var(--font-sans);
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        padding: var(--space-xs) var(--space-md);
-        border-radius: 100px;
-        background: var(--domain-finance);
-        color: white;
-      }
-
-      .article-content {
-        padding: var(--space-2xl) var(--space-2xl) var(--space-3xl);
-      }
-
-      .article-title {
-        font-family: var(--font-serif);
-        font-size: 2.25rem;
-        font-weight: 700;
-        line-height: 1.2;
-        color: var(--brand-primary);
-        margin-bottom: var(--space-lg);
-      }
-
-      .article-byline {
-        display: flex;
-        align-items: center;
-        gap: var(--space-md);
-        margin-bottom: var(--space-2xl);
-        padding-bottom: var(--space-lg);
-        border-bottom: var(--border-light);
-      }
-
-      .byline-avatars {
-        display: flex;
-      }
-
-      .byline-avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        border: 2px solid var(--surface-raised);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-family: var(--font-serif);
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: white;
-      }
-
-      .byline-avatar.author {
-        background: var(--brand-accent);
-        margin-right: -8px;
-        z-index: 1;
-      }
-      .byline-avatar.editor {
-        background: var(--brand-secondary);
-      }
-
-      .byline-text {
-        font-family: var(--font-sans);
-        font-size: 0.875rem;
-        color: var(--brand-secondary);
-        line-height: 1.4;
-      }
-
-      .byline-text strong {
-        color: var(--brand-primary);
-        font-weight: 600;
-      }
-
-      .byline-text .editor-label {
-        color: var(--brand-secondary);
-        font-size: 0.8125rem;
-      }
-
-      .article-body p {
-        font-family: var(--font-serif);
-        font-size: 1.0625rem;
-        line-height: 1.65;
-        color: var(--brand-primary);
-        margin-bottom: var(--space-lg);
-      }
-
-      .article-body .pull-quote {
-        font-family: var(--font-serif);
-        font-size: 1.375rem;
-        font-style: italic;
-        line-height: 1.5;
-        color: var(--brand-accent);
-        border-left: 3px solid var(--brand-accent);
-        padding: var(--space-lg) var(--space-xl);
-        margin: var(--space-2xl) 0;
-        background: linear-gradient(90deg, rgba(196, 149, 106, 0.08) 0%, transparent 100%);
-        border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-      }
-
-      .article-reading-time {
-        font-family: var(--font-sans);
-        font-size: 0.8125rem;
-        color: var(--brand-secondary);
-      }
-
-      /* === DIRECTION 2: EVALUATION REVEAL === */
-      .evaluation-mockup {
-        max-width: 800px;
-        margin: 0 auto;
-        display: flex;
-        flex-direction: column;
-        gap: var(--space-lg);
-      }
-
-      .narrative-card {
-        background: var(--surface-raised);
-        border-radius: var(--radius-lg);
-        padding: var(--space-2xl) var(--space-xl);
-        box-shadow: var(--shadow-narrative);
-        position: relative;
-        overflow: hidden;
-      }
-
-      .narrative-card::before {
-        content: '';
-        position: absolute;
+      /* === STICKY NAV === */
+      .nav {
+        position: sticky;
         top: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: linear-gradient(90deg, var(--domain-technology), var(--brand-accent));
-      }
-
-      .narrative-label {
-        font-family: var(--font-sans);
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.12em;
-        color: var(--brand-accent);
-        margin-bottom: var(--space-md);
-      }
-
-      .narrative-text {
-        font-family: var(--font-serif);
-        font-size: 1.1875rem;
-        line-height: 1.65;
-        color: var(--brand-primary);
-      }
-
-      .narrative-text em {
-        color: var(--domain-technology);
-        font-style: normal;
-        font-weight: 600;
-      }
-
-      .narrative-contribution {
+        z-index: 100;
+        background: rgba(26, 26, 29, 0.92);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--surface-subtle);
+        padding: var(--space-3) var(--space-8);
         display: flex;
         align-items: center;
-        gap: var(--space-md);
-        margin-top: var(--space-lg);
-        padding-top: var(--space-lg);
-        border-top: var(--border-light);
-        font-family: var(--font-sans);
-        font-size: 0.875rem;
-        color: var(--brand-secondary);
+        gap: var(--space-6);
+        overflow-x: auto;
       }
-
-      .contribution-icon {
-        width: 36px;
-        height: 36px;
-        border-radius: var(--radius-sm);
-        background: var(--domain-technology-bg);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1rem;
+      .nav-brand {
+        font-weight: 800;
+        font-size: 18px;
+        color: var(--accent-primary);
+        white-space: nowrap;
+        letter-spacing: -0.02em;
       }
-
-      .quality-dimensions {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: var(--space-md);
-      }
-
-      .dimension-card {
-        background: var(--surface-raised);
-        border-radius: var(--radius-md);
-        padding: var(--space-lg);
-        border: var(--border-light);
-        cursor: pointer;
-        transition: all 200ms ease-out;
-      }
-
-      .dimension-card:hover {
-        box-shadow: var(--shadow-hover);
-        border-color: var(--brand-accent-subtle);
-      }
-
-      .dimension-label {
-        font-family: var(--font-sans);
-        font-size: 0.8125rem;
+      .nav a {
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: 14px;
         font-weight: 500;
-        color: var(--brand-secondary);
-        margin-bottom: var(--space-sm);
+        white-space: nowrap;
+        padding: var(--space-1) var(--space-3);
+        border-radius: var(--radius-sm);
+        transition:
+          color 0.15s,
+          background 0.15s;
+      }
+      .nav a:hover {
+        color: var(--text-primary);
+        background: var(--surface-subtle);
       }
 
-      .dimension-value {
-        font-family: var(--font-serif);
-        font-size: 1rem;
-        font-weight: 600;
-        color: var(--brand-primary);
-        margin-bottom: var(--space-md);
+      /* === DIRECTION SECTIONS === */
+      .direction {
+        min-height: 100vh;
+        padding: var(--space-16) var(--space-8);
+        border-bottom: 1px solid var(--surface-subtle);
       }
-
-      .dimension-bar {
-        height: 4px;
-        background: var(--surface-sunken);
-        border-radius: 2px;
-        overflow: hidden;
+      .direction-header {
+        max-width: 720px;
+        margin: 0 auto var(--space-12);
       }
-
-      .dimension-bar-fill {
-        height: 100%;
-        border-radius: 2px;
-        transition: width 600ms ease-out;
-      }
-
-      .dimension-expand {
-        font-family: var(--font-sans);
-        font-size: 0.75rem;
-        color: var(--brand-accent);
-        margin-top: var(--space-sm);
-      }
-
-      .trajectory-card {
-        background: var(--surface-raised);
-        border-radius: var(--radius-md);
-        padding: var(--space-xl);
-        border: var(--border-light);
-      }
-
-      .trajectory-label {
-        font-family: var(--font-sans);
-        font-size: 0.8125rem;
-        font-weight: 600;
-        color: var(--brand-secondary);
-        margin-bottom: var(--space-md);
+      .direction-label {
+        font-size: 12px;
+        font-weight: 500;
+        letter-spacing: 0.1em;
         text-transform: uppercase;
-        letter-spacing: 0.08em;
+        color: var(--accent-primary);
+        margin-bottom: var(--space-2);
+      }
+      .direction-title {
+        font-size: 36px;
+        font-weight: 800;
+        color: var(--text-heading);
+        line-height: 1.2;
+        margin-bottom: var(--space-4);
+      }
+      .direction-desc {
+        font-size: 18px;
+        color: var(--text-secondary);
+        line-height: 1.6;
+        font-weight: 300;
       }
 
-      .trajectory-svg {
-        width: 100%;
-        height: 120px;
-      }
-
-      .trajectory-note {
-        font-family: var(--font-serif);
-        font-size: 0.875rem;
-        font-style: italic;
-        color: var(--brand-secondary);
-        margin-top: var(--space-md);
-        text-align: center;
-      }
-
-      /* === DIRECTION 3: CONTRIBUTOR DASHBOARD === */
-      .dashboard-mockup {
-        max-width: 1100px;
+      /* === MOCKUP CONTAINERS === */
+      .mockup {
+        max-width: 1200px;
         margin: 0 auto;
         background: var(--surface-raised);
         border-radius: var(--radius-lg);
-        box-shadow: var(--shadow-modal);
+        box-shadow: var(--shadow-lg);
         overflow: hidden;
+        border: 1px solid var(--surface-subtle);
+      }
+
+      /* ───────────────────────────────────────
+         DIRECTION 1: CONTRIBUTOR DASHBOARD
+         Linear-style sidebar + evaluation cards
+         ─────────────────────────────────────── */
+      .dashboard-layout {
         display: grid;
         grid-template-columns: 240px 1fr;
         min-height: 600px;
       }
-
-      .dashboard-sidebar {
-        background: var(--brand-primary);
-        padding: var(--space-lg);
+      .sidebar {
+        background: var(--surface-base);
+        border-right: 1px solid var(--surface-subtle);
+        padding: var(--space-6) 0;
         display: flex;
         flex-direction: column;
       }
-
-      .sidebar-brand {
-        display: flex;
-        align-items: center;
-        gap: var(--space-sm);
-        font-family: var(--font-serif);
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: var(--surface-base);
-        padding-bottom: var(--space-lg);
-        margin-bottom: var(--space-lg);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      .sidebar-logo {
+        padding: 0 var(--space-5);
+        margin-bottom: var(--space-8);
+        font-weight: 800;
+        font-size: 20px;
+        color: var(--text-primary);
+        letter-spacing: -0.02em;
       }
-
-      .sidebar-brand img {
-        height: 32px;
-        width: auto;
+      .sidebar-section {
+        margin-bottom: var(--space-6);
       }
-
-      .sidebar-brand span {
-        color: var(--brand-accent);
+      .sidebar-section-title {
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--text-tertiary);
+        padding: 0 var(--space-5);
+        margin-bottom: var(--space-2);
       }
-      .sidebar-nav {
-        display: flex;
-        flex-direction: column;
-        gap: var(--space-xs);
-        flex: 1;
-      }
-
       .sidebar-item {
         display: flex;
         align-items: center;
-        gap: var(--space-md);
-        padding: var(--space-sm) var(--space-md);
-        border-radius: var(--radius-sm);
-        font-family: var(--font-sans);
-        font-size: 0.875rem;
-        color: rgba(250, 250, 247, 0.6);
+        gap: var(--space-3);
+        padding: var(--space-2) var(--space-5);
+        color: var(--text-secondary);
+        font-size: 14px;
+        font-weight: 450;
         cursor: pointer;
-        transition: all 200ms ease-out;
+        transition:
+          background 0.1s,
+          color 0.1s;
       }
-
       .sidebar-item:hover {
-        color: var(--surface-base);
-        background: rgba(255, 255, 255, 0.08);
+        background: var(--surface-subtle);
+        color: var(--text-primary);
       }
       .sidebar-item.active {
-        color: var(--surface-base);
-        background: rgba(196, 149, 106, 0.2);
+        background: rgba(255, 90, 0, 0.08);
+        color: var(--accent-primary);
+        border-right: 2px solid var(--accent-primary);
       }
-      .sidebar-item .icon {
-        width: 20px;
-        text-align: center;
-        font-size: 0.875rem;
-      }
-
-      .sidebar-item .notification-dot {
+      .sidebar-dot {
         width: 8px;
         height: 8px;
-        border-radius: 50%;
-        background: var(--brand-accent);
-        margin-left: auto;
+        border-radius: var(--radius-full);
+        flex-shrink: 0;
       }
-
-      .sidebar-profile {
-        display: flex;
-        align-items: center;
-        gap: var(--space-md);
-        padding: var(--space-md);
-        margin-top: auto;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        padding-top: var(--space-lg);
-      }
-
-      .sidebar-profile-avatar {
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        background: var(--domain-technology);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-family: var(--font-serif);
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: white;
-      }
-
-      .sidebar-profile-info {
-        font-family: var(--font-sans);
-        font-size: 0.8125rem;
-        color: rgba(250, 250, 247, 0.8);
-        line-height: 1.3;
-      }
-
-      .sidebar-profile-info .role {
-        font-size: 0.75rem;
-        color: rgba(250, 250, 247, 0.5);
-      }
-
-      .dashboard-content {
-        padding: var(--space-xl);
+      .dashboard-main {
+        padding: var(--space-8);
         background: var(--surface-base);
         overflow-y: auto;
       }
-
       .dashboard-greeting {
-        margin-bottom: var(--space-2xl);
+        font-size: 28px;
+        font-weight: 800;
+        color: var(--text-heading);
+        margin-bottom: var(--space-2);
       }
-
-      .dashboard-greeting h2 {
-        font-family: var(--font-serif);
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--brand-primary);
-        margin-bottom: var(--space-xs);
+      .dashboard-subtitle {
+        color: var(--text-secondary);
+        font-size: 16px;
+        font-weight: 300;
+        margin-bottom: var(--space-8);
       }
-
-      .dashboard-greeting p {
-        font-family: var(--font-sans);
-        font-size: 0.875rem;
-        color: var(--brand-secondary);
-      }
-
-      .dashboard-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: var(--space-lg);
-        margin-bottom: var(--space-xl);
-      }
-
-      .dash-card {
+      .eval-card {
         background: var(--surface-raised);
+        border: 1px solid var(--surface-subtle);
         border-radius: var(--radius-md);
-        padding: var(--space-lg);
-        border: var(--border-light);
-        transition: all 200ms ease-out;
+        padding: var(--space-5);
+        margin-bottom: var(--space-4);
+        transition:
+          border-color 0.2s,
+          box-shadow 0.2s;
+        cursor: pointer;
+        border-left: 3px solid transparent;
       }
-
-      .dash-card:hover {
-        box-shadow: var(--shadow-hover);
+      .eval-card:hover {
+        border-color: var(--surface-overlay);
+        box-shadow: var(--shadow-md);
       }
-
-      .dash-card-header {
+      .eval-card[data-pillar='tech'] {
+        border-left-color: var(--pillar-tech);
+      }
+      .eval-card[data-pillar='impact'] {
+        border-left-color: var(--pillar-impact);
+      }
+      .eval-card[data-pillar='governance'] {
+        border-left-color: var(--pillar-governance);
+      }
+      .eval-card[data-pillar='finance'] {
+        border-left-color: var(--pillar-finance);
+      }
+      .eval-card-header {
         display: flex;
         justify-content: space-between;
-        align-items: center;
-        margin-bottom: var(--space-md);
+        align-items: flex-start;
+        margin-bottom: var(--space-3);
       }
-
-      .dash-card-title {
-        font-family: var(--font-sans);
-        font-size: 0.8125rem;
-        font-weight: 600;
+      .eval-card-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--text-primary);
+      }
+      .eval-card-badge {
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.05em;
         text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--brand-secondary);
+        padding: var(--space-1) var(--space-2);
+        border-radius: var(--radius-sm);
+        background: rgba(255, 255, 255, 0.06);
+      }
+      .eval-card-narrative {
+        font-size: 15px;
+        font-weight: 400;
+        color: var(--text-secondary);
+        line-height: 1.55;
+        margin-bottom: var(--space-3);
+      }
+      .eval-card-meta {
+        display: flex;
+        gap: var(--space-4);
+        font-size: 13px;
+        color: var(--text-tertiary);
+        font-weight: 300;
       }
 
-      .dash-card-icon {
-        width: 32px;
-        height: 32px;
-        border-radius: var(--radius-sm);
+      /* ───────────────────────────────────────
+         DIRECTION 2: PUBLICATION ARTICLE
+         Economist-style on dark canvas
+         ─────────────────────────────────────── */
+      .article-canvas {
+        background: var(--surface-reading);
+        padding: var(--space-16) var(--space-8);
+      }
+      .article-content {
+        max-width: 680px;
+        margin: 0 auto;
+      }
+      .article-domain-tag {
+        font-size: 12px;
+        font-weight: 500;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        margin-bottom: var(--space-4);
+      }
+      .article-headline {
+        font-size: 40px;
+        font-weight: 800;
+        color: var(--text-heading);
+        line-height: 1.15;
+        margin-bottom: var(--space-6);
+        letter-spacing: -0.01em;
+      }
+      .article-byline {
+        display: flex;
+        align-items: center;
+        gap: var(--space-4);
+        padding-bottom: var(--space-6);
+        border-bottom: 1px solid var(--surface-subtle);
+        margin-bottom: var(--space-8);
+      }
+      .byline-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: var(--radius-full);
+        background: var(--surface-subtle);
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1rem;
+        font-weight: 700;
+        font-size: 16px;
+        color: var(--text-secondary);
       }
-
-      .dash-card-value {
-        font-family: var(--font-serif);
-        font-size: 1.125rem;
-        font-weight: 600;
-        color: var(--brand-primary);
-        margin-bottom: var(--space-xs);
+      .byline-info {
+        font-size: 14px;
+        line-height: 1.4;
       }
-
-      .dash-card-desc {
-        font-family: var(--font-sans);
-        font-size: 0.8125rem;
-        color: var(--brand-secondary);
+      .byline-name {
+        font-weight: 500;
+        color: var(--text-primary);
+      }
+      .byline-role {
+        color: var(--text-tertiary);
+        font-weight: 300;
+      }
+      .article-body p {
+        font-size: 18px;
+        font-weight: 400;
+        color: var(--text-primary);
+        line-height: 1.7;
+        margin-bottom: 1.5em;
+      }
+      .article-body .pullquote {
+        font-size: 24px;
+        font-weight: 300;
+        color: var(--accent-secondary);
+        border-left: 3px solid var(--accent-primary);
+        padding-left: var(--space-6);
+        margin: var(--space-10) 0;
         line-height: 1.5;
       }
-
-      .activity-feed {
-        background: var(--surface-raised);
-        border-radius: var(--radius-md);
-        border: var(--border-light);
-        overflow: hidden;
+      .article-body h2 {
+        font-size: 28px;
+        font-weight: 800;
+        color: var(--text-heading);
+        margin: var(--space-12) 0 var(--space-6);
+        line-height: 1.25;
       }
 
-      .activity-feed-header {
-        padding: var(--space-lg);
-        border-bottom: var(--border-light);
-        font-family: var(--font-sans);
-        font-size: 0.8125rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--brand-secondary);
+      /* ───────────────────────────────────────
+         DIRECTION 3: ACTIVITY FEED
+         Equal domain dignity
+         ─────────────────────────────────────── */
+      .feed-layout {
+        padding: var(--space-8);
+        max-width: 760px;
+        margin: 0 auto;
       }
-
+      .feed-tabs {
+        display: flex;
+        gap: var(--space-1);
+        margin-bottom: var(--space-8);
+        border-bottom: 1px solid var(--surface-subtle);
+        padding-bottom: 0;
+      }
+      .feed-tab {
+        padding: var(--space-3) var(--space-4);
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--text-secondary);
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -1px;
+        transition:
+          color 0.15s,
+          border-color 0.15s;
+      }
+      .feed-tab:hover {
+        color: var(--text-primary);
+      }
+      .feed-tab.active {
+        color: var(--accent-primary);
+        border-bottom-color: var(--accent-primary);
+      }
       .feed-item {
-        padding: var(--space-md) var(--space-lg);
-        border-bottom: var(--border-light);
-        display: flex;
-        align-items: flex-start;
-        gap: var(--space-md);
-        transition: background 200ms ease-out;
-      }
-
-      .feed-item:last-child {
-        border-bottom: none;
-      }
-      .feed-item:hover {
-        background: var(--surface-sunken);
-      }
-
-      .feed-avatar {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-family: var(--font-serif);
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: white;
-        flex-shrink: 0;
-      }
-
-      .feed-content {
-        flex: 1;
-        min-width: 0;
-      }
-
-      .feed-text {
-        font-family: var(--font-sans);
-        font-size: 0.875rem;
-        color: var(--brand-primary);
-        line-height: 1.4;
-        margin-bottom: var(--space-xs);
-      }
-
-      .feed-text strong {
-        font-weight: 600;
-      }
-
-      .feed-meta {
-        font-family: var(--font-sans);
-        font-size: 0.75rem;
-        color: var(--brand-secondary);
-        display: flex;
-        align-items: center;
-        gap: var(--space-sm);
-      }
-
-      .feed-domain-dot {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-      }
-
-      /* === DIRECTION 4: AUTHORING EXPERIENCE === */
-      .authoring-mockup {
-        max-width: 900px;
-        margin: 0 auto;
-        background: var(--surface-raised);
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow-modal);
-        overflow: hidden;
-      }
-
-      .authoring-toolbar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: var(--space-md) var(--space-xl);
-        border-bottom: var(--border-light);
-        background: var(--surface-raised);
-      }
-
-      .authoring-toolbar-left {
-        display: flex;
-        align-items: center;
-        gap: var(--space-md);
-      }
-
-      .authoring-back {
-        font-family: var(--font-sans);
-        font-size: 0.875rem;
-        color: var(--brand-secondary);
-        cursor: pointer;
-      }
-
-      .authoring-status {
-        font-family: var(--font-sans);
-        font-size: 0.75rem;
-        color: var(--semantic-success);
-        display: flex;
-        align-items: center;
-        gap: var(--space-xs);
-      }
-
-      .authoring-status .dot {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background: var(--semantic-success);
-      }
-
-      .authoring-toolbar-right {
-        display: flex;
-        align-items: center;
-        gap: var(--space-md);
-      }
-
-      .btn {
-        font-family: var(--font-sans);
-        font-size: 0.875rem;
-        font-weight: 500;
-        padding: var(--space-sm) var(--space-md);
-        border-radius: var(--radius-sm);
-        cursor: pointer;
-        transition: all 200ms ease-out;
-        border: none;
-      }
-
-      .btn-primary {
-        background: var(--brand-accent);
-        color: white;
-      }
-      .btn-primary:hover {
-        background: var(--brand-accent-hover);
-      }
-
-      .btn-secondary {
-        background: transparent;
-        border: 1px solid var(--brand-accent);
-        color: var(--brand-accent);
-      }
-
-      .btn-secondary:hover {
-        background: rgba(196, 149, 106, 0.08);
-      }
-
-      .authoring-domain-select {
-        display: flex;
-        align-items: center;
-        gap: var(--space-sm);
-        padding: var(--space-xs) var(--space-md);
-        border-radius: 100px;
-        font-family: var(--font-sans);
-        font-size: 0.75rem;
-        font-weight: 500;
-        border: 1px solid var(--domain-impact);
-        color: var(--domain-impact);
-        background: var(--domain-impact-bg);
-      }
-
-      .authoring-editor-area {
-        padding: var(--space-3xl) var(--space-4xl);
-        min-height: 400px;
-      }
-
-      .authoring-editor-area .article-title-input {
-        font-family: var(--font-serif);
-        font-size: 2.25rem;
-        font-weight: 700;
-        color: var(--brand-primary);
-        border: none;
-        outline: none;
-        width: 100%;
-        margin-bottom: var(--space-xl);
-        line-height: 1.2;
-      }
-
-      .authoring-body-input {
-        font-family: var(--font-serif);
-        font-size: 1.0625rem;
-        line-height: 1.65;
-        color: var(--brand-primary);
-      }
-
-      .authoring-body-input p {
-        margin-bottom: var(--space-lg);
-      }
-
-      .authoring-body-input .slash-hint {
-        color: #c8c4be;
-        font-family: var(--font-sans);
-        font-size: 0.875rem;
-      }
-
-      .slash-menu {
-        background: var(--surface-raised);
-        border-radius: var(--radius-md);
-        box-shadow: var(--shadow-modal);
-        border: var(--border-light);
-        padding: var(--space-sm);
-        width: 260px;
-        margin-top: var(--space-md);
-      }
-
-      .slash-menu-item {
-        display: flex;
-        align-items: center;
-        gap: var(--space-md);
-        padding: var(--space-sm) var(--space-md);
-        border-radius: var(--radius-sm);
-        cursor: pointer;
-        transition: background 200ms ease-out;
-      }
-
-      .slash-menu-item:hover {
-        background: var(--surface-sunken);
-      }
-      .slash-menu-item.selected {
-        background: var(--brand-accent-subtle);
-      }
-
-      .slash-menu-icon {
-        width: 32px;
-        height: 32px;
-        border-radius: var(--radius-sm);
-        background: var(--surface-sunken);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.875rem;
-      }
-
-      .slash-menu-text {
-        font-family: var(--font-sans);
-        font-size: 0.875rem;
-        color: var(--brand-primary);
-        line-height: 1.3;
-      }
-
-      .slash-menu-text .hint {
-        font-size: 0.75rem;
-        color: var(--brand-secondary);
-      }
-
-      /* === DIRECTION 5: PUBLIC PORTAL === */
-      .portal-mockup {
-        max-width: 1100px;
-        margin: 0 auto;
-        background: var(--surface-raised);
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow-modal);
-        overflow: hidden;
-      }
-
-      .portal-nav {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: var(--space-md) var(--space-xl);
-        border-bottom: var(--border-light);
-      }
-
-      .portal-nav-left {
-        display: flex;
-        align-items: center;
-        gap: var(--space-xl);
-      }
-
-      .portal-logo {
-        display: flex;
-        align-items: center;
-        gap: var(--space-sm);
-        font-family: var(--font-serif);
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: var(--brand-primary);
-      }
-
-      .portal-logo img {
-        height: 32px;
-        width: auto;
-      }
-
-      .portal-logo span {
-        color: var(--brand-accent);
-      }
-
-      .portal-nav-links {
-        display: flex;
-        gap: var(--space-lg);
-      }
-
-      .portal-nav-link {
-        font-family: var(--font-sans);
-        font-size: 0.875rem;
-        color: var(--brand-secondary);
-        text-decoration: none;
-        cursor: pointer;
-        transition: color 200ms ease-out;
-      }
-
-      .portal-nav-link:hover {
-        color: var(--brand-primary);
-      }
-      .portal-nav-link.active {
-        color: var(--brand-primary);
-        font-weight: 500;
-      }
-
-      .portal-hero {
-        padding: var(--space-3xl) var(--space-2xl);
-        text-align: center;
-        background: linear-gradient(180deg, var(--surface-raised) 0%, var(--surface-sunken) 100%);
-      }
-
-      .portal-hero h1 {
-        font-family: var(--font-serif);
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: var(--brand-primary);
-        margin-bottom: var(--space-md);
-        line-height: 1.2;
-      }
-
-      .portal-hero p {
-        font-family: var(--font-sans);
-        font-size: 1rem;
-        color: var(--brand-secondary);
-        max-width: 560px;
-        margin: 0 auto var(--space-xl);
-        line-height: 1.6;
-      }
-
-      .portal-stats {
-        display: flex;
-        justify-content: center;
-        gap: var(--space-2xl);
-        margin-top: var(--space-xl);
-      }
-
-      .portal-stat {
-        text-align: center;
-      }
-
-      .portal-stat-value {
-        font-family: var(--font-serif);
-        font-size: 1.75rem;
-        font-weight: 700;
-        color: var(--brand-primary);
-      }
-
-      .portal-stat-label {
-        font-family: var(--font-sans);
-        font-size: 0.8125rem;
-        color: var(--brand-secondary);
-        margin-top: var(--space-xs);
-      }
-
-      .portal-featured {
-        padding: var(--space-2xl);
-      }
-
-      .portal-featured-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: var(--space-xl);
-      }
-
-      .portal-featured-title {
-        font-family: var(--font-serif);
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: var(--brand-primary);
-      }
-
-      .portal-featured-link {
-        font-family: var(--font-sans);
-        font-size: 0.875rem;
-        color: var(--brand-accent);
-        cursor: pointer;
-      }
-
-      .portal-articles-grid {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: var(--space-lg);
+        grid-template-columns: 3px 1fr;
+        gap: var(--space-5);
+        padding: var(--space-5) 0;
+        border-bottom: 1px solid rgba(50, 50, 58, 0.5);
+      }
+      .feed-pillar-line {
+        border-radius: var(--radius-full);
+        width: 3px;
+      }
+      .feed-item-content {
+      }
+      .feed-item-title {
+        font-size: 16px;
+        font-weight: 500;
+        color: var(--text-primary);
+        margin-bottom: var(--space-1);
+      }
+      .feed-item-summary {
+        font-size: 14px;
+        font-weight: 400;
+        color: var(--text-secondary);
+        line-height: 1.5;
+        margin-bottom: var(--space-2);
+      }
+      .feed-item-meta {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        font-size: 12px;
+        color: var(--text-tertiary);
+        font-weight: 300;
+      }
+      .feed-item-domain {
+        font-weight: 500;
+        font-size: 11px;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
       }
 
-      .portal-article-card {
-        border-radius: var(--radius-md);
-        border: var(--border-light);
+      /* ───────────────────────────────────────
+         DIRECTION 4: PUBLIC PORTAL HERO
+         Cinematic ROSE gradient
+         ─────────────────────────────────────── */
+      .hero-section {
+        position: relative;
+        min-height: 520px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        background: linear-gradient(135deg, #1a1a1d 0%, #222225 40%, #1a1a1d 100%);
         overflow: hidden;
-        transition: all 200ms ease-out;
+      }
+      .hero-section::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(ellipse 60% 50% at 25% 50%, rgba(255, 90, 0, 0.06) 0%, transparent 70%),
+          radial-gradient(ellipse 50% 60% at 75% 40%, rgba(228, 189, 184, 0.04) 0%, transparent 60%);
+      }
+      .hero-content {
+        position: relative;
+        z-index: 1;
+        max-width: 720px;
+        padding: var(--space-8);
+      }
+      .hero-overline {
+        font-size: 13px;
+        font-weight: 500;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--accent-primary);
+        margin-bottom: var(--space-4);
+      }
+      .hero-title {
+        font-size: 48px;
+        font-weight: 900;
+        color: var(--text-heading);
+        line-height: 1.1;
+        margin-bottom: var(--space-6);
+        letter-spacing: -0.02em;
+      }
+      .hero-subtitle {
+        font-size: 20px;
+        font-weight: 300;
+        color: var(--text-secondary);
+        line-height: 1.6;
+        margin-bottom: var(--space-8);
+        max-width: 560px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .hero-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        background: var(--accent-primary);
+        color: var(--text-inverse);
+        font-weight: 700;
+        font-size: 16px;
+        padding: var(--space-3) var(--space-6);
+        border-radius: var(--radius-md);
+        text-decoration: none;
+        transition:
+          background 0.15s,
+          transform 0.1s;
+      }
+      .hero-cta:hover {
+        background: var(--accent-primary-hover);
+        transform: translateY(-1px);
+      }
+      .pillar-cards {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: var(--space-4);
+        padding: var(--space-8);
+        max-width: 960px;
+        margin: 0 auto;
+      }
+      .pillar-card {
+        background: var(--surface-raised);
+        border: 1px solid var(--surface-subtle);
+        border-radius: var(--radius-md);
+        padding: var(--space-5);
+        text-align: center;
+        transition:
+          border-color 0.2s,
+          transform 0.15s;
         cursor: pointer;
       }
-
-      .portal-article-card:hover {
-        box-shadow: var(--shadow-hover);
+      .pillar-card:hover {
         transform: translateY(-2px);
       }
-
-      .portal-article-thumb {
-        height: 140px;
-        position: relative;
+      .pillar-card[data-pillar='tech']:hover {
+        border-color: var(--pillar-tech);
       }
-
-      .portal-article-thumb .domain-tag {
-        position: absolute;
-        top: var(--space-md);
-        left: var(--space-md);
-        font-family: var(--font-sans);
-        font-size: 0.6875rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        padding: 3px var(--space-sm);
-        border-radius: 100px;
-        color: white;
+      .pillar-card[data-pillar='impact']:hover {
+        border-color: var(--pillar-impact);
       }
-
-      .portal-article-body {
-        padding: var(--space-lg);
+      .pillar-card[data-pillar='governance']:hover {
+        border-color: var(--pillar-governance);
       }
-
-      .portal-article-body h3 {
-        font-family: var(--font-serif);
-        font-size: 1rem;
-        font-weight: 600;
-        color: var(--brand-primary);
-        line-height: 1.3;
-        margin-bottom: var(--space-sm);
+      .pillar-card[data-pillar='finance']:hover {
+        border-color: var(--pillar-finance);
       }
-
-      .portal-article-body p {
-        font-family: var(--font-sans);
-        font-size: 0.8125rem;
-        color: var(--brand-secondary);
-        line-height: 1.5;
-        margin-bottom: var(--space-md);
-      }
-
-      .portal-article-meta {
-        font-family: var(--font-sans);
-        font-size: 0.75rem;
-        color: var(--brand-secondary);
-        display: flex;
-        align-items: center;
-        gap: var(--space-sm);
-      }
-
-      /* === DIRECTION 6: EDITORIAL FEEDBACK === */
-      .editorial-mockup {
-        max-width: 900px;
-        margin: 0 auto;
-        display: grid;
-        grid-template-columns: 1fr 300px;
-        gap: 0;
-        background: var(--surface-raised);
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow-modal);
-        overflow: hidden;
-        min-height: 500px;
-      }
-
-      .editorial-content {
-        padding: var(--space-2xl);
-        border-right: var(--border-light);
-      }
-
-      .editorial-content .article-title {
-        font-size: 1.75rem;
-        margin-bottom: var(--space-lg);
-      }
-
-      .editorial-text {
-        font-family: var(--font-serif);
-        font-size: 1.0625rem;
-        line-height: 1.65;
-        color: var(--brand-primary);
-      }
-
-      .editorial-text p {
-        margin-bottom: var(--space-lg);
-      }
-
-      .editorial-highlight {
-        background: rgba(196, 149, 106, 0.15);
-        border-bottom: 2px solid var(--brand-accent);
-        cursor: pointer;
-        padding: 2px 0;
-        transition: background 200ms ease-out;
-      }
-
-      .editorial-highlight:hover {
-        background: rgba(196, 149, 106, 0.25);
-      }
-      .editorial-highlight.active {
-        background: rgba(196, 149, 106, 0.3);
-      }
-
-      .editorial-sidebar {
-        background: var(--surface-sunken);
-        padding: var(--space-lg);
-        display: flex;
-        flex-direction: column;
-        gap: var(--space-lg);
-      }
-
-      .editorial-sidebar-header {
-        font-family: var(--font-sans);
-        font-size: 0.8125rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--brand-secondary);
-        padding-bottom: var(--space-md);
-        border-bottom: var(--border-light);
-      }
-
-      .editorial-comment {
-        background: var(--surface-raised);
+      .pillar-icon {
+        width: 40px;
+        height: 40px;
         border-radius: var(--radius-md);
-        padding: var(--space-md);
-        border-left: 3px solid var(--brand-accent);
-      }
-
-      .editorial-comment-header {
-        display: flex;
-        align-items: center;
-        gap: var(--space-sm);
-        margin-bottom: var(--space-sm);
-      }
-
-      .editorial-comment-avatar {
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        background: var(--brand-secondary);
+        margin: 0 auto var(--space-3);
         display: flex;
         align-items: center;
         justify-content: center;
-        font-family: var(--font-serif);
-        font-size: 0.625rem;
-        font-weight: 600;
-        color: white;
+        font-size: 18px;
+      }
+      .pillar-card-name {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: var(--space-1);
+      }
+      .pillar-card-desc {
+        font-size: 12px;
+        font-weight: 300;
+        color: var(--text-tertiary);
+        line-height: 1.4;
       }
 
-      .editorial-comment-name {
-        font-family: var(--font-sans);
-        font-size: 0.8125rem;
-        font-weight: 600;
-        color: var(--brand-primary);
+      /* ───────────────────────────────────────
+         DIRECTION 5: REWARD TRAJECTORY
+         Organic growth visualization
+         ─────────────────────────────────────── */
+      .reward-layout {
+        padding: var(--space-8);
+        max-width: 860px;
+        margin: 0 auto;
       }
-
-      .editorial-comment-role {
-        font-family: var(--font-sans);
-        font-size: 0.6875rem;
-        color: var(--brand-secondary);
+      .reward-header {
+        margin-bottom: var(--space-8);
       }
-
-      .editorial-comment-text {
-        font-family: var(--font-sans);
-        font-size: 0.8125rem;
-        color: var(--brand-primary);
-        line-height: 1.5;
+      .reward-title {
+        font-size: 28px;
+        font-weight: 800;
+        color: var(--text-heading);
+        margin-bottom: var(--space-2);
       }
-
-      .editorial-status-bar {
-        margin-top: auto;
-        padding-top: var(--space-lg);
-        border-top: var(--border-light);
+      .reward-subtitle {
+        font-size: 16px;
+        font-weight: 300;
+        color: var(--text-secondary);
       }
-
-      .editorial-status-label {
-        font-family: var(--font-sans);
-        font-size: 0.75rem;
-        font-weight: 500;
-        color: var(--brand-secondary);
-        margin-bottom: var(--space-sm);
-      }
-
-      .editorial-status-steps {
-        display: flex;
-        gap: var(--space-xs);
-      }
-
-      .editorial-step {
-        flex: 1;
-        height: 4px;
-        border-radius: 2px;
+      .reward-chart-container {
         background: var(--surface-base);
+        border: 1px solid var(--surface-subtle);
+        border-radius: var(--radius-md);
+        padding: var(--space-6);
+        margin-bottom: var(--space-6);
+      }
+      .reward-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: var(--space-4);
+      }
+      .reward-stat {
+        background: var(--surface-base);
+        border: 1px solid var(--surface-subtle);
+        border-radius: var(--radius-md);
+        padding: var(--space-5);
+        text-align: center;
+      }
+      .reward-stat-value {
+        font-size: 28px;
+        font-weight: 800;
+        margin-bottom: var(--space-1);
+      }
+      .reward-stat-label {
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--text-tertiary);
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+      .reward-stat-change {
+        font-size: 12px;
+        font-weight: 400;
+        margin-top: var(--space-1);
       }
 
-      .editorial-step.complete {
-        background: var(--semantic-success);
-      }
-      .editorial-step.current {
-        background: var(--brand-accent);
-      }
-
-      /* === DIRECTION 7: CONTRIBUTOR PROFILE === */
-      .profile-mockup {
+      /* ───────────────────────────────────────
+         DIRECTION 6: CONTRIBUTOR PROFILE
+         Author biography style
+         ─────────────────────────────────────── */
+      .profile-layout {
         max-width: 800px;
         margin: 0 auto;
-        background: var(--surface-raised);
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow-modal);
-        overflow: hidden;
+        padding: var(--space-8);
       }
-
       .profile-header {
-        padding: var(--space-2xl) var(--space-2xl) var(--space-xl);
-        border-bottom: var(--border-light);
         display: flex;
-        gap: var(--space-xl);
-        align-items: flex-start;
+        gap: var(--space-6);
+        margin-bottom: var(--space-8);
+        padding-bottom: var(--space-8);
+        border-bottom: 1px solid var(--surface-subtle);
       }
-
       .profile-avatar {
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        background: var(--domain-technology);
+        width: 96px;
+        height: 96px;
+        border-radius: var(--radius-full);
+        background: var(--surface-subtle);
         display: flex;
         align-items: center;
         justify-content: center;
-        font-family: var(--font-serif);
-        font-size: 2rem;
+        font-size: 36px;
         font-weight: 700;
-        color: white;
+        color: var(--text-secondary);
         flex-shrink: 0;
       }
-
       .profile-info {
         flex: 1;
       }
-
       .profile-name {
-        font-family: var(--font-serif);
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--brand-primary);
-        margin-bottom: var(--space-xs);
+        font-size: 32px;
+        font-weight: 800;
+        color: var(--text-heading);
+        margin-bottom: var(--space-2);
+        line-height: 1.1;
       }
-
       .profile-role {
-        font-family: var(--font-sans);
-        font-size: 0.875rem;
-        color: var(--brand-secondary);
-        margin-bottom: var(--space-md);
+        font-size: 16px;
+        font-weight: 300;
+        color: var(--text-secondary);
+        margin-bottom: var(--space-3);
       }
-
-      .profile-bio {
-        font-family: var(--font-serif);
-        font-size: 0.9375rem;
-        line-height: 1.6;
-        color: var(--brand-primary);
-      }
-
       .profile-domains {
         display: flex;
-        gap: var(--space-sm);
-        margin-top: var(--space-md);
+        gap: var(--space-2);
       }
-
-      .profile-domain-tag {
-        font-family: var(--font-sans);
-        font-size: 0.75rem;
+      .profile-domain-badge {
+        font-size: 11px;
         font-weight: 500;
-        padding: var(--space-xs) var(--space-md);
-        border-radius: 100px;
-        color: white;
-      }
-
-      .profile-body {
-        padding: var(--space-xl) var(--space-2xl);
-      }
-
-      .profile-section-title {
-        font-family: var(--font-sans);
-        font-size: 0.8125rem;
-        font-weight: 600;
+        letter-spacing: 0.05em;
         text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--brand-secondary);
-        margin-bottom: var(--space-lg);
+        padding: var(--space-1) var(--space-3);
+        border-radius: var(--radius-sm);
+        border: 1px solid;
       }
-
-      .profile-journey-item {
+      .profile-bio {
+        font-size: 18px;
+        font-weight: 400;
+        color: var(--text-secondary);
+        line-height: 1.7;
+        margin-bottom: var(--space-8);
+      }
+      .fingerprints-title {
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--text-heading);
+        margin-bottom: var(--space-4);
+      }
+      .fingerprint-item {
         display: flex;
-        gap: var(--space-lg);
-        padding: var(--space-lg) 0;
-        border-bottom: var(--border-light);
+        align-items: flex-start;
+        gap: var(--space-4);
+        padding: var(--space-4) 0;
+        border-bottom: 1px solid rgba(50, 50, 58, 0.4);
       }
-
-      .profile-journey-item:last-child {
-        border-bottom: none;
-      }
-
-      .journey-date {
-        font-family: var(--font-sans);
-        font-size: 0.8125rem;
-        color: var(--brand-secondary);
-        width: 100px;
-        flex-shrink: 0;
-        padding-top: 2px;
-      }
-
-      .journey-content {
-        flex: 1;
-      }
-
-      .journey-title {
-        font-family: var(--font-serif);
-        font-size: 1rem;
-        font-weight: 600;
-        color: var(--brand-primary);
-        margin-bottom: var(--space-xs);
-      }
-
-      .journey-description {
-        font-family: var(--font-sans);
-        font-size: 0.8125rem;
-        color: var(--brand-secondary);
-        line-height: 1.5;
-      }
-
-      .journey-type-indicator {
+      .fingerprint-indicator {
         width: 8px;
         height: 8px;
-        border-radius: 50%;
-        margin-top: 6px;
+        border-radius: var(--radius-full);
+        margin-top: 8px;
         flex-shrink: 0;
       }
+      .fingerprint-text {
+        font-size: 15px;
+        font-weight: 400;
+        color: var(--text-secondary);
+        line-height: 1.5;
+      }
+      .fingerprint-text strong {
+        color: var(--text-primary);
+        font-weight: 500;
+      }
+      .fingerprint-date {
+        font-size: 12px;
+        color: var(--text-tertiary);
+        margin-top: var(--space-1);
+        font-weight: 300;
+      }
 
-      /* === DIRECTION 8: ONBOARDING === */
-      .onboarding-mockup {
-        max-width: 640px;
+      /* === INTRO SECTION === */
+      .intro {
+        max-width: 760px;
         margin: 0 auto;
-        background: var(--surface-raised);
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow-modal);
-        overflow: hidden;
-        padding: var(--space-3xl) var(--space-2xl);
+        padding: var(--space-16) var(--space-8);
         text-align: center;
       }
-
-      .onboarding-step-indicator {
-        display: flex;
-        justify-content: center;
-        gap: var(--space-sm);
-        margin-bottom: var(--space-2xl);
+      .intro h1 {
+        font-size: 48px;
+        font-weight: 900;
+        color: var(--text-heading);
+        line-height: 1.1;
+        margin-bottom: var(--space-6);
+        letter-spacing: -0.02em;
       }
-
-      .onboarding-step-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: var(--surface-sunken);
+      .intro p {
+        font-size: 18px;
+        font-weight: 300;
+        color: var(--text-secondary);
+        line-height: 1.7;
       }
-
-      .onboarding-step-dot.active {
-        background: var(--brand-accent);
-      }
-      .onboarding-step-dot.complete {
-        background: var(--semantic-success);
-      }
-
-      .onboarding-icon {
-        width: 64px;
-        height: 64px;
-        border-radius: 50%;
-        background: var(--brand-accent-subtle);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.75rem;
-        margin: 0 auto var(--space-xl);
-      }
-
-      .onboarding-title {
-        font-family: var(--font-serif);
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--brand-primary);
-        margin-bottom: var(--space-md);
-      }
-
-      .onboarding-description {
-        font-family: var(--font-sans);
-        font-size: 0.9375rem;
-        color: var(--brand-secondary);
-        line-height: 1.6;
-        max-width: 440px;
-        margin: 0 auto var(--space-xl);
-      }
-
-      .onboarding-task {
-        background: var(--surface-sunken);
-        border-radius: var(--radius-md);
-        padding: var(--space-lg);
-        text-align: left;
-        margin-bottom: var(--space-xl);
-      }
-
-      .onboarding-task-label {
-        font-family: var(--font-sans);
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--brand-accent);
-        margin-bottom: var(--space-sm);
-      }
-
-      .onboarding-task-title {
-        font-family: var(--font-serif);
-        font-size: 1.0625rem;
-        font-weight: 600;
-        color: var(--brand-primary);
-        margin-bottom: var(--space-sm);
-      }
-
-      .onboarding-task-desc {
-        font-family: var(--font-sans);
-        font-size: 0.875rem;
-        color: var(--brand-secondary);
-        line-height: 1.5;
-      }
-
-      .onboarding-buddy {
-        display: flex;
-        align-items: center;
-        gap: var(--space-md);
-        background: var(--surface-sunken);
-        border-radius: var(--radius-md);
-        padding: var(--space-md) var(--space-lg);
-        margin-bottom: var(--space-xl);
-        text-align: left;
-      }
-
-      .onboarding-buddy-avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: var(--domain-governance);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-family: var(--font-serif);
-        font-weight: 600;
-        color: white;
-        flex-shrink: 0;
-      }
-
-      .onboarding-buddy-text {
-        font-family: var(--font-sans);
-        font-size: 0.875rem;
-        color: var(--brand-primary);
-        line-height: 1.4;
-      }
-
-      .onboarding-buddy-text .buddy-name {
-        font-weight: 600;
-      }
-
-      .onboarding-buddy-text .buddy-role {
-        font-size: 0.8125rem;
-        color: var(--brand-secondary);
-      }
-
-      /* === RESPONSIVE === */
-      @media (max-width: 900px) {
-        .dashboard-mockup {
-          grid-template-columns: 1fr;
-        }
-        .dashboard-sidebar {
-          display: none;
-        }
-        .editorial-mockup {
-          grid-template-columns: 1fr;
-        }
-        .editorial-sidebar {
-          display: none;
-        }
-        .portal-articles-grid {
-          grid-template-columns: 1fr 1fr;
-        }
-        .quality-dimensions {
-          grid-template-columns: 1fr;
-        }
-        .dashboard-grid {
-          grid-template-columns: 1fr;
-        }
-      }
-
-      @media (max-width: 600px) {
-        .portal-articles-grid {
-          grid-template-columns: 1fr;
-        }
-        .portal-stats {
-          flex-direction: column;
-          gap: var(--space-lg);
-        }
-        .authoring-editor-area {
-          padding: var(--space-xl);
-        }
-        .profile-header {
-          flex-direction: column;
-          align-items: center;
-          text-align: center;
-        }
-        .hero-title {
-          font-size: 2rem;
-        }
+      .intro .accent {
+        color: var(--accent-primary);
+        font-weight: 500;
       }
     </style>
   </head>
   <body>
-    <!-- NAVIGATION -->
-    <nav class="showcase-nav">
-      <div class="nav-brand">
-        <img src="../../docs/edin_logo.png" alt="Edin" /> <span>Design</span>
-      </div>
-      <button class="nav-item active" onclick="scrollToSection('hero')">Overview</button>
-      <button class="nav-item" onclick="scrollToSection('dir1')">Article</button>
-      <button class="nav-item" onclick="scrollToSection('dir2')">Evaluation</button>
-      <button class="nav-item" onclick="scrollToSection('dir3')">Dashboard</button>
-      <button class="nav-item" onclick="scrollToSection('dir4')">Authoring</button>
-      <button class="nav-item" onclick="scrollToSection('dir5')">Portal</button>
-      <button class="nav-item" onclick="scrollToSection('dir6')">Editorial</button>
-      <button class="nav-item" onclick="scrollToSection('dir7')">Profile</button>
-      <button class="nav-item" onclick="scrollToSection('dir8')">Onboarding</button>
+    <!-- STICKY NAVIGATION -->
+    <nav class="nav">
+      <span class="nav-brand">Edin</span>
+      <a href="#intro">Overview</a>
+      <a href="#d1">Dashboard</a>
+      <a href="#d2">Article</a>
+      <a href="#d3">Activity Feed</a>
+      <a href="#d4">Public Portal</a>
+      <a href="#d5">Rewards</a>
+      <a href="#d6">Profile</a>
     </nav>
 
-    <!-- HERO -->
-    <section class="hero-section" id="hero">
-      <img src="../../docs/edin_logo.png" alt="Edin" class="hero-logo" />
-      <div class="hero-overline">Design Direction Showcase</div>
-      <h1 class="hero-title">Edin — <em>The Fertile Plain</em></h1>
-      <p class="hero-description">
-        Eight design directions exploring "Calm Confidence" — beautiful, calming, insightful visuals
-        that translate complex information into experiences that feel like reading a beautifully
-        designed publication.
+    <!-- INTRO -->
+    <section class="intro" id="intro">
+      <h1>Design Direction<br />Mockups</h1>
+      <p>
+        Six visual explorations for <span class="accent">Edin</span> — each applying the ROSE design
+        language (dark gradients, ABC Normal typography, vivid orange, pillar-coded color system) to
+        a different part of the platform. Explore, compare, combine.
       </p>
-      <div class="hero-domains">
-        <div class="domain-pill" data-domain="technology">Technology</div>
-        <div class="domain-pill" data-domain="finance">Finance</div>
-        <div class="domain-pill" data-domain="impact">Impact</div>
-        <div class="domain-pill" data-domain="governance">Governance</div>
-      </div>
-      <div class="hero-scroll-hint">Scroll to explore directions</div>
     </section>
 
-    <!-- DIRECTION 1: ARTICLE READING -->
-    <section class="direction-section" id="dir1">
-      <div class="section-header">
-        <div class="section-number">Direction 1</div>
-        <h2 class="section-title">The Publication Moment</h2>
-        <p class="section-subtitle">
-          Article reading experience — where "modern Economist" meets community-driven publication.
-          Serif typography, generous whitespace, immersive reading with author and editor bylines.
+    <!-- ═══════════════════════════════════════
+         DIRECTION 1: CONTRIBUTOR DASHBOARD
+         ═══════════════════════════════════════ -->
+    <section class="direction" id="d1">
+      <div class="direction-header">
+        <div class="direction-label">Direction 1</div>
+        <h2 class="direction-title">Contributor Dashboard</h2>
+        <p class="direction-desc">
+          Linear-style minimal sidebar with narrative evaluation cards. Dark-first,
+          keyboard-friendly, calm professional space. Each evaluation tells a story before showing
+          any score.
         </p>
       </div>
-      <div class="article-mockup">
-        <div class="article-header-image">
-          <div class="domain-tag">Finance</div>
-        </div>
-        <div class="article-content">
-          <h1 class="article-title">The Quiet Revolution in Decentralized Credit Scoring</h1>
-          <div class="article-byline">
-            <div class="byline-avatars">
-              <div class="byline-avatar author">AC</div>
-              <div class="byline-avatar editor">MK</div>
+      <div class="mockup">
+        <div class="dashboard-layout">
+          <!-- Sidebar -->
+          <div class="sidebar">
+            <div class="sidebar-logo">edin</div>
+            <div class="sidebar-section">
+              <div class="sidebar-section-title">Navigate</div>
+              <div class="sidebar-item active">
+                <span class="sidebar-dot" style="background: var(--accent-primary)"></span>
+                Dashboard
+              </div>
+              <div class="sidebar-item">
+                <span class="sidebar-dot" style="background: var(--text-tertiary)"></span>
+                My Evaluations
+              </div>
+              <div class="sidebar-item">
+                <span class="sidebar-dot" style="background: var(--text-tertiary)"></span>
+                Activity Feed
+              </div>
+              <div class="sidebar-item">
+                <span class="sidebar-dot" style="background: var(--text-tertiary)"></span>
+                Publication
+              </div>
+              <div class="sidebar-item">
+                <span class="sidebar-dot" style="background: var(--text-tertiary)"></span>
+                Rewards
+              </div>
             </div>
-            <div class="byline-text">
-              <strong>Amir Chen</strong> · Edited by <strong>Marcus Kowalski</strong><br />
-              <span class="editor-label"
-                ><span class="article-reading-time">12 min read · February 2026</span></span
-              >
+            <div class="sidebar-section">
+              <div class="sidebar-section-title">Domains</div>
+              <div class="sidebar-item">
+                <span class="sidebar-dot" style="background: var(--pillar-tech)"></span>
+                Technology
+              </div>
+              <div class="sidebar-item">
+                <span class="sidebar-dot" style="background: var(--pillar-impact)"></span>
+                Impact
+              </div>
+              <div class="sidebar-item">
+                <span class="sidebar-dot" style="background: var(--pillar-governance)"></span>
+                Governance
+              </div>
+              <div class="sidebar-item">
+                <span class="sidebar-dot" style="background: var(--pillar-finance)"></span>
+                Finance
+              </div>
             </div>
           </div>
-          <div class="article-body">
-            <p>
-              The fundamental challenge of decentralized finance isn't technological — it's
-              epistemic. How do you establish creditworthiness in a system designed to eliminate the
-              institutions that traditionally evaluate it? The answer, emerging from a confluence of
-              zero-knowledge proofs and behavioral economics, is more elegant than most
-              practitioners realize.
-            </p>
-            <div class="pull-quote">
-              "Credit scoring in DeFi isn't about replacing banks with algorithms. It's about making
-              the invisible patterns of financial responsibility visible — without exposing the
-              person behind them."
-            </div>
-            <p>
-              Three years of transaction data across fourteen decentralized protocols reveals a
-              pattern that traditional finance has long understood but rarely articulated:
-              reliability is not a number. It's a trajectory. The difference between a borrower who
-              maintains consistent collateral ratios and one who optimizes at the margin isn't
-              captured by a single score — it's revealed through the shape of their behavior over
-              time.
-            </p>
-            <p>
-              This insight has profound implications for how we design evaluation systems beyond
-              finance. When Edin's AI evaluates a contributor's work, it faces a structurally
-              similar challenge: how to recognize quality that unfolds over time, not quality that
-              can be measured in a snapshot.
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
 
-    <!-- DIRECTION 2: EVALUATION REVEAL -->
-    <section class="direction-section" id="dir2">
-      <div class="section-header">
-        <div class="section-number">Direction 2</div>
-        <h2 class="section-title">The Evaluation Reveal</h2>
-        <p class="section-subtitle">
-          Narrative-first AI evaluation — the defining interaction. A thoughtful review of your
-          work, not a grade report. Insight before numbers, with progressive disclosure to detailed
-          dimensions.
-        </p>
-      </div>
-      <div class="evaluation-mockup">
-        <div class="narrative-card">
-          <div class="narrative-label">AI Evaluation · Your Latest Contribution</div>
-          <div class="narrative-text">
-            Your refactoring of the authentication middleware demonstrates
-            <em>strong architectural clarity</em>. The separation of token validation from session
-            management reduces coupling in a way that will make future OAuth provider additions
-            straightforward. The test coverage is thorough, particularly the edge case handling for
-            expired refresh tokens — this shows attention to the failure modes that production
-            systems actually encounter.
-          </div>
-          <div class="narrative-contribution">
-            <div class="contribution-icon">&#9881;</div>
-            <div>
-              <strong>Auth middleware refactoring</strong> · rose-protocol/core · 3 files changed<br />
-              <span style="font-size: 0.8125rem">Evaluated 2 hours ago</span>
-            </div>
-          </div>
-        </div>
-        <div class="quality-dimensions">
-          <div class="dimension-card">
-            <div class="dimension-label">Architectural Clarity</div>
-            <div class="dimension-value">Strong</div>
-            <div class="dimension-bar">
-              <div
-                class="dimension-bar-fill"
-                style="width: 88%; background: var(--domain-technology)"
-              ></div>
-            </div>
-            <div class="dimension-expand">Click to see detail</div>
-          </div>
-          <div class="dimension-card">
-            <div class="dimension-label">Code Quality</div>
-            <div class="dimension-value">Excellent</div>
-            <div class="dimension-bar">
-              <div
-                class="dimension-bar-fill"
-                style="width: 92%; background: var(--domain-technology)"
-              ></div>
-            </div>
-            <div class="dimension-expand">Click to see detail</div>
-          </div>
-          <div class="dimension-card">
-            <div class="dimension-label">Test Coverage</div>
-            <div class="dimension-value">Thorough</div>
-            <div class="dimension-bar">
-              <div
-                class="dimension-bar-fill"
-                style="width: 85%; background: var(--domain-technology)"
-              ></div>
-            </div>
-            <div class="dimension-expand">Click to see detail</div>
-          </div>
-          <div class="dimension-card">
-            <div class="dimension-label">Domain Impact</div>
-            <div class="dimension-value">Growing</div>
-            <div class="dimension-bar">
-              <div
-                class="dimension-bar-fill"
-                style="width: 72%; background: var(--domain-technology)"
-              ></div>
-            </div>
-            <div class="dimension-expand">Click to see detail</div>
-          </div>
-        </div>
-        <div class="trajectory-card">
-          <div class="trajectory-label">Your Growth Trajectory</div>
-          <svg
-            class="trajectory-svg"
-            viewBox="0 0 600 120"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <defs>
-              <linearGradient id="trajGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#3A7D7E" stop-opacity="0.15" />
-                <stop offset="100%" stop-color="#3A7D7E" stop-opacity="0" />
-              </linearGradient>
-            </defs>
-            <path
-              d="M0,100 C60,98 120,90 180,82 C240,74 280,65 340,52 C400,39 440,30 500,22 C540,17 570,14 600,12"
-              stroke="#3A7D7E"
-              stroke-width="2.5"
-              fill="none"
-              stroke-linecap="round"
-            />
-            <path
-              d="M0,100 C60,98 120,90 180,82 C240,74 280,65 340,52 C400,39 440,30 500,22 C540,17 570,14 600,12 L600,120 L0,120 Z"
-              fill="url(#trajGrad)"
-            />
-            <circle cx="570" cy="14" r="5" fill="#3A7D7E" />
-            <circle
-              cx="570"
-              cy="14"
-              r="8"
-              fill="none"
-              stroke="#3A7D7E"
-              stroke-opacity="0.3"
-              stroke-width="2"
-            />
-            <circle cx="180" cy="82" r="3" fill="#3A7D7E" fill-opacity="0.4" />
-            <circle cx="340" cy="52" r="3" fill="#3A7D7E" fill-opacity="0.6" />
-            <circle cx="500" cy="22" r="3" fill="#3A7D7E" fill-opacity="0.8" />
-          </svg>
-          <div class="trajectory-note">
-            Your garden is growing steadily — 23 contributions since joining
-          </div>
-        </div>
-      </div>
-    </section>
+          <!-- Main Content -->
+          <div class="dashboard-main">
+            <div class="dashboard-greeting">Good morning, Lena</div>
+            <div class="dashboard-subtitle">3 new evaluations since yesterday</div>
 
-    <!-- DIRECTION 3: CONTRIBUTOR DASHBOARD -->
-    <section class="direction-section" id="dir3">
-      <div class="section-header">
-        <div class="section-number">Direction 3</div>
-        <h2 class="section-title">Contributor Dashboard</h2>
-        <p class="section-subtitle">
-          Calm clarity with progressive disclosure — evaluation narratives, activity feed, and
-          reward trajectory. No dashboard anxiety, no badge counts. A curated view of your growing
-          garden.
-        </p>
-      </div>
-      <div class="dashboard-mockup">
-        <aside class="dashboard-sidebar">
-          <div class="sidebar-brand"><img src="../../docs/edin_logo.png" alt="Edin" /></div>
-          <nav class="sidebar-nav">
-            <div class="sidebar-item active"><span class="icon">&#127968;</span> Home</div>
-            <div class="sidebar-item">
-              <span class="icon">&#128202;</span> Evaluations
-              <div class="notification-dot"></div>
-            </div>
-            <div class="sidebar-item"><span class="icon">&#127793;</span> My Journey</div>
-            <div class="sidebar-item"><span class="icon">&#9997;</span> Write</div>
-            <div class="sidebar-item"><span class="icon">&#128214;</span> Publication</div>
-            <div class="sidebar-item"><span class="icon">&#9881;</span> Settings</div>
-          </nav>
-          <div class="sidebar-profile">
-            <div class="sidebar-profile-avatar">L</div>
-            <div class="sidebar-profile-info">
-              Lena Nguyen
-              <div class="role">Technology · Contributor</div>
-            </div>
-          </div>
-        </aside>
-        <main class="dashboard-content">
-          <div class="dashboard-greeting">
-            <h2>Good morning, Lena</h2>
-            <p>
-              Your latest evaluation is ready — and there's a new article in Technology worth
-              reading.
-            </p>
-          </div>
-          <div class="dashboard-grid">
-            <div class="dash-card">
-              <div class="dash-card-header">
-                <div class="dash-card-title">Latest Evaluation</div>
-                <div class="dash-card-icon" style="background: var(--domain-technology-bg)">
-                  &#128202;
-                </div>
+            <div class="eval-card" data-pillar="tech">
+              <div class="eval-card-header">
+                <span class="eval-card-title">Auth Module Refactoring</span>
+                <span class="eval-card-badge" style="color: var(--pillar-tech)">Technology</span>
               </div>
-              <div class="dash-card-value">Strong architectural clarity</div>
-              <div class="dash-card-desc">Auth middleware refactoring · Evaluated 2h ago</div>
-            </div>
-            <div class="dash-card">
-              <div class="dash-card-header">
-                <div class="dash-card-title">Reward Trajectory</div>
-                <div class="dash-card-icon" style="background: var(--brand-accent-subtle)">
-                  &#127793;
-                </div>
+              <div class="eval-card-narrative">
+                Your architectural refactoring eliminated the circular dependency in the auth
+                module, reducing complexity metrics by 34% and enabling independent service
+                deployment. This is foundational work that compounds.
               </div>
-              <div class="dash-card-value">Steady growth</div>
-              <div class="dash-card-desc">Compounding engagement rewards — 23 contributions</div>
-            </div>
-          </div>
-          <div class="activity-feed">
-            <div class="activity-feed-header">Community Activity</div>
-            <div class="feed-item">
-              <div class="feed-avatar" style="background: var(--domain-finance)">AC</div>
-              <div class="feed-content">
-                <div class="feed-text">
-                  <strong>Amir Chen</strong> published "The Quiet Revolution in Decentralized Credit
-                  Scoring"
-                </div>
-                <div class="feed-meta">
-                  <div class="feed-domain-dot" style="background: var(--domain-finance)"></div>
-                  Finance · 3 hours ago
-                </div>
+              <div class="eval-card-meta">
+                <span>Evaluated 2 hours ago</span>
+                <span>·</span>
+                <span>PR #847</span>
               </div>
             </div>
-            <div class="feed-item">
-              <div class="feed-avatar" style="background: var(--domain-impact)">SK</div>
-              <div class="feed-content">
-                <div class="feed-text">
-                  <strong>Sofia Kimura</strong> contributed an impact assessment for Rose Protocol
-                  Q4
-                </div>
-                <div class="feed-meta">
-                  <div class="feed-domain-dot" style="background: var(--domain-impact)"></div>
-                  Impact · 5 hours ago
-                </div>
-              </div>
-            </div>
-            <div class="feed-item">
-              <div class="feed-avatar" style="background: var(--domain-governance)">YT</div>
-              <div class="feed-content">
-                <div class="feed-text">
-                  <strong>Yuki Tanaka</strong> submitted a governance transparency proposal
-                </div>
-                <div class="feed-meta">
-                  <div class="feed-domain-dot" style="background: var(--domain-governance)"></div>
-                  Governance · 8 hours ago
-                </div>
-              </div>
-            </div>
-            <div class="feed-item">
-              <div class="feed-avatar" style="background: var(--domain-technology)">DM</div>
-              <div class="feed-content">
-                <div class="feed-text">
-                  <strong>Daniel Martinez</strong> completed the 72-Hour Ignition — welcome to Edin!
-                </div>
-                <div class="feed-meta">
-                  <div class="feed-domain-dot" style="background: var(--domain-technology)"></div>
-                  Technology · Yesterday
-                </div>
-              </div>
-            </div>
-          </div>
-        </main>
-      </div>
-    </section>
 
-    <!-- DIRECTION 4: AUTHORING EXPERIENCE -->
-    <section class="direction-section" id="dir4">
-      <div class="section-header">
-        <div class="section-number">Direction 4</div>
-        <h2 class="section-title">Authoring Experience</h2>
-        <p class="section-subtitle">
-          Writing feels like thinking — a distraction-free block editor with slash commands. The
-          transition from blank page to structured article is smooth and never intimidating.
-        </p>
-      </div>
-      <div class="authoring-mockup">
-        <div class="authoring-toolbar">
-          <div class="authoring-toolbar-left">
-            <div class="authoring-back">&#8592; Dashboard</div>
-            <div class="authoring-domain-select"><span>&#9679;</span> Impact</div>
-            <div class="authoring-status"><span class="dot"></span> Saved</div>
-          </div>
-          <div class="authoring-toolbar-right">
-            <button class="btn btn-secondary">Preview</button>
-            <button class="btn btn-primary">Submit for Review</button>
-          </div>
-        </div>
-        <div class="authoring-editor-area">
-          <div class="article-title-input">
-            Measuring What Matters: A Framework for Impact Assessment in Decentralized Ecosystems
-          </div>
-          <div class="authoring-body-input">
-            <p>
-              Impact measurement in decentralized systems faces a paradox that traditional
-              development frameworks never anticipated. When the organization itself is distributed,
-              who defines what "impact" means? And when the measurement system is transparent, how
-              do you prevent optimization of metrics at the expense of genuine change?
-            </p>
-            <p>
-              This article proposes a three-layer framework that separates impact
-              <em>evidence</em> from impact <em>narrative</em> from impact <em>verification</em> —
-              allowing each layer to operate with appropriate rigor without collapsing the
-              complexity of real-world change into reductive scores.
-            </p>
-            <div class="slash-hint">Type / for commands...</div>
-            <div class="slash-menu">
-              <div class="slash-menu-item selected">
-                <div class="slash-menu-icon">H</div>
-                <div class="slash-menu-text">
-                  Heading<br /><span class="hint">Section title</span>
-                </div>
+            <div class="eval-card" data-pillar="impact">
+              <div class="eval-card-header">
+                <span class="eval-card-title">Carbon Offset Methodology Review</span>
+                <span class="eval-card-badge" style="color: var(--pillar-impact)">Impact</span>
               </div>
-              <div class="slash-menu-item">
-                <div class="slash-menu-icon">&#10078;</div>
-                <div class="slash-menu-text">
-                  Quote<br /><span class="hint">Pull quote block</span>
-                </div>
+              <div class="eval-card-narrative">
+                Your review identified three critical gaps in the proposed methodology — the
+                baseline calculation, additionality criteria, and permanence risk framework. Each
+                recommendation directly strengthens the protocol's credibility.
               </div>
-              <div class="slash-menu-item">
-                <div class="slash-menu-icon">{ }</div>
-                <div class="slash-menu-text">
-                  Code Block<br /><span class="hint">Syntax highlighted code</span>
-                </div>
+              <div class="eval-card-meta">
+                <span>Evaluated 5 hours ago</span>
+                <span>·</span>
+                <span>Impact Assessment</span>
               </div>
-              <div class="slash-menu-item">
-                <div class="slash-menu-icon">&#128202;</div>
-                <div class="slash-menu-text">
-                  Data Visualization<br /><span class="hint">Embed chart or graph</span>
-                </div>
+            </div>
+
+            <div class="eval-card" data-pillar="governance">
+              <div class="eval-card-header">
+                <span class="eval-card-title">Voting Mechanism Proposal</span>
+                <span class="eval-card-badge" style="color: var(--pillar-governance)"
+                  >Governance</span
+                >
+              </div>
+              <div class="eval-card-narrative">
+                Your quadratic voting proposal addresses the whale-dominance problem with
+                mathematical rigor. The simulation results demonstrate 40% more equitable outcomes
+                across stakeholder groups.
+              </div>
+              <div class="eval-card-meta">
+                <span>Evaluated 1 day ago</span>
+                <span>·</span>
+                <span>Governance Proposal</span>
               </div>
             </div>
           </div>
@@ -2159,450 +944,510 @@
       </div>
     </section>
 
-    <!-- DIRECTION 5: PUBLIC PORTAL -->
-    <section class="direction-section" id="dir5">
-      <div class="section-header">
-        <div class="section-number">Direction 5</div>
-        <h2 class="section-title">Public Portal</h2>
-        <p class="section-subtitle">
-          The face Edin presents to the world — institutional authority, not startup energy.
-          Published articles, contributor quality, and transparent traction evidence for Henrik
-          (investor).
+    <!-- ═══════════════════════════════════════
+         DIRECTION 2: PUBLICATION ARTICLE
+         ═══════════════════════════════════════ -->
+    <section class="direction" id="d2">
+      <div class="direction-header">
+        <div class="direction-label">Direction 2</div>
+        <h2 class="direction-title">Publication Article</h2>
+        <p class="direction-desc">
+          Economist-style editorial reading on a dark canvas. ABC Normal typography, generous
+          margins, blush-pink headings. The published article should feel like a standalone
+          publication.
         </p>
       </div>
-      <div class="portal-mockup">
-        <nav class="portal-nav">
-          <div class="portal-nav-left">
-            <div class="portal-logo"><img src="../../docs/edin_logo.png" alt="Edin" /></div>
-            <div class="portal-nav-links">
-              <span class="portal-nav-link active">Publication</span>
-              <span class="portal-nav-link">Contributors</span>
-              <span class="portal-nav-link">About</span>
-              <span class="portal-nav-link">Apply</span>
+      <div class="mockup">
+        <div class="article-canvas">
+          <div class="article-content">
+            <div class="article-domain-tag" style="color: var(--pillar-impact)">
+              Impact & Sustainability
+            </div>
+            <h1 class="article-headline">
+              The Compounding Value of Decentralized Carbon Accounting
+            </h1>
+            <div class="article-byline">
+              <div class="byline-avatar">SA</div>
+              <div class="byline-info">
+                <div class="byline-name">Sofia Alvarez</div>
+                <div class="byline-role">Author · Impact Analyst</div>
+              </div>
+              <div style="flex: 1"></div>
+              <div class="byline-info" style="text-align: right">
+                <div class="byline-name">Marcus Chen</div>
+                <div class="byline-role">Editor</div>
+              </div>
+              <div class="byline-avatar">MC</div>
+            </div>
+            <div class="article-body">
+              <p>
+                Traditional carbon accounting operates on a trust-me paradigm. Corporations
+                self-report emissions, third-party auditors verify samples, and the entire chain
+                relies on institutional reputation rather than cryptographic proof. The result is a
+                system where accuracy is inversely proportional to incentive — those with the most
+                to gain from underreporting have the least external verification.
+              </p>
+              <div class="pullquote">
+                "When every carbon credit carries its full provenance chain on-chain, the cost of
+                fraud exceeds the cost of honesty."
+              </div>
+              <p>
+                What makes decentralized carbon accounting compelling isn't the blockchain itself —
+                it's the structural inversion of incentives. When every measurement is timestamped,
+                every methodology is transparent, and every credit carries its full provenance
+                chain, the economics of honesty change fundamentally. The cost of fraud exceeds the
+                cost of compliance.
+              </p>
+              <h2>From Verification to Provenance</h2>
+              <p>
+                The shift from periodic verification to continuous provenance represents more than a
+                technical upgrade. It transforms the relationship between emitters, auditors, and
+                markets from adversarial to collaborative. When data is shared rather than
+                extracted, when auditing is continuous rather than periodic, the entire ecosystem
+                moves from compliance theater to genuine accountability.
+              </p>
             </div>
           </div>
-          <button class="btn btn-primary" style="font-size: 0.8125rem; padding: 6px 16px">
-            Sign In
-          </button>
-        </nav>
-        <div class="portal-hero">
-          <h1>Where Expertise<br />Becomes Publication</h1>
-          <p>
-            A curated community of domain experts in Technology, Finance, Impact, and Governance —
-            building, evaluating, and publishing together.
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════
+         DIRECTION 3: ACTIVITY FEED
+         ═══════════════════════════════════════ -->
+    <section class="direction" id="d3">
+      <div class="direction-header">
+        <div class="direction-label">Direction 3</div>
+        <h2 class="direction-title">Activity Feed</h2>
+        <p class="direction-desc">
+          Chronological contributions with equal domain dignity. Each pillar-color accent line gives
+          domain identity without hierarchy. No ranking, no leaderboards — curated, not noisy.
+        </p>
+      </div>
+      <div class="mockup" style="background: var(--surface-base)">
+        <div class="feed-layout">
+          <div class="feed-tabs">
+            <div class="feed-tab active">All Domains</div>
+            <div class="feed-tab" style="color: var(--pillar-tech)">Technology</div>
+            <div class="feed-tab" style="color: var(--pillar-impact)">Impact</div>
+            <div class="feed-tab" style="color: var(--pillar-governance)">Governance</div>
+            <div class="feed-tab" style="color: var(--pillar-finance)">Finance</div>
+          </div>
+
+          <div class="feed-item">
+            <div class="feed-pillar-line" style="background: var(--pillar-tech)"></div>
+            <div class="feed-item-content">
+              <div class="feed-item-title">API rate-limiting middleware deployed</div>
+              <div class="feed-item-summary">
+                Implemented adaptive rate limiting with per-tenant quotas and graceful degradation.
+                Tests passing across all edge cases.
+              </div>
+              <div class="feed-item-meta">
+                <span class="feed-item-domain" style="color: var(--pillar-tech)">Technology</span>
+                <span>·</span>
+                <span>Lena Okafor</span>
+                <span>·</span>
+                <span>12 min ago</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="feed-item">
+            <div class="feed-pillar-line" style="background: var(--pillar-finance)"></div>
+            <div class="feed-item-content">
+              <div class="feed-item-title">Tokenomics model v2.3 published</div>
+              <div class="feed-item-summary">
+                Updated emission curve with revised staking parameters. Model predicts stable
+                equilibrium at 18-month horizon under stress scenarios.
+              </div>
+              <div class="feed-item-meta">
+                <span class="feed-item-domain" style="color: var(--pillar-finance)">Finance</span>
+                <span>·</span>
+                <span>Amir Rashid</span>
+                <span>·</span>
+                <span>1 hr ago</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="feed-item">
+            <div class="feed-pillar-line" style="background: var(--pillar-impact)"></div>
+            <div class="feed-item-content">
+              <div class="feed-item-title">SDG alignment framework completed</div>
+              <div class="feed-item-summary">
+                Cross-referenced all active projects against UN Sustainable Development Goals. 23 of
+                27 projects now have verified SDG mappings.
+              </div>
+              <div class="feed-item-meta">
+                <span class="feed-item-domain" style="color: var(--pillar-impact)">Impact</span>
+                <span>·</span>
+                <span>Sofia Alvarez</span>
+                <span>·</span>
+                <span>3 hrs ago</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="feed-item">
+            <div class="feed-pillar-line" style="background: var(--pillar-governance)"></div>
+            <div class="feed-item-content">
+              <div class="feed-item-title">DAO treasury transparency report Q1</div>
+              <div class="feed-item-summary">
+                Compiled quarterly treasury flows with full on-chain verification. All allocations
+                traceable from proposal to disbursement.
+              </div>
+              <div class="feed-item-meta">
+                <span class="feed-item-domain" style="color: var(--pillar-governance)"
+                  >Governance</span
+                >
+                <span>·</span>
+                <span>Yuki Tanaka</span>
+                <span>·</span>
+                <span>5 hrs ago</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="feed-item">
+            <div class="feed-pillar-line" style="background: var(--pillar-tech)"></div>
+            <div class="feed-item-content">
+              <div class="feed-item-title">Evaluation pipeline latency reduced 60%</div>
+              <div class="feed-item-summary">
+                Migrated batch processing to streaming architecture. Contribution-to-evaluation time
+                now under 8 minutes for standard submissions.
+              </div>
+              <div class="feed-item-meta">
+                <span class="feed-item-domain" style="color: var(--pillar-tech)">Technology</span>
+                <span>·</span>
+                <span>Daniel Kim</span>
+                <span>·</span>
+                <span>8 hrs ago</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════
+         DIRECTION 4: PUBLIC PORTAL HERO
+         ═══════════════════════════════════════ -->
+    <section class="direction" id="d4">
+      <div class="direction-header">
+        <div class="direction-label">Direction 4</div>
+        <h2 class="direction-title">Public Portal</h2>
+        <p class="direction-desc">
+          Cinematic hero with ROSE gradient texture. Pillar-coded domain cards with equal visual
+          weight. The first impression: quiet authority, institutional quality.
+        </p>
+      </div>
+      <div class="mockup">
+        <div class="hero-section">
+          <div class="hero-content">
+            <div class="hero-overline">A Rose Ecosystem Platform</div>
+            <h1 class="hero-title">Where Serious Work<br />Finds Its Value</h1>
+            <p class="hero-subtitle">
+              Edin organizes, evaluates, rewards, and publishes collaborative development across
+              technology, finance, impact, and governance.
+            </p>
+            <a class="hero-cta" href="#"> Explore the Platform → </a>
+          </div>
+        </div>
+        <div class="pillar-cards">
+          <div class="pillar-card" data-pillar="tech">
+            <div
+              class="pillar-icon"
+              style="background: rgba(255, 90, 0, 0.12); color: var(--pillar-tech)"
+            >
+              ⚡
+            </div>
+            <div class="pillar-card-name">Technology</div>
+            <div class="pillar-card-desc">Engineering, architecture, and development</div>
+          </div>
+          <div class="pillar-card" data-pillar="impact">
+            <div
+              class="pillar-icon"
+              style="background: rgba(0, 232, 123, 0.12); color: var(--pillar-impact)"
+            >
+              🌱
+            </div>
+            <div class="pillar-card-name">Impact</div>
+            <div class="pillar-card-desc">Sustainability, social impact, and ESG</div>
+          </div>
+          <div class="pillar-card" data-pillar="governance">
+            <div
+              class="pillar-icon"
+              style="background: rgba(0, 196, 232, 0.12); color: var(--pillar-governance)"
+            >
+              ⚖️
+            </div>
+            <div class="pillar-card-name">Governance</div>
+            <div class="pillar-card-desc">DAO structure, policy, and transparency</div>
+          </div>
+          <div class="pillar-card" data-pillar="finance">
+            <div
+              class="pillar-icon"
+              style="background: rgba(232, 170, 0, 0.12); color: var(--pillar-finance)"
+            >
+              📊
+            </div>
+            <div class="pillar-card-name">Finance</div>
+            <div class="pillar-card-desc">Tokenomics, treasury, and financial engineering</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════
+         DIRECTION 5: REWARD TRAJECTORY
+         ═══════════════════════════════════════ -->
+    <section class="direction" id="d5">
+      <div class="direction-header">
+        <div class="direction-label">Direction 5</div>
+        <h2 class="direction-title">Reward Trajectory</h2>
+        <p class="direction-desc">
+          Organic growth curves, not scoreboards. Pillar-colored stats glow against dark
+          backgrounds. Patient confidence — your sustained engagement is building something.
+        </p>
+      </div>
+      <div class="mockup" style="background: var(--surface-base)">
+        <div class="reward-layout">
+          <div class="reward-header">
+            <div class="reward-title">Your Growth Trajectory</div>
+            <div class="reward-subtitle">
+              Sustained contributions compound over time — here's your garden growing.
+            </div>
+          </div>
+          <div class="reward-chart-container">
+            <svg viewBox="0 0 800 240" style="width: 100%; height: auto">
+              <!-- Grid lines -->
+              <line x1="60" y1="20" x2="60" y2="200" stroke="#32323A" stroke-width="1" />
+              <line x1="60" y1="200" x2="780" y2="200" stroke="#32323A" stroke-width="1" />
+              <line
+                x1="60"
+                y1="140"
+                x2="780"
+                y2="140"
+                stroke="#32323A"
+                stroke-width="0.5"
+                stroke-dasharray="4"
+              />
+              <line
+                x1="60"
+                y1="80"
+                x2="780"
+                y2="80"
+                stroke="#32323A"
+                stroke-width="0.5"
+                stroke-dasharray="4"
+              />
+
+              <!-- Growth curve - Technology (orange) -->
+              <path
+                d="M60,190 C120,185 180,175 240,160 C300,145 360,125 420,108 C480,90 540,78 600,68 C660,58 720,52 780,48"
+                fill="none"
+                stroke="#FF5A00"
+                stroke-width="2.5"
+                stroke-linecap="round"
+              />
+              <!-- Area fill -->
+              <path
+                d="M60,190 C120,185 180,175 240,160 C300,145 360,125 420,108 C480,90 540,78 600,68 C660,58 720,52 780,48 L780,200 L60,200 Z"
+                fill="url(#techGradient)"
+                opacity="0.15"
+              />
+
+              <!-- Growth curve - Impact (green) -->
+              <path
+                d="M60,195 C120,192 180,188 240,178 C300,168 360,155 420,140 C480,128 540,118 600,110 C660,102 720,96 780,88"
+                fill="none"
+                stroke="#00E87B"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+
+              <!-- Growth curve - Governance (cyan) -->
+              <path
+                d="M60,195 C120,193 180,190 240,185 C300,178 360,168 420,158 C480,148 540,140 600,132 C660,126 720,120 780,115"
+                fill="none"
+                stroke="#00C4E8"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+
+              <!-- Growth curve - Finance (gold) -->
+              <path
+                d="M60,196 C120,194 180,192 240,188 C300,182 360,175 420,166 C480,158 540,150 600,144 C660,138 720,134 780,130"
+                fill="none"
+                stroke="#E8AA00"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+
+              <!-- Gradient definition -->
+              <defs>
+                <linearGradient id="techGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#FF5A00" stop-opacity="0.4" />
+                  <stop offset="100%" stop-color="#FF5A00" stop-opacity="0" />
+                </linearGradient>
+              </defs>
+
+              <!-- Y axis labels -->
+              <text x="50" y="205" fill="#6A6A72" font-size="11" text-anchor="end">0</text>
+              <text x="50" y="145" fill="#6A6A72" font-size="11" text-anchor="end">50</text>
+              <text x="50" y="85" fill="#6A6A72" font-size="11" text-anchor="end">100</text>
+
+              <!-- X axis labels -->
+              <text x="60" y="220" fill="#6A6A72" font-size="11" text-anchor="start">Sep</text>
+              <text x="180" y="220" fill="#6A6A72" font-size="11" text-anchor="middle">Oct</text>
+              <text x="300" y="220" fill="#6A6A72" font-size="11" text-anchor="middle">Nov</text>
+              <text x="420" y="220" fill="#6A6A72" font-size="11" text-anchor="middle">Dec</text>
+              <text x="540" y="220" fill="#6A6A72" font-size="11" text-anchor="middle">Jan</text>
+              <text x="660" y="220" fill="#6A6A72" font-size="11" text-anchor="middle">Feb</text>
+              <text x="780" y="220" fill="#6A6A72" font-size="11" text-anchor="end">Mar</text>
+
+              <!-- Legend -->
+              <circle cx="100" cy="235" r="4" fill="#FF5A00" />
+              <text x="110" y="238" fill="#A0A0A8" font-size="11">Technology</text>
+              <circle cx="220" cy="235" r="4" fill="#00E87B" />
+              <text x="230" y="238" fill="#A0A0A8" font-size="11">Impact</text>
+              <circle cx="320" cy="235" r="4" fill="#00C4E8" />
+              <text x="330" y="238" fill="#A0A0A8" font-size="11">Governance</text>
+              <circle cx="450" cy="235" r="4" fill="#E8AA00" />
+              <text x="460" y="238" fill="#A0A0A8" font-size="11">Finance</text>
+            </svg>
+          </div>
+          <div class="reward-stats">
+            <div class="reward-stat">
+              <div class="reward-stat-value" style="color: var(--pillar-tech)">142</div>
+              <div class="reward-stat-label">Technology</div>
+              <div class="reward-stat-change" style="color: var(--success)">↑ 23 this month</div>
+            </div>
+            <div class="reward-stat">
+              <div class="reward-stat-value" style="color: var(--pillar-impact)">89</div>
+              <div class="reward-stat-label">Impact</div>
+              <div class="reward-stat-change" style="color: var(--success)">↑ 12 this month</div>
+            </div>
+            <div class="reward-stat">
+              <div class="reward-stat-value" style="color: var(--pillar-governance)">67</div>
+              <div class="reward-stat-label">Governance</div>
+              <div class="reward-stat-change" style="color: var(--success)">↑ 8 this month</div>
+            </div>
+            <div class="reward-stat">
+              <div class="reward-stat-value" style="color: var(--pillar-finance)">54</div>
+              <div class="reward-stat-label">Finance</div>
+              <div class="reward-stat-change" style="color: var(--success)">↑ 6 this month</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════
+         DIRECTION 6: CONTRIBUTOR PROFILE
+         ═══════════════════════════════════════ -->
+    <section class="direction" id="d6">
+      <div class="direction-header">
+        <div class="direction-label">Direction 6</div>
+        <h2 class="direction-title">Contributor Profile</h2>
+        <p class="direction-desc">
+          Author biography style — not a social media card. "Your Fingerprints" shows where your
+          work had impact. Intellectual respect, narrative recognition of craft.
+        </p>
+      </div>
+      <div class="mockup" style="background: var(--surface-base)">
+        <div class="profile-layout">
+          <div class="profile-header">
+            <div class="profile-avatar">LO</div>
+            <div class="profile-info">
+              <h2 class="profile-name">Lena Okafor</h2>
+              <p class="profile-role">Senior Systems Architect · Contributor since 2025</p>
+              <div class="profile-domains">
+                <span
+                  class="profile-domain-badge"
+                  style="
+                    color: var(--pillar-tech);
+                    border-color: rgba(255, 90, 0, 0.3);
+                    background: rgba(255, 90, 0, 0.08);
+                  "
+                  >Technology</span
+                >
+                <span
+                  class="profile-domain-badge"
+                  style="
+                    color: var(--pillar-governance);
+                    border-color: rgba(0, 196, 232, 0.3);
+                    background: rgba(0, 196, 232, 0.08);
+                  "
+                  >Governance</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <p class="profile-bio">
+            Lena specializes in distributed systems architecture with a focus on resilience patterns
+            and service mesh design. Her contributions to the Edin platform span authentication
+            infrastructure, API gateway design, and cross-service observability. She also
+            contributes to governance through technical architecture review of DAO proposals.
           </p>
-          <div class="portal-stats">
-            <div class="portal-stat">
-              <div class="portal-stat-value">147</div>
-              <div class="portal-stat-label">Active Contributors</div>
-            </div>
-            <div class="portal-stat">
-              <div class="portal-stat-value">89</div>
-              <div class="portal-stat-label">Published Articles</div>
-            </div>
-            <div class="portal-stat">
-              <div class="portal-stat-value">4</div>
-              <div class="portal-stat-label">Expert Domains</div>
-            </div>
-            <div class="portal-stat">
-              <div class="portal-stat-value">2.4k</div>
-              <div class="portal-stat-label">Monthly Readers</div>
+
+          <h3 class="fingerprints-title">Your Fingerprints</h3>
+
+          <div class="fingerprint-item">
+            <div class="fingerprint-indicator" style="background: var(--pillar-tech)"></div>
+            <div>
+              <div class="fingerprint-text">
+                <strong>Auth module refactoring</strong> — eliminated circular dependencies,
+                enabling independent service deployment. Now used across 3 downstream services.
+              </div>
+              <div class="fingerprint-date">Technology · March 2026</div>
             </div>
           </div>
-        </div>
-        <div class="portal-featured">
-          <div class="portal-featured-header">
-            <div class="portal-featured-title">Latest from the Community</div>
-            <div class="portal-featured-link">View all articles</div>
+
+          <div class="fingerprint-item">
+            <div class="fingerprint-indicator" style="background: var(--pillar-tech)"></div>
+            <div>
+              <div class="fingerprint-text">
+                <strong>Evaluation pipeline streaming</strong> — migrated batch-to-stream
+                architecture, reducing contribution-to-evaluation latency from 45 minutes to under 8
+                minutes.
+              </div>
+              <div class="fingerprint-date">Technology · February 2026</div>
+            </div>
           </div>
-          <div class="portal-articles-grid">
-            <div class="portal-article-card">
-              <div
-                class="portal-article-thumb"
-                style="
-                  background: linear-gradient(
-                    135deg,
-                    var(--domain-finance-bg) 0%,
-                    var(--brand-accent-subtle) 100%
-                  );
-                "
-              >
-                <div class="domain-tag" style="background: var(--domain-finance)">Finance</div>
+
+          <div class="fingerprint-item">
+            <div class="fingerprint-indicator" style="background: var(--pillar-governance)"></div>
+            <div>
+              <div class="fingerprint-text">
+                <strong>Technical review: DAO treasury smart contract</strong> — identified 2
+                critical reentrancy risks in the proposed treasury contract. Recommended mitigations
+                adopted.
               </div>
-              <div class="portal-article-body">
-                <h3>The Quiet Revolution in Decentralized Credit Scoring</h3>
-                <p>
-                  How zero-knowledge proofs and behavioral economics are reshaping
-                  creditworthiness...
-                </p>
-                <div class="portal-article-meta">Amir Chen · 12 min · Feb 2026</div>
-              </div>
+              <div class="fingerprint-date">Governance · January 2026</div>
             </div>
-            <div class="portal-article-card">
-              <div
-                class="portal-article-thumb"
-                style="
-                  background: linear-gradient(
-                    135deg,
-                    var(--domain-technology-bg) 0%,
-                    #3a7d7e22 100%
-                  );
-                "
-              >
-                <div class="domain-tag" style="background: var(--domain-technology)">
-                  Technology
-                </div>
+          </div>
+
+          <div class="fingerprint-item">
+            <div class="fingerprint-indicator" style="background: var(--pillar-tech)"></div>
+            <div>
+              <div class="fingerprint-text">
+                <strong>API rate-limiting middleware</strong> — designed and deployed adaptive rate
+                limiting with per-tenant quotas. Handles 10x traffic spikes gracefully.
               </div>
-              <div class="portal-article-body">
-                <h3>Composable Authentication Patterns for Multi-Chain Systems</h3>
-                <p>
-                  A practical guide to building auth middleware that scales across protocol
-                  boundaries...
-                </p>
-                <div class="portal-article-meta">Lena Nguyen · 8 min · Feb 2026</div>
-              </div>
-            </div>
-            <div class="portal-article-card">
-              <div
-                class="portal-article-thumb"
-                style="
-                  background: linear-gradient(135deg, var(--domain-impact-bg) 0%, #b06b6b22 100%);
-                "
-              >
-                <div class="domain-tag" style="background: var(--domain-impact)">Impact</div>
-              </div>
-              <div class="portal-article-body">
-                <h3>Measuring What Matters: Impact Assessment in Decentralized Ecosystems</h3>
-                <p>Why traditional development frameworks fail in distributed organizations...</p>
-                <div class="portal-article-meta">Sofia Kimura · 15 min · Feb 2026</div>
-              </div>
+              <div class="fingerprint-date">Technology · December 2025</div>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- DIRECTION 6: EDITORIAL FEEDBACK -->
-    <section class="direction-section" id="dir6">
-      <div class="section-header">
-        <div class="section-number">Direction 6</div>
-        <h2 class="section-title">Editorial Feedback</h2>
-        <p class="section-subtitle">
-          The Editor shapes the piece through inline annotations — collaborative suggestions
-          alongside the text. Marcus (Editor) guides Clara (Author) toward publication-quality
-          prose.
-        </p>
-      </div>
-      <div class="editorial-mockup">
-        <div class="editorial-content">
-          <h1 class="article-title">Measuring What Matters</h1>
-          <div class="editorial-text">
-            <p>
-              Impact measurement in decentralized systems faces a paradox that traditional
-              development frameworks never anticipated.
-              <span class="editorial-highlight active"
-                >When the organization itself is distributed, who defines what "impact" means?</span
-              >
-              And when the measurement system is transparent, how do you prevent optimization of
-              metrics at the expense of genuine change?
-            </p>
-            <p>
-              This article proposes a three-layer framework that separates impact
-              <em>evidence</em> from impact <em>narrative</em> from impact <em>verification</em> —
-              allowing each layer to operate with appropriate rigor without collapsing the
-              complexity of real-world change into reductive scores.
-            </p>
-            <p>
-              <span class="editorial-highlight"
-                >The first layer — evidence — operates on observable, verifiable data points.</span
-              >
-              Transaction volumes, code deployments, governance votes cast, community engagement
-              metrics. These are facts, not interpretations. The challenge is choosing which facts
-              matter, and that choice is inherently political.
-            </p>
-          </div>
-        </div>
-        <div class="editorial-sidebar">
-          <div class="editorial-sidebar-header">Editorial Feedback</div>
-          <div class="editorial-comment">
-            <div class="editorial-comment-header">
-              <div class="editorial-comment-avatar">MK</div>
-              <div>
-                <div class="editorial-comment-name">Marcus Kowalski</div>
-                <div class="editorial-comment-role">Editor · Governance</div>
-              </div>
-            </div>
-            <div class="editorial-comment-text">
-              This is a powerful rhetorical question. Consider making it even sharper by adding a
-              specific example — perhaps the tension between Uniswap's grant committee and its
-              broader DAO governance? Ground the abstraction early.
-            </div>
-          </div>
-          <div class="editorial-comment">
-            <div class="editorial-comment-header">
-              <div class="editorial-comment-avatar">MK</div>
-              <div>
-                <div class="editorial-comment-name">Marcus Kowalski</div>
-                <div class="editorial-comment-role">Editor · Governance</div>
-              </div>
-            </div>
-            <div class="editorial-comment-text">
-              "The challenge is choosing which facts matter, and that choice is inherently
-              political" — this is the thesis statement of the piece. Consider moving it earlier,
-              perhaps into the opening paragraph.
-            </div>
-          </div>
-          <div class="editorial-status-bar">
-            <div class="editorial-status-label">Article Status</div>
-            <div class="editorial-status-steps">
-              <div class="editorial-step complete"></div>
-              <div class="editorial-step complete"></div>
-              <div class="editorial-step current"></div>
-              <div class="editorial-step"></div>
-              <div class="editorial-step"></div>
-            </div>
-            <div style="display: flex; justify-content: space-between; margin-top: 6px">
-              <span
-                style="
-                  font-family: var(--font-sans);
-                  font-size: 0.6875rem;
-                  color: var(--brand-secondary);
-                "
-                >Draft</span
-              >
-              <span
-                style="
-                  font-family: var(--font-sans);
-                  font-size: 0.6875rem;
-                  color: var(--brand-accent);
-                  font-weight: 500;
-                "
-                >In Review</span
-              >
-              <span
-                style="
-                  font-family: var(--font-sans);
-                  font-size: 0.6875rem;
-                  color: var(--brand-secondary);
-                "
-                >Published</span
-              >
-            </div>
-          </div>
-        </div>
-      </div>
+    <!-- FOOTER -->
+    <section style="padding: var(--space-16) var(--space-8); text-align: center">
+      <p style="color: var(--text-tertiary); font-size: 14px; font-weight: 300">
+        Edin Design Direction Mockups · ROSE Design Language · March 2026
+      </p>
     </section>
-
-    <!-- DIRECTION 7: CONTRIBUTOR PROFILE -->
-    <section class="direction-section" id="dir7">
-      <div class="section-header">
-        <div class="section-number">Direction 7</div>
-        <h2 class="section-title">Contributor Profile</h2>
-        <p class="section-subtitle">
-          A professional portfolio, not a social media card. The contributor's journey told through
-          evaluations and publications — "Your Fingerprints" on the ecosystem.
-        </p>
-      </div>
-      <div class="profile-mockup">
-        <div class="profile-header">
-          <div class="profile-avatar">L</div>
-          <div class="profile-info">
-            <h2 class="profile-name">Lena Nguyen</h2>
-            <div class="profile-role">Senior Developer · Contributor since October 2025</div>
-            <p class="profile-bio">
-              Backend systems architect with a focus on authentication infrastructure and protocol
-              security. Passionate about clean abstractions that make complex systems feel simple.
-            </p>
-            <div class="profile-domains">
-              <span class="profile-domain-tag" style="background: var(--domain-technology)"
-                >Technology</span
-              >
-            </div>
-          </div>
-        </div>
-        <div class="profile-body">
-          <div class="profile-section-title">Journey — Your Fingerprints</div>
-          <div class="profile-journey-item">
-            <div class="journey-date">Feb 2026</div>
-            <div class="journey-type-indicator" style="background: var(--domain-technology)"></div>
-            <div class="journey-content">
-              <div class="journey-title">Auth middleware refactoring</div>
-              <div class="journey-description">
-                "Strong architectural clarity" — Separation of token validation from session
-                management
-              </div>
-            </div>
-          </div>
-          <div class="profile-journey-item">
-            <div class="journey-date">Feb 2026</div>
-            <div class="journey-type-indicator" style="background: var(--brand-accent)"></div>
-            <div class="journey-content">
-              <div class="journey-title">Published: Composable Authentication Patterns</div>
-              <div class="journey-description">
-                Article on multi-chain auth architecture · Edited by Marcus Kowalski · 342 readers
-              </div>
-            </div>
-          </div>
-          <div class="profile-journey-item">
-            <div class="journey-date">Jan 2026</div>
-            <div class="journey-type-indicator" style="background: var(--domain-technology)"></div>
-            <div class="journey-content">
-              <div class="journey-title">Protocol bridge security audit</div>
-              <div class="journey-description">
-                "Excellent attention to edge cases" — Cross-chain message verification improvements
-              </div>
-            </div>
-          </div>
-          <div class="profile-journey-item">
-            <div class="journey-date">Dec 2025</div>
-            <div class="journey-type-indicator" style="background: var(--domain-technology)"></div>
-            <div class="journey-content">
-              <div class="journey-title">API rate limiting implementation</div>
-              <div class="journey-description">
-                "Thoughtful approach to fairness" — Token-bucket algorithm with priority queues
-              </div>
-            </div>
-          </div>
-          <div class="profile-journey-item">
-            <div class="journey-date">Oct 2025</div>
-            <div class="journey-type-indicator" style="background: var(--semantic-success)"></div>
-            <div class="journey-content">
-              <div class="journey-title">Joined Edin · 72-Hour Ignition completed</div>
-              <div class="journey-description">
-                First contribution: Configuration validation for deployment pipeline
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- DIRECTION 8: ONBOARDING -->
-    <section class="direction-section" id="dir8">
-      <div class="section-header">
-        <div class="section-number">Direction 8</div>
-        <h2 class="section-title">72-Hour Ignition</h2>
-        <p class="section-subtitle">
-          Daniel's first moments in Edin — warm but substantive, guided but not patronizing. A
-          buddy, a meaningful first task, and the feeling of being part of something real.
-        </p>
-      </div>
-      <div class="onboarding-mockup">
-        <div class="onboarding-step-indicator">
-          <div class="onboarding-step-dot complete"></div>
-          <div class="onboarding-step-dot complete"></div>
-          <div class="onboarding-step-dot active"></div>
-          <div class="onboarding-step-dot"></div>
-        </div>
-        <div class="onboarding-icon">&#127793;</div>
-        <h2 class="onboarding-title">Your First Contribution</h2>
-        <p class="onboarding-description">
-          You've been accepted into Edin. Now it's time to plant your first seed — a meaningful task
-          that introduces you to the community and lets the AI Evaluation Engine see your craft for
-          the first time.
-        </p>
-        <div class="onboarding-buddy">
-          <div class="onboarding-buddy-avatar">YT</div>
-          <div class="onboarding-buddy-text">
-            <span class="buddy-name">Yuki Tanaka</span> is your onboarding buddy<br />
-            <span class="buddy-role">Governance Specialist · Available for questions</span>
-          </div>
-        </div>
-        <div class="onboarding-task">
-          <div class="onboarding-task-label">Suggested First Task</div>
-          <div class="onboarding-task-title">
-            Review and improve the deployment validation configuration
-          </div>
-          <div class="onboarding-task-desc">
-            This task is scoped to be completable within a few hours. You'll work with the tools you
-            already use — Edin will ingest your contribution automatically. Your buddy Yuki is
-            available if you have questions about the codebase or the process.
-          </div>
-        </div>
-        <button class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 1rem">
-          View Task Details
-        </button>
-        <p
-          style="
-            font-family: var(--font-sans);
-            font-size: 0.8125rem;
-            color: var(--brand-secondary);
-            margin-top: var(--space-md);
-          "
-        >
-          No rush — your ignition period lasts 72 hours
-        </p>
-      </div>
-    </section>
-
-    <script>
-      function scrollToSection(id) {
-        document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
-      }
-
-      const sections = document.querySelectorAll('.direction-section, .hero-section');
-      const navItems = document.querySelectorAll('.nav-item');
-
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              const id = entry.target.id;
-              navItems.forEach((item) => item.classList.remove('active'));
-              const activeItem = document.querySelector(
-                '.nav-item[onclick="scrollToSection(\'' + id + '\')"]',
-              );
-              if (activeItem) activeItem.classList.add('active');
-            }
-          });
-        },
-        { threshold: 0.3 },
-      );
-
-      sections.forEach((section) => observer.observe(section));
-
-      document.querySelectorAll('.dimension-card').forEach((card) => {
-        card.addEventListener('click', () => {
-          card.style.borderColor = 'var(--brand-accent)';
-          card.style.background = 'var(--brand-accent-subtle)';
-          setTimeout(() => {
-            card.style.borderColor = '';
-            card.style.background = '';
-          }, 1500);
-        });
-      });
-
-      document.querySelectorAll('.editorial-highlight').forEach((highlight) => {
-        highlight.addEventListener('click', () => {
-          document
-            .querySelectorAll('.editorial-highlight')
-            .forEach((h) => h.classList.remove('active'));
-          highlight.classList.add('active');
-        });
-      });
-
-      const dimensionObserver = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              const fills = entry.target.querySelectorAll('.dimension-bar-fill');
-              fills.forEach((fill) => {
-                const width = fill.style.width;
-                fill.style.width = '0%';
-                requestAnimationFrame(() => {
-                  requestAnimationFrame(() => {
-                    fill.style.width = width;
-                  });
-                });
-              });
-            }
-          });
-        },
-        { threshold: 0.5 },
-      );
-
-      const evalSection = document.getElementById('dir2');
-      if (evalSection) dimensionObserver.observe(evalSection);
-    </script>
   </body>
 </html>

@@ -386,16 +386,71 @@ importers:
         version: 4.0.18(@opentelemetry/api@1.9.0)(@types/node@22.19.13)(jiti@2.6.1)(jsdom@28.1.0(@noble/hashes@1.8.0))(lightningcss@1.31.1)(terser@5.46.0)
 
   packages/ui:
+    dependencies:
+      '@radix-ui/react-accordion':
+        specifier: ^1.2.0
+        version: 1.2.12(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      '@radix-ui/react-avatar':
+        specifier: ^1.1.0
+        version: 1.1.11(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      '@radix-ui/react-dialog':
+        specifier: ^1.1.0
+        version: 1.1.15(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      '@radix-ui/react-dropdown-menu':
+        specifier: ^2.1.0
+        version: 2.1.16(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      '@radix-ui/react-popover':
+        specifier: ^1.1.0
+        version: 1.1.15(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      '@radix-ui/react-scroll-area':
+        specifier: ^1.2.0
+        version: 1.2.10(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      '@radix-ui/react-select':
+        specifier: ^2.1.0
+        version: 2.2.6(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      '@radix-ui/react-switch':
+        specifier: ^1.1.0
+        version: 1.2.6(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      '@radix-ui/react-tabs':
+        specifier: ^1.1.0
+        version: 1.1.13(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      '@radix-ui/react-toast':
+        specifier: ^1.2.0
+        version: 1.2.15(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      '@radix-ui/react-tooltip':
+        specifier: ^1.1.0
+        version: 1.2.8(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      '@radix-ui/react-visually-hidden':
+        specifier: ^1.1.0
+        version: 1.2.4(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      clsx:
+        specifier: ^2.1.0
+        version: 2.1.1
+      tailwind-merge:
+        specifier: ^3.5.0
+        version: 3.5.0
     devDependencies:
       '@eslint/js':
         specifier: ^9.39.3
         version: 9.39.3
+      '@testing-library/jest-dom':
+        specifier: ^6.9.1
+        version: 6.9.1
+      '@testing-library/react':
+        specifier: ^16.3.2
+        version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      '@testing-library/user-event':
+        specifier: ^14.6.1
+        version: 14.6.1(@testing-library/dom@10.4.1)
       '@types/react':
         specifier: ^19
         version: 19.2.14
       eslint:
         specifier: ^9.39.3
         version: 9.39.3(jiti@2.6.1)
+      jsdom:
+        specifier: ^28.1.0
+        version: 28.1.0(@noble/hashes@1.8.0)
       react:
         specifier: ^19.0.0
         version: 19.2.3
@@ -408,6 +463,9 @@ importers:
       typescript-eslint:
         specifier: ^8.56.1
         version: 8.56.1(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3)
+      vitest:
+        specifier: ^4.0.0
+        version: 4.0.18(@opentelemetry/api@1.9.0)(@types/node@22.19.13)(jiti@2.6.1)(jsdom@28.1.0(@noble/hashes@1.8.0))(lightningcss@1.31.1)(terser@5.46.0)
 
 packages:
   '@acemir/cssom@0.9.31':
@@ -10889,6 +10947,12 @@ packages:
       }
     engines: { node: ^14.18.0 || >=16.0.0 }
 
+  tailwind-merge@3.5.0:
+    resolution:
+      {
+        integrity: sha512-I8K9wewnVDkL1NTGoqWmVEIlUcB9gFriAEkXkfCjX5ib8ezGxtR3xD7iZIxrfArjEsH7F1CHD4RFUtxefdqV/A==,
+      }
+
   tailwindcss@4.2.1:
     resolution:
       {
@@ -18679,6 +18743,8 @@ snapshots:
   synckit@0.11.12:
     dependencies:
       '@pkgr/core': 0.2.9
+
+  tailwind-merge@3.5.0: {}
 
   tailwindcss@4.2.1: {}
 

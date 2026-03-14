@@ -1,5 +1,7 @@
 ---
 stepsCompleted: [1, 2, 3, 4]
+lastEditedAt: '2026-03-14'
+editReason: 'Add Epic 0 (ROSE Design System Foundation) and update UX design references to match ROSE revision (2026-03-14)'
 inputDocuments:
   - _bmad-output/planning-artifacts/prd.md
   - _bmad-output/planning-artifacts/architecture.md
@@ -218,24 +220,26 @@ Total NFRs: 44
 - Tests co-located with source files (\*.spec.ts)
 - No PII in logs at info level or above
 
-**From UX — Design System Requirements:**
+**From UX — ROSE Design System Requirements (revised 2026-03-14):**
 
-- Tailwind CSS + Radix UI (headless component library) + custom Edin Component Library
-- Dual typography: serif (Libre Baskerville / Source Serif Pro) for editorial, sans-serif (Inter / Source Sans Pro) for interface
-- Domain accent colors: Technology (#3A7D7E teal), Finance (#C49A3C amber), Impact (#B06B6B terra rose), Governance (#7B6B8A slate violet)
-- Warm off-white base (#FAFAF7), terracotta accent (#C4956A)
-- 8px spacing base unit; minimum 24px between editorial content blocks
-- No red/green for scoring; narrative-first evaluation design
-- Progressive disclosure pattern (summary → expandable detail)
+- Tailwind CSS v4 + Radix UI primitives (14 primitives) + custom `@edin/ui` component library
+- Dark-first design: `surface-base` (#1A1A1D) as default background; light mode is a Phase 2 variant
+- ABC Normal typeface (7 weights: Light/Book/Neutral/Medium/Bold/Black/Super) — weight-based hierarchy, not serif/sans-serif split
+- Pillar colors: Technology (#FF5A00 orange), Impact (#00E87B green), Governance (#00C4E8 cyan), Finance (#E8AA00 gold)
+- Accent: vivid orange (#FF5A00) primary, blush pink (#E4BDB8) headings on dark backgrounds
+- 4px spacing base unit; minimum 24px between content blocks ("the page breathes")
+- No red/green for scoring; narrative-first evaluation design with progressive disclosure
+- Three layout containers: DashboardShell (sidebar 240px/64px), ReadingCanvas (680px centered), PublicPortal (gradient hero)
+- 20+ custom ROSE-themed components (NarrativeCard, EvaluationBreakdown, PillarAccentLine, DomainBadge, etc.)
 
 **From UX — Responsive & Accessibility:**
 
 - Mobile-first for article reading; desktop-first for authoring and admin
-- Sidebar collapses to bottom nav on mobile at 900px breakpoint
+- Sidebar collapses to mobile overlay; breakpoints at 640/768/1024/1280/1536px
 - Minimum touch targets: 44x44px
-- Visible focus indicators (2px brand.accent outline)
-- prefers-reduced-motion support
-- RTL layout support designed into spacing/grid system
+- Visible focus indicators (3px `accent-primary` orange ring)
+- `prefers-reduced-motion` support; 200ms ease-out transitions only
+- WCAG 2.1 AA contrast verified: text-primary on surface-base ~15:1, text-heading on surface-base ~8:1
 
 **From UX — Interaction Patterns:**
 
@@ -337,6 +341,11 @@ Total NFRs: 44
 
 ## Epic List
 
+### Epic 0: ROSE Design System Foundation
+
+The platform's visual identity is established through the ROSE design language — dark-first surfaces, ABC Normal typography, vivid orange accents, and pillar-coded domain colors. All design tokens, font loading, layout containers, Radix UI wrappers, and base components are implemented in `@edin/ui` before any feature development begins. Every subsequent epic depends on this foundation.
+**FRs covered:** None directly (design infrastructure). Enables visual implementation of FR40 (equal visual prominence), NFR-A1-A5 (accessibility), NFR-P1 (FCP <1.5s font optimization).
+
 ### Epic 1: Project Foundation & Contributor Authentication
 
 Contributors can sign in via GitHub OAuth, and the platform enforces role-based access control across 7 permission tiers. The monorepo is scaffolded with all infrastructure (Turborepo, Next.js 16, NestJS 11, Prisma 7, PostgreSQL, Redis, Docker), CI/CD, observability, and the shared design system foundation.
@@ -391,6 +400,246 @@ Admins have a health metrics dashboard showing community vitals, can manage cont
 
 **FRs deferred:** FR52b (admin targeted messaging), FR53 (governance proposals), FR54 (governance discussions), FR55 (governance lifecycle), FR56 (governance weight)
 
+## Epic 0: ROSE Design System Foundation
+
+The platform's visual identity is established through the ROSE design language — dark-first surfaces, ABC Normal typography, vivid orange accents, and pillar-coded domain colors. All design tokens, font loading, layout containers, Radix UI wrappers, and base components are implemented in `@edin/ui` before any feature development begins. Every subsequent epic depends on this foundation.
+
+### Story 0.1: ROSE Design Tokens & ABC Normal Font Integration
+
+As a contributor,
+I want the platform to render with the ROSE visual identity — dark backgrounds, ABC Normal typography, and vivid orange accents,
+So that every page feels like a beautifully designed publication from my first visit.
+
+**Acceptance Criteria:**
+
+**Given** the `@edin/ui` package exists in the monorepo
+**When** I create the design token file at `packages/ui/src/tokens/theme.css`
+**Then** a Tailwind v4 `@theme` block defines all ROSE CSS custom properties: 6 surface colors (`surface-base` #1A1A1D through `surface-editor` #252528), 4 accent colors (`accent-primary` #FF5A00, `accent-primary-hover` #FF7A2E, `accent-secondary` #E4BDB8, `accent-secondary-muted` #C9A09A), 4 pillar colors (`pillar-tech` #FF5A00, `pillar-impact` #00E87B, `pillar-governance` #00C4E8, `pillar-finance` #E8AA00), 4 semantic colors (`success`, `warning`, `error`, `info`), 6 text colors, the full type scale (Major Third 1.25), spacing scale (4px base unit, space-1 through space-16), border radii (radius-sm through radius-full), and shadow definitions
+**And** the token file is importable by `apps/web/app/global.css`
+
+**Given** the ABC Normal font files exist in `docs/rose-design/fonts/`
+**When** I configure font loading in `packages/ui/src/fonts/abc-normal.css`
+**Then** `@font-face` declarations are defined for all 7 weights (Light 300, Book 400, Neutral 450, Medium 500, Bold 700, Black 800, Super 900) using WOFF2 format with `font-display: swap`
+**And** the font family is registered as `'ABC Normal'` with fallback `'-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif'`
+**And** font files are subsetted to Latin + Latin Extended character sets
+**And** the total font payload is under 200KB (all 7 weights, subsetted, WOFF2)
+
+**Given** the fonts and tokens are configured
+**When** I add `<link rel="preload">` tags to `apps/web/app/layout.tsx`
+**Then** ABC Normal Book (400) and ABC Normal Medium (500) are preloaded as the critical path fonts
+**And** remaining weights (Light, Neutral, Bold, Black, Super) load on demand
+**And** First Contentful Paint is not blocked by font loading (swap behavior ensures text is visible immediately with fallback)
+
+**Given** the design tokens and fonts are integrated
+**When** I view any page in the application
+**Then** the background is `surface-base` (#1A1A1D) by default
+**And** body text uses ABC Normal Book at 16px with `text-primary` (#F0F0F0) color
+**And** all Tailwind utility classes (`bg-surface-base`, `text-accent-primary`, `font-bold`, etc.) resolve to the ROSE token values
+
+### Story 0.2: Foundation UI Primitives
+
+As a contributor,
+I want consistent, accessible interactive elements across the platform,
+So that buttons, inputs, cards, and badges feel cohesive and respond predictably.
+
+**Acceptance Criteria:**
+
+**Given** the ROSE tokens are configured (Story 0.1)
+**When** I build the `Button` component in `packages/ui/src/primitives/button.tsx`
+**Then** three variants are available: Primary (`accent-primary` fill #FF5A00, white text), Secondary (`surface-subtle` border, `text-primary` text, transparent fill), and Ghost (no border, no fill, `text-accent` or `text-secondary` text)
+**And** button text uses ABC Normal Medium at 14-16px with action verb labels
+**And** minimum touch target is 44x44px
+**And** hover: Primary lightens to `accent-primary-hover`, Secondary shows `surface-subtle` fill, Ghost shows underline
+**And** focus: 3px `accent-primary` ring on all variants, visible on dark and light surfaces
+**And** disabled: 40% opacity, `cursor: not-allowed`, no hover effect
+
+**Given** the ROSE tokens are configured
+**When** I build the `Input` and `Textarea` components
+**Then** fields render on `surface-raised` background with 1px `surface-subtle` border, `text-primary` text, ABC Normal Book 16px
+**And** focus state shows 3px orange focus ring (`accent-primary`), border shifts to `accent-primary`
+**And** error state shows `error` (#E85A5A) border with inline error message
+**And** placeholder text uses `text-tertiary`, ABC Normal Light
+**And** labels are always positioned above inputs (ABC Normal Medium, 14px, `text-secondary`)
+
+**Given** the ROSE tokens are configured
+**When** I build the `Card` component
+**Then** cards render with `surface-raised` background, `radius-md` (8px), `shadow-sm`, 16px internal padding
+**And** cards have a 1px `surface-subtle` border
+**And** card hover state shows subtle border/shadow shift
+
+**Given** the ROSE tokens are configured
+**When** I build the `Badge` component
+**Then** badges render with `radius-sm` (4px), ABC Normal Medium, 12px
+**And** a domain variant accepts a `domain` prop (tech/impact/governance/finance) and renders with the corresponding pillar color
+**And** badges can be text-only or filled (8% opacity pillar color background + pillar-color border)
+
+**Given** the ROSE tokens are configured
+**When** I build the `Skeleton` component
+**Then** skeleton loaders render on `surface-subtle` with an animated shimmer effect
+**And** the animation respects `prefers-reduced-motion` (disables shimmer when reduced motion is preferred)
+
+### Story 0.3: Radix UI Wrappers with ROSE Theming
+
+As a contributor,
+I want modals, dropdowns, tabs, and accordions that are keyboard-accessible and visually consistent with the ROSE design,
+So that I can navigate the platform efficiently without a mouse.
+
+**Acceptance Criteria:**
+
+**Given** Radix UI primitives are installed as dependencies
+**When** I create ROSE-themed wrappers in `packages/ui/src/radix/`
+**Then** the following 12 components are available as styled wrappers (Radix handles behavior, ROSE handles visuals):
+
+- `Accordion` — dark surface, blush-pink trigger text, keyboard-navigable expand/collapse
+- `Avatar` — `radius-full`, initials fallback on `surface-subtle` background
+- `Dialog` — `surface-overlay` background, `shadow-lg`, focus-trapped, escape-to-close
+- `DropdownMenu` — `surface-raised`, `accent-primary` on hover, keyboard arrow navigation
+- `Popover` — `surface-raised` with pillar-color border variant
+- `ScrollArea` — subtle scrollbar styled in `surface-subtle`
+- `Select` — dark input fields, orange focus ring, keyboard-selectable options
+- `Switch` — `accent-primary` when active, `surface-subtle` when inactive
+- `Tabs` — underline style, pillar-color underline when domain-specific
+- `Toast` — bottom-right, auto-dismiss after 5 seconds, non-blocking
+- `Tooltip` — `surface-overlay` background, compact text
+
+**And** all wrappers preserve Radix's accessibility features (ARIA attributes, keyboard navigation, focus management)
+**And** `VisuallyHidden` is re-exported directly from Radix (no styling wrapper needed)
+
+**Given** any Radix wrapper is used in `apps/web`
+**When** a keyboard user navigates to it
+**Then** focus is visible with a 3px `accent-primary` ring
+**And** all interactive states (open/close, select, toggle) are operable via keyboard only (NFR-A3)
+**And** screen readers announce state changes within 2 seconds (NFR-A2)
+
+### Story 0.4: Layout Containers — DashboardShell & SidebarNav
+
+As a contributor,
+I want a clean sidebar navigation that shows me where I am and what needs attention,
+So that I can move between evaluations, contributions, publications, and settings without losing context.
+
+**Acceptance Criteria:**
+
+**Given** the ROSE tokens and foundation components are available (Stories 0.1-0.3)
+**When** I build `DashboardShell` in `packages/ui/src/layout/dashboard-shell.tsx`
+**Then** the layout renders a fixed left sidebar (240px wide) alongside a main content area on `surface-base`
+**And** the sidebar has a `surface-raised` background
+**And** the content area fills the remaining viewport width
+**And** proper HTML landmarks are used: `<nav>` for sidebar, `<main>` for content
+**And** a skip-to-content link is the first focusable element
+
+**Given** the DashboardShell is rendered
+**When** I click the collapse button or press the keyboard shortcut
+**Then** the sidebar collapses to 64px (icon-only mode)
+**And** the collapse preference is persisted in `localStorage`
+**And** the transition is 200ms ease-out
+**And** the transition is skipped when `prefers-reduced-motion` is active
+
+**Given** the viewport is below 768px (mobile)
+**When** I view the dashboard
+**Then** the sidebar is hidden by default
+**And** a hamburger menu button appears in the top bar
+**And** tapping the hamburger opens the sidebar as a full-screen overlay on `surface-base`
+**And** the overlay can be dismissed by tapping outside, pressing escape, or tapping the close button
+
+**Given** the DashboardShell is available
+**When** I build `SidebarNav` in `packages/ui/src/layout/sidebar-nav.tsx`
+**Then** the navigation shows: the Edin logo at the top, nav sections with section titles, and nav items with labels
+**And** each nav item can display a pillar-color dot for domain context
+**And** the active nav item shows `accent-primary` text + 2px right border + subtle `accent-primary` background tint (8% opacity)
+**And** the component accepts an `aria-current="page"` prop for the active item
+**And** navigation is fully keyboard-navigable with visible focus indicators
+
+**Given** a nav item has unread updates
+**When** the notification state is active
+**Then** a 6px `accent-primary` dot appears on the nav item — no count badge, no urgency
+**And** the `aria-label` announces "new updates available" for screen readers
+
+### Story 0.5: Layout Containers — ReadingCanvas & Public Portal
+
+As a reader,
+I want published articles to feel like opening a beautifully designed magazine — immersive, focused, with no platform chrome competing for attention,
+So that I can engage with the community's intellectual output in comfort.
+
+**Acceptance Criteria:**
+
+**Given** the ROSE tokens are available (Story 0.1)
+**When** I build `ReadingCanvas` in `packages/ui/src/layout/reading-canvas.tsx`
+**Then** the layout renders a full-width `surface-reading` (#1E1E22) background with a centered content column at max-width 680px
+**And** the content column uses ABC Normal Book at 18px, line-height 1.7 (optimal reading measure ~65-75 characters)
+**And** paragraph spacing is 1.5em between paragraphs
+**And** headings use ABC Normal Black with `text-heading` (blush pink #E4BDB8) color
+**And** a minimal top navigation bar provides a back-to-dashboard link and article metadata
+**And** NO sidebar, NO dashboard navigation — this is a distinct layout, not a variant of DashboardShell
+**And** the layout is used as the template for `(public)/articles/[slug]/page.tsx`
+**And** the `<article>` landmark is used with proper heading hierarchy
+
+**Given** I build `HeroSection` in `packages/ui/src/layout/hero-section.tsx`
+**When** the component is rendered on the public homepage
+**Then** a cinematic ROSE gradient background renders (radial orange/pink glow on `surface-base`)
+**And** centered content shows: overline (ABC Normal Medium, uppercase, letter-spacing 0.1em), headline (ABC Normal Super 48px), subtitle (ABC Normal Book), and a Primary CTA button
+**And** two variants are available: full-height (homepage) and compact (subpages)
+**And** the gradient is decorative — text meets WCAG AA contrast against the darkest background value
+
+**Given** I build `PublicLayout` in `packages/ui/src/layout/public-layout.tsx`
+**When** the layout is rendered for unauthenticated pages
+**Then** a top navigation bar renders — transparent over the hero gradient, transitioning to `surface-base` on scroll
+**And** the content area uses a 12-column responsive grid
+**And** mobile navigation uses a hamburger menu with full-screen overlay on `surface-base`
+**And** the layout is used as `layout.tsx` for the `(public)` route group
+
+### Story 0.6: Domain Identity & Content Display Components
+
+As a contributor,
+I want every piece of content to show which domain it belongs to through consistent visual markers,
+So that I can immediately see Technology, Impact, Governance, and Finance work treated with equal dignity.
+
+**Acceptance Criteria:**
+
+**Given** the ROSE tokens and primitives are available (Stories 0.1-0.3)
+**When** I build `PillarAccentLine` in `packages/ui/src/domain/pillar-accent-line.tsx`
+**Then** the component renders a 3px-wide vertical color bar spanning the full height of its parent container
+**And** the color is determined by a `domain` prop: `tech` (#FF5A00 orange), `impact` (#00E87B green), `governance` (#00C4E8 cyan), `finance` (#E8AA00 gold)
+**And** the color bar has `radius-full` rounded ends
+**And** the color is NEVER the sole information carrier — it is always paired with a text label (NFR-A4)
+
+**Given** the ROSE tokens are available
+**When** I build `DomainBadge` in `packages/ui/src/domain/domain-badge.tsx`
+**Then** the badge renders uppercase text at 11px, ABC Normal Medium, `letter-spacing: 0.05em`, in the domain's pillar color
+**And** two variants are available: text-only and filled (8% opacity pillar-color background + pillar-color border)
+**And** all four domain badges have identical dimensions and visual weight — no domain appears more prominent
+
+**Given** the ROSE tokens are available
+**When** I build `NarrativeCard` in `packages/ui/src/content/narrative-card.tsx`
+**Then** the card renders with a `PillarAccentLine` left border, a header (title + `DomainBadge`), a narrative paragraph (ABC Normal Book 15px), and a metadata row
+**And** hover state shows a subtle border/shadow shift
+**And** an Evaluation variant includes a "See detail" Radix Accordion for progressive disclosure
+**And** a Feedback variant includes resolve action buttons
+**And** the card is a clickable region with a descriptive `aria-label`
+
+**Given** the ROSE tokens are available
+**When** I build `ArticleByline` in `packages/ui/src/content/article-byline.tsx`
+**Then** the component displays Author (avatar + name + role) and Editor (avatar + name + role) side by side, separated by a spacer
+**And** each name is a link to the contributor's profile
+**And** variants: single author (no editor), dual (author + editor), multi-author
+
+**Given** the ROSE tokens are available
+**When** I build `PullQuote` in `packages/ui/src/content/pull-quote.tsx`
+**Then** the component renders a 3px `accent-primary` left border with quote text (ABC Normal Light, 24px, `text-heading` blush pink color) and left padding
+**And** the component is wrapped in `<blockquote>` with proper semantics
+
+**Given** the ROSE tokens are available
+**When** I build `ActivityFeedItem` in `packages/ui/src/content/activity-feed-item.tsx`
+**Then** the component renders with `PillarAccentLine` + title + summary + metadata row (DomainBadge, contributor name, timestamp)
+**And** all four domains use identical layout — no domain has more visual weight than another (FR40)
+**And** the component uses `<li>` semantics with a linked title
+
+**Given** the ROSE tokens are available
+**When** I build `StatusIndicator` in `packages/ui/src/content/status-indicator.tsx`
+**Then** the component shows a status text in active voice (e.g., "Your contribution is being analyzed") with optional subtle spinner
+**And** text uses ABC Normal Book, `text-secondary`
+**And** states: processing, completed, needs attention
+**And** the component uses an ARIA live region so screen readers announce status changes
+
 ## Epic 1: Project Foundation & Contributor Authentication
 
 Contributors can sign in via GitHub OAuth, and the platform enforces role-based access control across 7 permission tiers. The monorepo is scaffolded with all infrastructure (Turborepo, Next.js 16, NestJS 11, Prisma 7, PostgreSQL, Redis, Docker), CI/CD, observability, and the shared design system foundation.
@@ -432,7 +681,7 @@ So that I can begin building features on a solid, consistent foundation.
 
 **Given** the Next.js frontend is running
 **When** I access the root URL
-**Then** a minimal landing page renders with the Edin design system foundation: warm off-white background (#FAFAF7), brand typography (serif + sans-serif fonts loaded via next/font), and the terracotta accent color (#C4956A)
+**Then** a minimal landing page renders with the ROSE design system foundation: dark charcoal background (surface-base #1A1A1D), ABC Normal typeface loaded via next/font, and the vivid orange accent color (#FF5A00)
 
 ### Story 1.2: Database Schema Foundation and Prisma Configuration
 
@@ -596,9 +845,9 @@ So that I can understand each contributor's expertise and involvement.
 
 **Given** I am an unauthenticated visitor
 **When** I navigate to /contributors/:id
-**Then** I see a public contributor profile with: name, avatar, bio, primary domain, skill areas, role designation (Contributor, Founding Contributor, Working Group Lead), and domain badge with the appropriate accent color (Technology: teal, Finance: amber, Impact: terra rose, Governance: slate violet)
+**Then** I see a public contributor profile with: name, avatar, bio, primary domain, skill areas, role designation (Contributor, Founding Contributor, Working Group Lead), and domain badge with the appropriate pillar accent color (Technology: #FF5A00 orange, Finance: #E8AA00 gold, Impact: #00E87B green, Governance: #00C4E8 cyan)
 **And** the page is server-side rendered for SEO
-**And** the profile layout uses serif typography for the bio and sans-serif for interface labels (dual-typography system)
+**And** the profile layout uses ABC Normal weight-based hierarchy (Bold 700 for headings, Book 400 for body text, Medium 500 for labels)
 
 **Given** I am an authenticated contributor
 **When** I navigate to /dashboard
@@ -627,7 +876,7 @@ So that I can understand the project and its community without creating an accou
 **When** I navigate to the root URL /
 **Then** I see a public showcase page with: a hero section communicating Edin's mission ("Where Expertise Becomes Publication"), a brief value proposition covering AI evaluation, scaling-law rewards, curated community, and publication platform, and a Founding Circle section listing contributors with the FOUNDING_CONTRIBUTOR role showing their names, avatars, domains, and bios
 **And** the page is server-side rendered with appropriate meta tags (title, description, Open Graph, Twitter Card)
-**And** the design follows the UX spec: serif headings, warm off-white background (#FAFAF7), generous whitespace (48px+ between sections), institutional authority aesthetic
+**And** the design follows the ROSE spec: ABC Normal Bold headings in blush pink (#E4BDB8), dark background (surface-base #1A1A1D), gradient hero section, generous whitespace (48px+ between sections), and vivid orange (#FF5A00) CTAs
 
 **Given** the Founding Circle has members
 **When** the showcase page loads
@@ -1016,7 +1265,7 @@ So that I can connect with contributors in my area of expertise and access domai
 
 **Given** I am an authenticated contributor
 **When** I navigate to /dashboard/working-groups
-**Then** I see four working groups displayed with equal visual weight: Technology (teal accent), Finance & Financial Engineering (amber accent), Impact & Sustainability (terra rose accent), and Governance (slate violet accent)
+**Then** I see four working groups displayed with equal visual weight: Technology (#FF5A00 orange accent), Finance & Financial Engineering (#E8AA00 gold accent), Impact & Sustainability (#00E87B green accent), and Governance (#00C4E8 cyan accent)
 **And** each group shows: domain name, brief description, member count, and a domain-colored badge
 **And** no domain appears more prominent or positioned higher by default
 
@@ -1368,14 +1617,14 @@ So that I feel recognized for my craft rather than reduced to a number.
 **When** I expand the detailed breakdown
 **Then** each dimension (complexity, maintainability, test coverage, standards adherence for code; structural completeness, readability, reference integrity for docs) shows its sub-score with a brief textual explanation of what was measured
 **And** the evaluation formula version and weights are available via a "How was this calculated?" expandable section (full provenance transparency per FR23)
-**And** the display uses the dual typography system: serif for the narrative heading, sans-serif for the detailed data (UX spec: editorial design language)
+**And** the display uses the ROSE typography hierarchy: ABC Normal Bold 700 for the narrative heading, Book 400 for body text, Medium 500 for data labels (weight-based hierarchy, not typeface split)
 
 **Given** I am an authenticated contributor
 **When** I navigate to /dashboard/evaluations
 **Then** I see my evaluation score history displayed as a timeline visualization (FR25)
 **And** the timeline shows scores over time with the narrative preview (first sentence) for each evaluation
 **And** trend lines use organic, garden-inspired visual language — growth curves, not stock charts (UX spec: patient confidence)
-**And** the visualization uses the contributor's domain accent color (teal for Technology, amber for Finance, rose for Impact, violet for Governance)
+**And** the visualization uses the contributor's pillar accent color (#FF5A00 orange for Technology, #E8AA00 gold for Finance, #00E87B green for Impact, #00C4E8 cyan for Governance)
 **And** the chart meets accessibility requirements: sufficient color contrast (4.5:1 minimum) and alternative text representations for screen readers (NFR-A4)
 
 **Given** I have multiple evaluations over time
@@ -1584,7 +1833,7 @@ So that I can engage with the community's intellectual output as I would with a 
 
 **Given** I click on a published article
 **When** the article page at /articles/:slug loads
-**Then** I see the full article rendered with editorial typography: serif headings, generous margins, elegant layout that feels like opening The Economist or Aeon (UX spec: immersive reading tunnel)
+**Then** I see the full article rendered inside the ReadingCanvas layout (680px max-width, surface-reading #1E1E22 background): ABC Normal Bold 700 headings in blush pink (#E4BDB8), Book 400 body text in #F0F0F0, generous margins, immersive reading tunnel
 **And** the article displays: author profile (name, bio, domain badge), editor profile (name, domain badge), domain tag, publication date, and AI evaluation score (FR73, FR75 — evaluated using the same framework as other contributions, scoring analytical depth, originality, clarity, domain relevance)
 **And** navigation chrome collapses to create a focused reading experience (UX spec: progressive navigation collapse)
 **And** the page achieves FCP <1.2s and LCP <2.5s with passing Core Web Vitals (NFR-C1)
@@ -1719,7 +1968,7 @@ So that I understand the long-term value of consistent, quality contributions.
 **Then** I see a reward trajectory visualization showing how scaling-law compounding rewards grow with sustained engagement (FR57)
 **And** the visualization displays a growth curve that illustrates the compounding effect: early contributions build slowly, sustained engagement accelerates reward accumulation
 **And** the curve uses organic, garden-inspired visual language — growth metaphors (branches extending, garden filling in), not financial charts (UX spec: "Your garden is growing" not "Your score is 847")
-**And** the visualization uses my domain accent color (teal/amber/rose/violet) as the primary curve color
+**And** the visualization uses my pillar accent color (orange #FF5A00 / gold #E8AA00 / green #00E87B / cyan #00C4E8) as the primary curve color
 
 **Given** I am viewing the reward trajectory
 **When** I interact with the visualization
@@ -1757,7 +2006,7 @@ So that I have full transparency into how contributions are valued and rewarded.
 **Then** I see the same reward methodology explanation as authenticated contributors (FR59: visitors can access on public pages)
 **And** the page is server-side rendered for SEO
 **And** the page loads with FCP <1.5s (NFR-P1)
-**And** the content uses the public portal's editorial design language — serif headings, generous whitespace, the quiet authority of institutional communication (Henrik persona)
+**And** the content uses the ROSE PublicPortal layout — ABC Normal Bold 700 headings in blush pink (#E4BDB8), dark background, generous whitespace, vivid orange (#FF5A00) CTAs (Henrik persona)
 
 **Given** I am viewing the methodology explanation
 **When** I scroll through the content

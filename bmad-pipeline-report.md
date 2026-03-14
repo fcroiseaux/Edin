@@ -1,9 +1,9 @@
-# BMAD Pipeline Report: Story 10-4
+# BMAD Pipeline Report: Story 0.5
 
-**Story:** 10-4-gdpr-compliance-and-eu-ai-act-documentation
-**Epic:** 10 - Admin Operations, Compliance & Observability
+**Story:** 0-5-reading-canvas-and-public-portal
+**Epic:** 0 — ROSE Design System Foundation
 **Pipeline:** bmad-cycle (create-story -> dev-story -> code-review)
-**Date:** 2026-03-10
+**Date:** 2026-03-14
 **Model:** Claude Opus 4.6
 
 ## Pipeline Steps
@@ -11,106 +11,67 @@
 ### Step 1: Create Story
 
 - **Status:** Completed
-- **Output:** `_bmad-output/implementation-artifacts/10-4-gdpr-compliance-and-eu-ai-act-documentation.md`
-- 13 task groups, 4 acceptance criteria
-- Full dev notes with Prisma schema additions (3 new audit models), GDPR data export/deletion with pseudonymization, EU AI Act compliance document generation, BullMQ job queues, frontend privacy settings + admin compliance dashboard
+- **Output:** `_bmad-output/implementation-artifacts/0-5-reading-canvas-and-public-portal.md`
+- 5 task groups, 6 acceptance criteria
+- Full dev notes with ReadingCanvas, HeroSection, PublicLayout TypeScript APIs, ROSE token mapping, accessibility requirements
 
 ### Step 2: Dev Story (Implementation)
 
 - **Status:** Completed
-- **Files created:** 22 new files, 6 modified files
+- **Files created:** 6 new files, 2 modified files
 
-**New Backend Files (12):**
+**New Component Files (6):**
 
-- `apps/api/src/modules/compliance/gdpr/gdpr.service.ts` — GDPR orchestration: export/deletion requests, SHA-256 pseudonymization, 30-day cooling-off
-- `apps/api/src/modules/compliance/gdpr/gdpr.service.spec.ts` — 10 tests
-- `apps/api/src/modules/compliance/gdpr/gdpr.controller.ts` — 6 endpoints: export request, export status, export download, deletion request/confirm/cancel
-- `apps/api/src/modules/compliance/gdpr/gdpr.controller.spec.ts` — 5 tests
-- `apps/api/src/modules/compliance/gdpr/data-export.processor.ts` — BullMQ processor: collects PII from 7 tables, writes JSON, updates request to READY
-- `apps/api/src/modules/compliance/gdpr/data-export.processor.spec.ts` — 3 tests
-- `apps/api/src/modules/compliance/gdpr/data-deletion.processor.ts` — BullMQ processor: nullifies PII, sets githubId to 0, marks inactive, audit logs within Prisma transaction
-- `apps/api/src/modules/compliance/gdpr/data-deletion.processor.spec.ts` — 5 tests
-- `apps/api/src/modules/compliance/eu-ai-act/eu-ai-act.service.ts` — 4 document types (Model Card, Evaluation Criteria, Human Oversight Report, Data Processing Record), auto-versioning, legal review workflow with watermark
-- `apps/api/src/modules/compliance/eu-ai-act/eu-ai-act.service.spec.ts` — 9 tests
-- `apps/api/src/modules/compliance/eu-ai-act/eu-ai-act.controller.ts` — Admin-only endpoints with documentType validation (4 allowed types)
-- `apps/api/src/modules/compliance/eu-ai-act/eu-ai-act.controller.spec.ts` — 4 tests
+- `packages/ui/src/layout/reading-canvas.tsx` — Immersive article reading: surface-reading bg, 680px centered article, body-lg text, 1.7 line-height, 1.5em paragraph spacing, blush-pink headings, topBar slot
+- `packages/ui/src/layout/reading-canvas.test.tsx` — 13 tests
+- `packages/ui/src/layout/hero-section.tsx` — Cinematic gradient hero: radial orange/pink glow (CSS custom properties), overline/headline/subtitle/CTA slots, full/compact variants
+- `packages/ui/src/layout/hero-section.test.tsx` — 12 tests
+- `packages/ui/src/layout/public-layout.tsx` — Public portal frame: top nav with logo/items/auth, mobile hamburger + full-screen overlay with focus trap, renderLink prop
+- `packages/ui/src/layout/public-layout.test.tsx` — 15 tests
 
-**New Frontend Files (11):**
+**Modified Files (2):**
 
-- `apps/web/hooks/use-gdpr.ts` — 5 TanStack Query hooks for GDPR operations
-- `apps/web/hooks/use-compliance-documents.ts` — 4 TanStack Query hooks for compliance documents
-- `apps/web/components/features/privacy/data-export-section.tsx` — Export button, status polling, download link
-- `apps/web/components/features/privacy/data-deletion-section.tsx` — Deletion with accessible confirmation dialog, cooling-off countdown, confirm/cancel
-- `apps/web/components/features/admin/compliance/compliance-document-table.tsx` — Documents table with review dialog, viewer, pagination
-- `apps/web/components/features/admin/compliance/compliance-document-generator.tsx` — Document type selector with generate action
-- `apps/web/components/features/admin/compliance/compliance-document-viewer.tsx` — Modal viewer for document content with watermark display
-- `apps/web/app/(dashboard)/dashboard/settings/privacy/page.tsx` — Server component composing privacy sections
-- `apps/web/app/(dashboard)/dashboard/settings/privacy/loading.tsx` — Skeleton
-- `apps/web/app/(admin)/admin/compliance/page.tsx` — Admin compliance dashboard
-- `apps/web/app/(admin)/admin/compliance/loading.tsx` — Skeleton
+- `packages/ui/src/layout/index.ts` — Added ReadingCanvas, HeroSection, PublicLayout exports
+- `packages/ui/src/index.ts` — Added layout re-exports
 
-**Modified Files:**
-
-- `apps/api/prisma/schema.prisma` — +3 new models (DataExportRequest, DataDeletionRequest, ComplianceDocument) in audit schema + 3 Contributor relations
-- `apps/api/src/modules/compliance/compliance.module.ts` — BullMQ queues (gdpr-export, gdpr-deletion), all new controllers/providers
-- `apps/api/src/config/app.config.ts` — Added PSEUDONYM_SALT (optional, min 32 chars)
-- `packages/shared/src/types/admin.types.ts` — GDPR + compliance types, 6 new audit event types
-- `packages/shared/src/constants/error-codes.ts` — 7 new error codes
-- `packages/shared/src/index.ts` — New type exports
-- `apps/web/app/(admin)/layout.tsx` — "Compliance" nav item
-
-**Tests:** 44 compliance tests passing (10 + 5 + 3 + 5 + 9 + 4 + 8 audit)
+**Tests:** 215 tests passing (23 test files)
 
 ### Step 3: Code Review
 
 - **Status:** Completed (Approved after fixes)
-- **Issues found:** 11 High, 8 Medium
-- **Issues fixed:** 15 (all High + most Medium)
-- **Issues deferred:** 4 (architecture/infrastructure concerns)
+- **Issues found:** 3 Critical, 5 Important
+- **Issues fixed:** 7 (all Critical + actionable Important)
+- **Issues deferred:** 1 Important (renderNavLink useCallback — functional but inconsistent)
 
 #### Fixes Applied
 
-| #   | Severity | Issue                                                                           | Fix                                                                                                                       |
-| --- | -------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| 1   | HIGH     | Download endpoint entirely missing — downloadUrl points to 404                  | Added `GET data-export/:requestId/download` to controller + `getExportFile` to service with ownership + expiry validation |
-| 2   | HIGH     | Hardcoded fallback pseudonymization salt `'edin-gdpr-salt'`                     | Added PSEUDONYM_SALT to appConfigSchema (optional, min 32 chars), added warning log when default used                     |
-| 3   | HIGH     | `githubId` not nulled during account deletion — can re-link via OAuth           | Added `githubId: 0` to deletion processor PII nullification                                                               |
-| 4   | HIGH     | No validation on `documentType` input — accepts arbitrary strings               | Added inline validation against 4 allowed types with BadRequestException                                                  |
-| 5   | HIGH     | "Legal review pending" watermark not in document content (AC4)                  | Added `legalReviewStatus: 'PENDING'` + `legalReviewWatermark` to generated content; cleared on review                     |
-| 6   | HIGH     | Document viewer component entirely absent (Task 11.4, AC4)                      | Created compliance-document-viewer.tsx with modal dialog, content rendering, review status display                        |
-| 7   | HIGH     | `coolingOffExpired` computed once — Confirm button never appears without reload | Moved to `useState` + `useEffect` with 1-second interval                                                                  |
-| 8   | HIGH     | Confirmation dialog not accessible — no role/aria attributes                    | Added `role="alertdialog"`, `aria-modal`, `aria-labelledby`, `aria-describedby`                                           |
-| 9   | HIGH     | Unnecessary `'use client'` on privacy page shell                                | Removed — child components already client components                                                                      |
-| 10  | MEDIUM   | Unnecessary `existsSync` check before `mkdir` in export processor               | Removed; `mkdir({ recursive: true })` handles it                                                                          |
-| 11  | MEDIUM   | No failure-path test for DataDeletionProcessor                                  | Added 2 tests: transaction failure propagation + githubId nullification                                                   |
-| 12  | MEDIUM   | `font-serif` on body text in generator (inconsistent with design system)        | Changed to `font-sans`                                                                                                    |
-| 13  | MEDIUM   | No error state rendered in ComplianceDocumentTable                              | Added error branch before empty state check                                                                               |
-| 14  | MEDIUM   | UUID displayed raw for `legalReviewedBy`                                        | Added `title` tooltip with full value, fixed HTML entity for ellipsis                                                     |
-| 15  | MEDIUM   | View button was a no-op (empty click handler)                                   | Wired to ComplianceDocumentViewer component                                                                               |
-
-#### Deferred Issues (architecture/infrastructure)
-
-- TOCTOU race in duplicate-request check — needs DB-level unique constraint or advisory lock
-- Export files never cleaned up after expiry — needs scheduled cleanup job
-- ConfigModule not explicitly imported in ComplianceModule — works via global registration
-- Query key design / no export state persistence across page reloads — needs new API endpoint
+| #   | Severity  | Issue                                                         | Fix                                                                |
+| --- | --------- | ------------------------------------------------------------- | ------------------------------------------------------------------ |
+| 1   | CRITICAL  | HeroSection headline missing font-weight 900                  | Added `font-black` class to headline div                           |
+| 2   | CRITICAL  | ReadingCanvas paragraph spacing (1.5em) not implemented       | Added `[&_p+p]:mt-[1.5em]` to article element                      |
+| 3   | CRITICAL  | `React` namespace used without import in test file            | Added `import type React from 'react'`                             |
+| 4   | IMPORTANT | Gradient uses hardcoded RGBA values                           | Switched to `rgb(from var(--color-accent-primary) ...)` CSS syntax |
+| 5   | IMPORTANT | Missing tests for paragraph spacing, line-height, font-weight | Added 3 tests: paragraph spacing, line-height, headline font-black |
 
 #### Tests After Fixes
 
-- Compliance: 44/44 passed (7 test files)
-- Full regression: 1071/1072 passed (1 pre-existing integration test failure: webhook.processor.integration.spec.ts)
-- 0 regressions from story 10-4 changes
+- @edin/ui: 215/215 passed (23 test files)
+- Build: Clean (tsc)
+- Lint: Clean (eslint — 0 errors)
+- Web app build: Clean (Next.js)
+- 0 retries needed
 
 ## Final Status
 
-- **Story status:** review -> done
-- **Sprint status:** 10-4-gdpr-compliance-and-eu-ai-act-documentation -> done
-- **Epic status:** epic-10 -> done (4/4 stories completed)
+- **Story status:** done
+- **Sprint status:** 0-5-reading-canvas-and-public-portal -> done
+- **Epic status:** epic-0 -> in-progress (5/6 stories completed)
 
 ## Auto-Approve Criteria
 
-- [x] Green tests (44 compliance + 1071 full regression passing)
-- [x] Clean lint (no new TS errors)
-- [x] Consistent with existing architecture (JwtAuthGuard + AbilityGuard, createSuccessResponse, @Global() ComplianceModule, BullMQ processors extending WorkerHost, cursor pagination, TanStack Query hooks, Prisma schema conventions)
-- [x] Code review issues fixed (15/15 HIGH+MEDIUM resolved, 4 deferred as infrastructure concerns)
+- [x] Green tests (215 @edin/ui tests passing)
+- [x] Clean lint (0 errors)
+- [x] Clean build (tsc + Next.js)
+- [x] Consistent with existing architecture (ROSE tokens, forwardRef, cn(), barrel exports, framework-agnostic, ReactNode import pattern)
+- [x] Code review issues fixed (7/8 resolved, 1 deferred)
 - [x] No retries needed

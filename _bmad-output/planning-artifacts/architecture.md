@@ -3,12 +3,16 @@ stepsCompleted: [1, 2, 3, 4, 5, 6, 7, 8]
 lastStep: 8
 status: 'complete'
 completedAt: '2026-03-01'
+lastEditedAt: '2026-03-14'
+editReason: 'Add ROSE Design System Architecture section — design tokens, ABC Normal font strategy, sidebar navigation, component library scope, Reading Canvas layout. Aligns architecture with ROSE UX revision (2026-03-14).'
 inputDocuments:
   - _bmad-output/planning-artifacts/prd.md
   - _bmad-output/planning-artifacts/prd-validation-report.md
   - _bmad-output/planning-artifacts/product-brief-Edin-2026-02-27.md
   - _bmad-output/planning-artifacts/ux-design-specification.md
   - docs/edin_platform_description.md
+  - docs/rose-design/ROSE_deck.pdf
+  - docs/rose-design/fonts/ABCNormal-*.ttf
 workflowType: 'architecture'
 project_name: 'Edin'
 user_name: 'Fabrice'
@@ -346,7 +350,7 @@ mkdir -p packages/shared packages/config packages/tsconfig
 
 - Decision: Feature-based co-location with Next.js App Router route groups
 - Structure: `app/(public)/` (showcase, articles, manifestos), `app/(dashboard)/` (contributor views), `app/(admin)/` (admin panel)
-- Shared UI components in `packages/ui` (design system primitives: buttons, cards, inputs, navigation)
+- Shared UI components in `packages/ui` (ROSE design system: tokens, fonts, layout containers, Radix wrappers, domain identity, content display, profile/reward components — see "ROSE Design System Architecture" section)
 - Rationale: Features are self-contained. Adding a new feature means adding a route group, not touching shared directories
 
 **Rich Text Editor (Publication Platform):**
@@ -1092,20 +1096,56 @@ edin/
 │   │       │   ├── article-lifecycle.ts
 │   │       │   └── error-codes.ts
 │   │       └── index.ts
-│   ├── ui/
+│   ├── ui/                                    # @edin/ui — ROSE Design System
 │   │   ├── package.json
 │   │   ├── tsconfig.json
 │   │   └── src/
-│   │       ├── button.tsx
-│   │       ├── card.tsx
-│   │       ├── input.tsx
-│   │       ├── select.tsx
-│   │       ├── badge.tsx
-│   │       ├── skeleton.tsx
-│   │       ├── toast.tsx
-│   │       ├── modal.tsx
-│   │       ├── data-table.tsx
-│   │       ├── navigation.tsx
+│   │       ├── tokens/
+│   │       │   └── theme.css                  # Tailwind v4 @theme — ROSE design tokens
+│   │       ├── fonts/
+│   │       │   ├── abc-normal.css             # @font-face declarations (7 weights)
+│   │       │   └── ABCNormal-*.woff2          # Subsetted font files
+│   │       ├── primitives/                    # Foundation (Tailwind-only, no Radix)
+│   │       │   ├── button.tsx
+│   │       │   ├── card.tsx
+│   │       │   ├── input.tsx
+│   │       │   ├── badge.tsx
+│   │       │   └── skeleton.tsx
+│   │       ├── radix/                         # Radix wrappers with ROSE theming
+│   │       │   ├── accordion.tsx
+│   │       │   ├── avatar.tsx
+│   │       │   ├── dialog.tsx
+│   │       │   ├── dropdown-menu.tsx
+│   │       │   ├── popover.tsx
+│   │       │   ├── scroll-area.tsx
+│   │       │   ├── select.tsx
+│   │       │   ├── switch.tsx
+│   │       │   ├── tabs.tsx
+│   │       │   ├── toast.tsx
+│   │       │   └── tooltip.tsx
+│   │       ├── layout/                        # Layout containers
+│   │       │   ├── dashboard-shell.tsx         # Sidebar + content (authenticated)
+│   │       │   ├── sidebar-nav.tsx             # 240px/64px collapsible sidebar
+│   │       │   ├── reading-canvas.tsx          # 680px immersive article layout
+│   │       │   ├── hero-section.tsx            # Public portal gradient hero
+│   │       │   └── public-layout.tsx           # Public portal layout frame
+│   │       ├── domain/                        # Domain identity components
+│   │       │   ├── pillar-accent-line.tsx      # 3px vertical pillar-color bar
+│   │       │   ├── domain-badge.tsx            # Uppercase pillar-color label
+│   │       │   └── pillar-card.tsx             # Public portal domain card
+│   │       ├── content/                       # Content display components
+│   │       │   ├── narrative-card.tsx          # Prose-first card with pillar border
+│   │       │   ├── evaluation-breakdown.tsx    # Narrative + progressive disclosure
+│   │       │   ├── article-byline.tsx          # Author + Editor dual credit
+│   │       │   ├── pull-quote.tsx              # Orange-bordered pull quote
+│   │       │   ├── activity-feed-item.tsx      # Feed item with equal domain weight
+│   │       │   └── status-indicator.tsx        # Calm async process status
+│   │       ├── profile/                       # Profile & reward components
+│   │       │   ├── contributor-profile.tsx     # Author-biography-style display
+│   │       │   ├── fingerprint-item.tsx        # Impact fingerprint with pillar dot
+│   │       │   ├── growth-curve.tsx            # Organic SVG reward trajectory
+│   │       │   ├── reward-stat.tsx             # Single reward metric card
+│   │       │   └── notification-dot.tsx        # 6px calm notification indicator
 │   │       └── index.ts
 │   ├── config/
 │   │   ├── eslint/
@@ -1256,6 +1296,297 @@ docker build -f docker/web.Dockerfile -t edin-web .
 # Or: docker compose -f docker-compose.prod.yml up
 ```
 
+## ROSE Design System Architecture
+
+_Added 2026-03-14 — Aligns architecture with ROSE UX revision. The UX specification was fully rewritten on 2026-03-14 with the ROSE brand design language (dark-first aesthetic, ABC Normal typography, vivid orange accents, pillar-coded domain colors). This section documents the architectural decisions required to implement the design system._
+
+### Design System Overview
+
+The Edin design system is a **custom system built on Tailwind CSS v4 + Radix UI primitives**, housed in the `packages/ui` (`@edin/ui`) shared monorepo package. The ROSE brand identity deck is the primary visual reference — dark cinematic backgrounds, ABC Normal typeface, vivid orange accents, pillar-coded color shields.
+
+**Key principle:** Dark-first design. The dark palette is the base theme; light mode is a considered variant via class toggle, not the default.
+
+### ABC Normal Font Architecture
+
+**Typeface:** ABC Normal — 7-weight custom font family from the ROSE brand identity deck.
+
+**Font Files:** Source TTF files are in `docs/rose-design/fonts/ABCNormal-*.ttf`. For production, fonts must be subsetted and converted to WOFF2.
+
+**Weight Mapping:**
+
+| Font File         | CSS `font-weight` | Design Role                              |
+| ----------------- | ----------------- | ---------------------------------------- |
+| ABCNormal-Light   | 300               | Captions, metadata, subtle text          |
+| ABCNormal-Book    | 400               | Body text, paragraphs, article prose     |
+| ABCNormal-Neutral | 450               | Emphasis within body text                |
+| ABCNormal-Medium  | 500               | Navigation, labels, UI elements, buttons |
+| ABCNormal-Bold    | 700               | Sub-headings, card titles                |
+| ABCNormal-Black   | 800               | Section headings, bold emphasis          |
+| ABCNormal-Super   | 900               | Hero headlines, landing page impact text |
+
+**Loading Strategy:**
+
+```
+packages/ui/src/fonts/abc-normal.css
+```
+
+- `@font-face` declarations for all 7 weights with `font-display: swap`
+- WOFF2 format only (modern browser coverage sufficient for Edin's audience)
+- Subset to Latin + Latin Extended character sets via `pyftsubset` or `glyphanger` during build
+- Preload the two most common weights (Book 400 and Medium 500) via `<link rel="preload">` in Next.js `app/layout.tsx`
+- Remaining weights load on demand (Super 900 only needed on hero, Light 300 on metadata)
+
+**Fallback Stack:** `'ABC Normal', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`
+
+**Performance Budget:**
+
+- Total font payload target: <200KB (all 7 weights, subsetted, WOFF2 compressed)
+- Critical path: Book (400) + Medium (500) ≈ ~50KB — preloaded
+- Non-critical: remaining 5 weights ≈ ~150KB — lazy loaded
+
+**Note:** ABC Normal is a licensed commercial typeface. Font files must NOT be committed to the public repository. They should be included via a private package, environment-specific asset pipeline, or `.gitignore`-protected local directory. The build process fetches them from a secure source.
+
+### Dark-First Tailwind v4 Theme
+
+**Configuration file:** `packages/ui/src/tokens/theme.css`
+
+The ROSE design tokens are defined as CSS custom properties via Tailwind v4's `@theme` directive. This file is imported by `apps/web/app/global.css`.
+
+**Complete Token Definition:**
+
+```css
+@theme {
+  /* ── Surface Colors (Dark Mode Default) ── */
+  --color-surface-base: #1a1a1d;
+  --color-surface-raised: #222225;
+  --color-surface-overlay: #2a2a2e;
+  --color-surface-subtle: #32323a;
+  --color-surface-reading: #1e1e22;
+  --color-surface-editor: #252528;
+
+  /* ── Accent Colors (ROSE) ── */
+  --color-accent-primary: #ff5a00;
+  --color-accent-primary-hover: #ff7a2e;
+  --color-accent-secondary: #e4bdb8;
+  --color-accent-secondary-muted: #c9a09a;
+
+  /* ── Pillar Colors (Domain Identity) ── */
+  --color-pillar-tech: #ff5a00;
+  --color-pillar-impact: #00e87b;
+  --color-pillar-governance: #00c4e8;
+  --color-pillar-finance: #e8aa00;
+
+  /* ── Semantic Colors ── */
+  --color-success: #00e87b;
+  --color-warning: #e8aa00;
+  --color-error: #e85a5a;
+  --color-info: #00c4e8;
+
+  /* ── Text Colors (Dark Mode) ── */
+  --color-text-primary: #f0f0f0;
+  --color-text-secondary: #a0a0a8;
+  --color-text-tertiary: #6a6a72;
+  --color-text-heading: #e4bdb8;
+  --color-text-accent: #ff5a00;
+  --color-text-inverse: #1a1a1d;
+
+  /* ── Typography ── */
+  --font-family-primary: 'ABC Normal', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-family-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* ── Type Scale (Major Third 1.25) ── */
+  --text-display: 3rem; /* 48px — Super 900 */
+  --text-h1: 2.25rem; /* 36px — Black 800 */
+  --text-h2: 1.75rem; /* 28px — Bold 700 */
+  --text-h3: 1.375rem; /* 22px — Bold 700 */
+  --text-h4: 1.125rem; /* 18px — Medium 500 */
+  --text-body-lg: 1.125rem; /* 18px — Book 400, article prose */
+  --text-body: 1rem; /* 16px — Book 400, UI text */
+  --text-body-sm: 0.875rem; /* 14px — Book 400, metadata */
+  --text-caption: 0.75rem; /* 12px — Light 300, timestamps */
+
+  /* ── Spacing (4px base unit) ── */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* ── Border Radius ── */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 9999px;
+
+  /* ── Shadows (Dark Mode — minimal) ── */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+```
+
+**Dark/Light Mode Strategy:**
+
+- `surface-base` through `surface-editor` define the dark mode (default)
+- Light mode implemented via `[data-theme="light"]` selector overriding surface and text tokens
+- Light mode is Phase 2 scope — dark-first is the MVP design
+- The `surface-reading` token exists specifically for long-form article comfort on dark backgrounds
+
+### Layout Container Architecture
+
+The platform uses **three distinct layout containers**, each a React component in `packages/ui/src/layout/`:
+
+#### DashboardShell (`dashboard-shell.tsx`)
+
+**Purpose:** The authenticated workspace frame for all contributor, editor, and admin pages.
+
+**Architecture:**
+
+- **Sidebar:** Fixed left panel, 240px expanded / 64px collapsed
+- **Content area:** Fills remaining width on `surface-base` background
+- **Collapse behavior:** Toggle via button or keyboard shortcut. Preference persisted in `localStorage`
+- **Mobile:** Sidebar becomes a full-screen overlay triggered by hamburger menu
+- **Route integration:** Used as the `layout.tsx` for both `(dashboard)` and `(admin)` route groups
+
+**Landmarks:** `<nav>` for sidebar, `<main>` for content area, skip-to-content link
+
+#### ReadingCanvas (`reading-canvas.tsx`)
+
+**Purpose:** Immersive article reading — strips away dashboard chrome entirely.
+
+**Architecture:**
+
+- **Background:** Full-width `surface-reading` (#1E1E22) — slightly warmer than base for reading comfort
+- **Content column:** Centered, max-width 680px (optimal reading measure: ~65-75 characters at 18px)
+- **Navigation:** Minimal top bar with back-to-dashboard link and article metadata. No sidebar
+- **Typography:** ABC Normal Book at 18px, line-height 1.7
+- **Route integration:** Used as the layout for `(public)/articles/[slug]/page.tsx`
+
+**Critical:** This is a separate layout component, NOT a variant of DashboardShell. Articles render without any sidebar or dashboard navigation.
+
+#### HeroSection (`hero-section.tsx`)
+
+**Purpose:** Cinematic ROSE gradient hero for the public portal.
+
+**Architecture:**
+
+- **Background:** Radial gradient with orange/pink glow overlay on `surface-base`
+- **Content:** Centered — overline (ABC Normal Medium, uppercase), headline (ABC Normal Super), subtitle, CTA button
+- **Variants:** Full-height (homepage) / compact (subpages)
+- **Route integration:** Used on `(public)/page.tsx` (landing page) and public subpages
+
+#### PublicLayout (`public-layout.tsx`)
+
+**Purpose:** The unauthenticated layout frame for public portal pages.
+
+**Architecture:**
+
+- **Navigation:** Top navigation bar — transparent on hero gradient, `surface-base` on scroll
+- **Content area:** Full-width, with 12-column responsive grid
+- **Mobile:** Hamburger menu, full-screen overlay on `surface-base`
+- **Route integration:** Used as the `layout.tsx` for the `(public)` route group
+
+### Radix UI Primitives — Architectural Dependencies
+
+14 Radix UI primitives are used as behavioral foundations, wrapped with ROSE theming in `packages/ui/src/radix/`:
+
+| Radix Primitive  | Edin Usage                                    | Architectural Note                                     |
+| ---------------- | --------------------------------------------- | ------------------------------------------------------ |
+| `Accordion`      | Evaluation progressive disclosure             | Keyboard-navigable, used with `EvaluationBreakdown`    |
+| `Avatar`         | Profile photos, byline avatars                | `radius-full`, initials fallback                       |
+| `Dialog`         | Confirmation modals, application submission   | `surface-overlay` background                           |
+| `DropdownMenu`   | Action menus on cards, settings               | `surface-raised`, `accent-primary` hover               |
+| `NavigationMenu` | Public portal top navigation                  | Not used in DashboardShell (custom SidebarNav instead) |
+| `Popover`        | Quick profile previews, detail tooltips       | Pillar-color border                                    |
+| `ScrollArea`     | Sidebar scroll, long feed lists               | Custom scrollbar styling                               |
+| `Select`         | Domain filter, difficulty filter, form fields | Dark fields, orange focus ring                         |
+| `Separator`      | Section dividers                              | `surface-subtle`, 1px                                  |
+| `Switch`         | Settings toggles, notification preferences    | `accent-primary` when active                           |
+| `Tabs`           | Feed domain tabs, profile sections            | Pillar-color underline when domain-specific            |
+| `Toast`          | Success/error notifications                   | Bottom-right, auto-dismiss (5s)                        |
+| `Tooltip`        | Icon explanations, abbreviations              | `surface-overlay`, compact                             |
+| `VisuallyHidden` | Accessibility labels                          | Structural — no visual output                          |
+
+**All Radix primitives are imported as unstyled** and wrapped with Tailwind utility classes in the `packages/ui/src/radix/` directory. This gives full visual control while preserving Radix's ARIA, keyboard, and focus management.
+
+### Component Library Scope
+
+The `@edin/ui` package contains **20+ custom components** organized into 5 categories:
+
+**Primitives (Tailwind-only, no Radix):**
+
+- `Button` — Primary (orange fill), Secondary (outline), Ghost (text-only)
+- `Card` — `surface-raised`, `radius-md`, 16px padding
+- `Input` / `Textarea` — Dark fields on `surface-raised`, orange focus ring
+- `Badge` — Small label, `radius-sm`, domain variant uses pillar colors
+- `Skeleton` — Loading placeholder, `surface-subtle` animated shimmer
+
+**Domain Identity:**
+
+- `PillarAccentLine` — 3px vertical bar in pillar color (tech=orange, impact=green, governance=cyan, finance=gold)
+- `DomainBadge` — Uppercase 11px pillar-color label with optional tinted background
+- `PillarCard` — Domain identity card for public portal with hover border effect
+
+**Content Display:**
+
+- `NarrativeCard` — Prose-first card with `PillarAccentLine` border, the primary content unit
+- `EvaluationBreakdown` — Full evaluation with narrative-first progressive disclosure (Radix Accordion)
+- `ArticleByline` — Author + Editor dual credit display for published articles
+- `PullQuote` — Orange-bordered pull quote for articles
+- `ActivityFeedItem` — Chronological contribution display with equal domain weight
+- `StatusIndicator` — Calm status for async processes ("Your contribution is being analyzed")
+
+**Profile & Rewards:**
+
+- `ContributorProfile` — Author-biography-style display with "Your Fingerprints" section
+- `FingerprintItem` — Impact fingerprint with pillar-color dot
+- `GrowthCurve` — Organic SVG reward trajectory (Recharts, pillar-color curves on dark background)
+- `RewardStat` — Single reward metric card with pillar-color value
+
+**Navigation & Feedback:**
+
+- `SidebarNav` — Left sidebar navigation with pillar-color dots and notification indicators
+- `NotificationDot` — 6px `accent-primary` dot (no count, no urgency — calm notification)
+
+### Design System Implementation Rules
+
+**All AI Agents implementing frontend features MUST:**
+
+- Use ROSE design tokens from `theme.css` — never hardcode hex values
+- Use ABC Normal as the primary typeface — no system fonts except as fallback
+- Use `surface-base` (#1A1A1D) as the default background — dark-first, always
+- Use `surface-reading` (#1E1E22) for long-form article backgrounds
+- Use pillar colors for domain identification — never create new domain color mappings
+- Use `accent-primary` (#FF5A00) for primary CTAs, links, and focus rings
+- Use `text-heading` (#E4BDB8, blush pink) for headings on dark backgrounds
+- Maintain 24px minimum spacing between content blocks ("the page breathes")
+- Use Radix wrappers from `packages/ui/src/radix/` — never import Radix directly in `apps/web`
+- Verify WCAG 2.1 AA contrast for all new text/background combinations
+- Use skeleton loaders for loading states, never spinners
+- Maximum one Primary button per viewport
+
+**Pillar Color Usage — Critical Rule:**
+
+All four domain pillar colors MUST have equal visual weight. No domain appears more prominent or positioned higher by default. The pillar-color accent line (3px vertical bar) is the primary domain identity pattern.
+
+| Domain                          | Token               | Hex       | Usage Examples                               |
+| ------------------------------- | ------------------- | --------- | -------------------------------------------- |
+| Technology & Development        | `pillar-tech`       | `#FF5A00` | Evaluation cards, feed items, profile badges |
+| Impact & Sustainability         | `pillar-impact`     | `#00E87B` | Same layout patterns, green accent           |
+| Consciousness & Governance      | `pillar-governance` | `#00C4E8` | Same layout patterns, cyan accent            |
+| Finance & Financial Engineering | `pillar-finance`    | `#E8AA00` | Same layout patterns, gold accent            |
+
+### Logo Policy
+
+- **Edin logo** is the primary brand mark across ALL platform sections (header, sidebar, public portal)
+- **ROSE shield/rose crest** appears ONLY in Rose-specific content sections (About Rose, Rose context pages)
+- The ROSE design language (colors, typography, visual feel) informs the overall design system, but brand identity stays Edin
+
 ## Architecture Validation Results
 
 ### Coherence Validation
@@ -1327,7 +1658,7 @@ docker build -f docker/web.Dockerfile -t edin-web .
 
 ### Gap Analysis Results
 
-**No Critical Gaps Found.**
+**No Critical Gaps Found.** (ROSE design system gaps resolved in 2026-03-14 architecture update.)
 
 **Important Gaps (non-blocking, addressable during implementation):**
 
@@ -1339,6 +1670,15 @@ docker build -f docker/web.Dockerfile -t edin-web .
 
 1. Storybook for packages/ui component documentation
 2. OpenAPI-to-TypeScript API client SDK generation
+
+**Previously Identified Gaps (Resolved 2026-03-14):**
+
+1. ~~ABC Normal font loading strategy~~ — Documented in "ABC Normal Font Architecture" section
+2. ~~Dark-first Tailwind v4 theme definition~~ — Full `@theme` block in "Dark-First Tailwind v4 Theme" section
+3. ~~Sidebar navigation pattern~~ — DashboardShell + SidebarNav in "Layout Container Architecture" section
+4. ~~Radix UI primitives inventory~~ — 14 primitives listed in "Radix UI Primitives" section
+5. ~~Component library scope~~ — 20+ components in "Component Library Scope" section
+6. ~~Reading Canvas layout~~ — Documented in "Layout Container Architecture" section
 
 ### Architecture Completeness Checklist
 
@@ -1366,12 +1706,24 @@ docker build -f docker/web.Dockerfile -t edin-web .
 - [x] Process patterns documented (error handling, loading states, auth flow, validation flow)
 - [x] Enforcement guidelines defined (8 mandatory rules, CI checks)
 
+**ROSE Design System (Added 2026-03-14)**
+
+- [x] ABC Normal font architecture (7 weights, loading strategy, performance budget)
+- [x] Dark-first Tailwind v4 `@theme` with complete ROSE token definition
+- [x] Three layout containers defined (DashboardShell, ReadingCanvas, HeroSection)
+- [x] 14 Radix UI primitives inventoried with ROSE theming strategy
+- [x] 20+ custom component library scope defined across 5 categories
+- [x] Pillar color system with equal-weight domain identity rules
+- [x] Logo policy documented (Edin primary, ROSE shield for Rose-specific sections only)
+- [x] Design system implementation rules for AI agent consistency
+
 **Project Structure**
 
 - [x] Complete directory structure defined (150+ files)
 - [x] Component boundaries established (15 API boundaries, 4 DB schemas)
 - [x] Integration points mapped (internal flow diagram, 5 external integrations)
 - [x] Requirements to structure mapping complete (13 FR categories to modules)
+- [x] `packages/ui` structure updated with ROSE design system organization
 
 ### Architecture Readiness Assessment
 
