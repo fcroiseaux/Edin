@@ -8,8 +8,8 @@ outputFile: '{planning_artifacts}/prd.md'
 domainComplexityCSV: '{project-root}/_bmad/bmm/workflows/2-plan-workflows/create-prd/data/domain-complexity.csv'
 
 # Task References
-advancedElicitationTask: '{project-root}/_bmad/core/workflows/advanced-elicitation/workflow.xml'
-partyModeWorkflow: '{project-root}/_bmad/core/workflows/party-mode/workflow.md'
+advancedElicitationTask: '{project-root}/_bmad/core/workflows/advanced-elicitation/workflow.md'
+partyModeWorkflow: '{project-root}/_bmad/core/workflows/bmad-party-mode/workflow.md'
 ---
 
 # Step 5: Domain-Specific Requirements (Optional)
@@ -76,7 +76,7 @@ For complex domains, explore what makes this domain special:
 **Review classification from step-02:**
 
 - What's the domain complexity level? (low/medium/high)
-- What's the specific domain? (healthcare, finance, education, etc.)
+- What's the specific domain? (healthcare, fintech, education, etc.)
 
 **If complexity is LOW:**
 

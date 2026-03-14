@@ -14,7 +14,7 @@ domainComplexityData: '../data/domain-complexity.csv'
 
 ## STEP GOAL:
 
-Validate domain-specific requirements are present for high-complexity domains (Healthcare, Finance, GovTech, etc.), ensuring regulatory and compliance requirements are properly documented.
+Validate domain-specific requirements are present for high-complexity domains (Healthcare, Fintech, GovTech, etc.), ensuring regulatory and compliance requirements are properly documented.
 
 ## MANDATORY EXECUTION RULES (READ FIRST):
 
@@ -95,7 +95,7 @@ Treat as "general" (low complexity) and proceed to step 4
 **High complexity domains (require special sections):**
 
 - Healthcare / Healthtech
-- Finance / Financial services
+- Fintech / Financial services
 - GovTech / Public sector
 - EdTech (educational records, accredited courses)
 - Legal tech
@@ -117,7 +117,7 @@ Based on {domain} requirements, check PRD for:
 - HIPAA Compliance (data privacy, security)
 - Patient safety considerations
 
-**Finance:**
+**Fintech:**
 
 - Compliance Matrix (SOC2, PCI-DSS, GDPR, etc.)
 - Security Architecture

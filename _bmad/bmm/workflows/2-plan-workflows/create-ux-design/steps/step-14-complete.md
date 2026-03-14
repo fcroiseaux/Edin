@@ -82,13 +82,11 @@ Update the main workflow status file:
 
 ### 3. Suggest Next Steps
 
-UX Design complete. Read fully and follow: `{project-root}/_bmad/core/tasks/help.md`
+UX Design complete. Invoke the `bmad-help` skill.
 
 ### 5. Final Completion Confirmation
 
 Congratulate the user on the completion you both completed together of the UX.
-
-
 
 ## SUCCESS METRICS:
 

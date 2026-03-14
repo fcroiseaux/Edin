@@ -11,8 +11,8 @@ projectTypesCSV: '../data/project-types.csv'
 domainComplexityCSV: '../data/domain-complexity.csv'
 
 # Task References
-advancedElicitationTask: '{project-root}/_bmad/core/workflows/advanced-elicitation/workflow.xml'
-partyModeWorkflow: '{project-root}/_bmad/core/workflows/party-mode/workflow.md'
+advancedElicitationTask: '{project-root}/_bmad/core/workflows/advanced-elicitation/workflow.md'
+partyModeWorkflow: '{project-root}/_bmad/core/workflows/bmad-party-mode/workflow.md'
 ---
 
 # Step 2: Project Discovery
@@ -68,7 +68,7 @@ Discover and classify the project - understand what type of product this is, wha
 Discover and classify the project through natural conversation:
 
 - What type of product is this? (web app, API, mobile, etc.)
-- What domain does it operate in? (healthcare, finance, e-commerce, etc.)
+- What domain does it operate in? (healthcare, fintech, e-commerce, etc.)
 - What's the project context? (greenfield new product vs brownfield existing system)
 - How complex is this domain? (low, medium, high)
 
@@ -148,7 +148,7 @@ If this is a greenfield project with no docs, start with open-ended discovery:
 As the user describes their product, match against:
 
 - **Project type signals** (API, mobile, SaaS, etc.)
-- **Domain signals** (healthcare, finance, education, etc.)
+- **Domain signals** (healthcare, fintech, education, etc.)
 - **Complexity indicators** (regulated industries, novel technology, etc.)
 
 ### 4. Confirm Classification

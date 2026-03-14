@@ -129,7 +129,7 @@ Vision → Success Criteria → User Journeys → Functional Requirements → (f
 Certain industries have mandatory requirements that must be present:
 
 - **Healthcare:** HIPAA Privacy & Security Rules, PHI encryption, audit logging, MFA
-- **Finance:** PCI-DSS Level 1, AML/KYC compliance, SOX controls, financial audit trails
+- **Fintech:** PCI-DSS Level 1, AML/KYC compliance, SOX controls, financial audit trails
 - **GovTech:** NIST framework, Section 508 accessibility (WCAG 2.1 AA), FedRAMP, data residency
 - **E-Commerce:** PCI-DSS for payments, inventory accuracy, tax calculation by jurisdiction
 

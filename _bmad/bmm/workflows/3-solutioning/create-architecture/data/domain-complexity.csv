@@ -1,6 +1,6 @@
 domain,signals,complexity_level,suggested_workflow,web_searches
 e_commerce,"shopping,cart,checkout,payment,products,store",medium,standard,"ecommerce architecture patterns, payment processing, inventory management"
-finance,"banking,payment,trading,finance,money,investment",high,enhanced,"financial security, PCI compliance, trading algorithms, fraud detection"
+fintech,"banking,payment,trading,finance,money,investment",high,enhanced,"financial security, PCI compliance, trading algorithms, fraud detection"
 healthcare,"medical,diagnostic,clinical,patient,hospital,health",high,enhanced,"HIPAA compliance, medical data security, FDA regulations, health tech"
 social,"social network,community,users,friends,posts,sharing",high,advanced,"social graph algorithms, feed ranking, notification systems, privacy"
 education,"learning,course,student,teacher,training,academic",medium,standard,"LMS architecture, progress tracking, assessment systems, video streaming"

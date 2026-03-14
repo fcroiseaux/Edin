@@ -41,10 +41,9 @@ completedAt: '{{current_date}}'
 
 ### 3. Next Steps Guidance
 
-Architecture complete. Read fully and follow: `{project-root}/_bmad/core/tasks/help.md`
+Architecture complete. Invoke the `bmad-help` skill.
 
 Upon Completion of task output: offer to answer any questions about the Architecture Document.
-
 
 ## SUCCESS METRICS:
 
