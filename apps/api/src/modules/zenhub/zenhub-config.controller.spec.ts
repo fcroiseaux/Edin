@@ -13,6 +13,11 @@ const mockConfig: ZenhubConfigResponse = {
   webhookSecretConfigured: true,
   pollingIntervalMs: 900_000,
   workspaceMapping: { ws1: 'Technology' },
+  taskSyncEnabled: false,
+  contributorTaskLabel: null,
+  taskSyncCreatorId: null,
+  statusSyncEnabled: false,
+  pipelineStatusMapping: null,
 };
 
 const mockService = {

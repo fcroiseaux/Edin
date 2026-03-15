@@ -26,6 +26,7 @@ export const taskSchema = z.object({
   createdById: z.string().uuid(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
+  zenhubIssueId: z.string().nullable().optional(),
 });
 
 export const createTaskSchema = z.object({

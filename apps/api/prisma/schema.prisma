@@ -523,6 +523,7 @@ model Task {
   createdById     String            @map("created_by_id") @db.Uuid
   createdAt       DateTime          @default(now()) @map("created_at")
   updatedAt       DateTime          @updatedAt @map("updated_at")
+  zenhubIssueId   String?           @unique @map("zenhub_issue_id")
 
   claimedBy       Contributor?      @relation("TaskClaimer", fields: [claimedById], references: [id])
   createdBy       Contributor       @relation("TaskCreator", fields: [createdById], references: [id])
@@ -1162,5 +1163,168 @@ model ZenhubSync {
   @@index([syncType, status], map: "zenhub_syncs_type_status_idx")
   @@index([receivedAt], map: "zenhub_syncs_received_at_idx")
   @@map("zenhub_syncs")
+  @@schema("sprint")
+}
+
+model ZenhubSyncConflict {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  syncId           String?  @map("sync_id") @db.Uuid
+  conflictType     String   @map("conflict_type")
+  affectedEntity   String   @map("affected_entity")
+  affectedEntityId String   @map("affected_entity_id")
+  resolution       String   @default("pending")
+  outcome          String?
+  occurredAt       DateTime @map("occurred_at")
+  resolvedBy       String?  @map("resolved_by") @db.Uuid
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  @@index([resolution, occurredAt], map: "zenhub_sync_conflicts_resolution_occurred_idx")
+  @@map("zenhub_sync_conflicts")
+  @@schema("sprint")
+}
+
+model SprintMetric {
+  id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sprintId           String   @map("sprint_id")
+  sprintName         String   @map("sprint_name")
+  sprintStart        DateTime @map("sprint_start")
+  sprintEnd          DateTime @map("sprint_end")
+  domain             String?
+  velocity           Int      @default(0)
+  committedPoints    Int      @default(0) @map("committed_points")
+  deliveredPoints    Int      @default(0) @map("delivered_points")
+  burndownData       Json?    @map("burndown_data")
+  cycleTimeAvg       Float?   @map("cycle_time_avg")
+  leadTimeAvg        Float?   @map("lead_time_avg")
+  scopeChanges       Int      @default(0) @map("scope_changes")
+  estimationAccuracy Float?   @map("estimation_accuracy")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  pipelineTransitions        PipelineTransition[]
+  scopeChangeRecords         ScopeChange[]
+  contributorEstimations     ContributorSprintEstimation[]
+
+  @@unique([sprintId, domain], map: "sprint_metrics_sprint_domain_uq")
+  @@index([sprintEnd, domain], map: "sprint_metrics_sprint_end_domain_idx")
+  @@map("sprint_metrics")
+  @@schema("sprint")
+}
+
+model PipelineTransition {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sprintMetricId String   @map("sprint_metric_id") @db.Uuid
+  issueId        String   @map("issue_id")
+  issueNumber    Int      @map("issue_number")
+  fromPipeline   String   @map("from_pipeline")
+  toPipeline     String   @map("to_pipeline")
+  storyPoints    Int?     @map("story_points")
+  contributorId  String?  @map("contributor_id") @db.Uuid
+  transitionedAt DateTime @map("transitioned_at")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  sprintMetric SprintMetric @relation(fields: [sprintMetricId], references: [id], onDelete: Cascade)
+
+  @@index([sprintMetricId, transitionedAt], map: "pipeline_transitions_sprint_transitioned_idx")
+  @@index([issueId], map: "pipeline_transitions_issue_idx")
+  @@map("pipeline_transitions")
+  @@schema("sprint")
+}
+
+enum ScopeChangeType {
+  ADDED
+  REMOVED
+
+  @@schema("sprint")
+}
+
+model ScopeChange {
+  id             String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sprintMetricId String          @map("sprint_metric_id") @db.Uuid
+  issueId        String          @map("issue_id")
+  issueNumber    Int             @map("issue_number")
+  changeType     ScopeChangeType @map("change_type")
+  storyPoints    Int?            @map("story_points")
+  changedAt      DateTime        @map("changed_at")
+  createdAt      DateTime        @default(now()) @map("created_at")
+
+  sprintMetric SprintMetric @relation(fields: [sprintMetricId], references: [id], onDelete: Cascade)
+
+  @@index([sprintMetricId, changedAt], map: "scope_changes_sprint_changed_idx")
+  @@map("scope_changes")
+  @@schema("sprint")
+}
+
+model ContributorSprintEstimation {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sprintMetricId  String   @map("sprint_metric_id") @db.Uuid
+  contributorId   String   @map("contributor_id") @db.Uuid
+  plannedPoints   Int      @default(0) @map("planned_points")
+  deliveredPoints Int      @default(0) @map("delivered_points")
+  accuracy        Float?   @map("accuracy")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  sprintMetric SprintMetric @relation(fields: [sprintMetricId], references: [id], onDelete: Cascade)
+
+  @@unique([sprintMetricId, contributorId], map: "contributor_sprint_estimation_sprint_contributor_uq")
+  @@index([contributorId], map: "contributor_sprint_estimation_contributor_idx")
+  @@map("contributor_sprint_estimations")
+  @@schema("sprint")
+}
+
+model ContributionSprintContext {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  contributionId String   @map("contribution_id") @db.Uuid
+  sprintId       String   @map("sprint_id")
+  storyPoints    Int?     @map("story_points")
+  zenhubIssueId  String   @map("zenhub_issue_id")
+  epicId         String?  @map("epic_id")
+  pipelineStatus String?  @map("pipeline_status")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@unique([contributionId, sprintId], map: "contribution_sprint_context_contribution_sprint_uq")
+  @@index([sprintId], map: "contribution_sprint_context_sprint_idx")
+  @@index([contributionId], map: "contribution_sprint_context_contribution_idx")
+  @@index([zenhubIssueId], map: "contribution_sprint_context_issue_idx")
+  @@map("contribution_sprint_context")
+  @@schema("sprint")
+}
+
+model PlanningReliability {
+  id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  contributorId      String   @map("contributor_id") @db.Uuid
+  sprintId           String   @map("sprint_id")
+  committedPoints    Int      @default(0) @map("committed_points")
+  deliveredPoints    Int      @default(0) @map("delivered_points")
+  deliveryRatio      Float?   @map("delivery_ratio")
+  estimationVariance Float?   @map("estimation_variance")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  @@unique([contributorId, sprintId], map: "planning_reliability_contributor_sprint_uq")
+  @@index([contributorId], map: "planning_reliability_contributor_idx")
+  @@index([sprintId], map: "planning_reliability_sprint_idx")
+  @@map("planning_reliability")
+  @@schema("sprint")
+}
+
+model CrossDomainCollaboration {
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sprintId          String   @map("sprint_id")
+  epicId            String?  @map("epic_id")
+  domains           String[]
+  contributorIds    String[] @map("contributor_ids") @db.Uuid
+  collaborationType String   @default("sprint") @map("collaboration_type")
+  detectedAt        DateTime @default(now()) @map("detected_at")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  @@unique([sprintId, epicId, collaborationType], map: "cross_domain_collab_sprint_epic_type_uq")
+  @@index([sprintId], map: "cross_domain_collab_sprint_idx")
+  @@index([detectedAt], map: "cross_domain_collab_detected_idx")
+  @@map("cross_domain_collaborations")
   @@schema("sprint")
 }

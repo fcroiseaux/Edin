@@ -25,6 +25,7 @@ import { RewardModule } from './modules/reward/reward.module.js';
 import { AdminModule } from './modules/admin/admin.module.js';
 import { ComplianceModule } from './modules/compliance/compliance.module.js';
 import { ZenhubModule } from './modules/zenhub/zenhub.module.js';
+import { SprintModule } from './modules/sprint/sprint.module.js';
 import { validateConfig } from './config/app.config.js';
 import type { AppConfig } from './config/app.config.js';
 
@@ -103,6 +104,7 @@ import type { AppConfig } from './config/app.config.js';
     RewardModule,
     AdminModule,
     ZenhubModule,
+    SprintModule,
   ],
 })
 export class AppModule {}

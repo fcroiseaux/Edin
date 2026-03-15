@@ -607,6 +607,21 @@ export type {
   ZenhubWebhookReceivedEvent,
   ZenhubPollCompletedEvent,
   ZenhubPollFailedEvent,
+  ZenhubSyncType,
+  ZenhubSyncStatus,
+  ZenhubSyncLogEntry,
+  IntegrationOverallStatus,
+  IntegrationHealthSummary,
+  ZenhubAlertConfig,
+  ZenhubSyncConflictResolution,
+  ZenhubSyncConflictEntry,
+  ZenhubTaskCreatedEvent,
+  ZenhubTaskStatusSyncedEvent,
+  ZenhubTaskPointsSyncedEvent,
+  ZenhubIssueData,
+  ZenhubSyncConflictDetail,
+  ResolveZenhubSyncConflictInput,
+  ZenhubSyncConflictResolvedEvent,
 } from './types/zenhub.types.js';
 
 export { zenhubWebhookPayloadSchema } from './schemas/zenhub-webhook.schema.js';
@@ -614,3 +629,61 @@ export type { ZenhubWebhookPayloadDto } from './schemas/zenhub-webhook.schema.js
 
 export { triggerBackfillSchema } from './schemas/zenhub-backfill.schema.js';
 export type { TriggerBackfillDto } from './schemas/zenhub-backfill.schema.js';
+
+export { zenhubSyncLogQuerySchema } from './schemas/zenhub-sync-log.schema.js';
+export type { ZenhubSyncLogQueryDto } from './schemas/zenhub-sync-log.schema.js';
+
+export {
+  updateZenhubAlertConfigSchema,
+  zenhubSyncConflictQuerySchema,
+  resolveZenhubSyncConflictSchema,
+} from './schemas/zenhub-alerts.schema.js';
+export type {
+  UpdateZenhubAlertConfigDto,
+  ZenhubSyncConflictQueryDto,
+  ResolveZenhubSyncConflictDto,
+} from './schemas/zenhub-alerts.schema.js';
+
+export type {
+  BurndownDataPoint,
+  SprintMetricCalculatedEvent,
+  ScopeChangeType,
+  ScopeChangeEvent,
+  ContributorEstimationData,
+  EstimationAccuracyCalculatedEvent,
+  VelocityDataPoint,
+  SprintMetricDetail,
+  SprintMetricSummary,
+  ScopeChangeRecord,
+  ContributorAccuracyTrend,
+  CombinedContributorMetric,
+  SprintExportFormat,
+  ContributionEnrichedEvent,
+  ContributionSprintContextDto,
+  PlanningReliabilityDto,
+  ContributorPlanningReliabilitySummary,
+  CrossDomainCollaborationDto,
+  CrossDomainCollaborationSummary,
+  PlanningReliabilityCalculatedEvent,
+  CrossDomainCollaborationDetectedEvent,
+  PersonalSprintMetrics,
+} from './types/sprint.types.js';
+
+export {
+  sprintMetricsQuerySchema,
+  sprintBurndownQuerySchema,
+  sprintScopeChangesQuerySchema,
+  contributorTrendsQuerySchema,
+  sprintExportQuerySchema,
+  planningReliabilityQuerySchema,
+  crossDomainCollaborationQuerySchema,
+} from './schemas/sprint-metrics.schema.js';
+export type {
+  SprintMetricsQueryDto,
+  SprintBurndownQueryDto,
+  SprintScopeChangesQueryDto,
+  ContributorTrendsQueryDto,
+  SprintExportQueryDto,
+  PlanningReliabilityQueryDto,
+  CrossDomainCollaborationQueryDto,
+} from './schemas/sprint-metrics.schema.js';

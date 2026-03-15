@@ -5,6 +5,7 @@ import { getQueueToken } from '@nestjs/bullmq';
 import { ZenhubPollingService } from './zenhub-polling.service.js';
 import { ZenhubGraphqlClient, ZenhubRateLimitError } from './zenhub-graphql.client.js';
 import { ZenhubConfigService } from './zenhub-config.service.js';
+import { ZenhubTaskSyncService } from './zenhub-task-sync.service.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 
 const mockGraphqlClient = {
@@ -34,6 +35,13 @@ const mockQueue = {
   removeRepeatableByKey: vi.fn(),
 };
 
+const mockTaskSyncService = {
+  processPolledIssues: vi.fn().mockResolvedValue({ created: 0, skipped: 0 }),
+  syncExistingTasksFromPolledIssues: vi
+    .fn()
+    .mockResolvedValue({ statusUpdated: 0, estimateUpdated: 0, skipped: 0 }),
+};
+
 describe('ZenhubPollingService', () => {
   let service: ZenhubPollingService;
 
@@ -48,6 +56,7 @@ describe('ZenhubPollingService', () => {
         { provide: ZenhubConfigService, useValue: mockZenhubConfigService },
         { provide: EventEmitter2, useValue: mockEventEmitter },
         { provide: getQueueToken('zenhub-polling'), useValue: mockQueue },
+        { provide: ZenhubTaskSyncService, useValue: mockTaskSyncService },
       ],
     }).compile();
 

@@ -12,9 +12,22 @@ const KEYS = {
   WEBHOOK_SECRET: 'zenhub.webhook_secret',
   POLLING_INTERVAL_MS: 'zenhub.polling_interval_ms',
   WORKSPACE_MAPPING: 'zenhub.workspace_mapping',
+  CONTRIBUTOR_TASK_LABEL: 'zenhub.contributor_task_label',
+  TASK_SYNC_ENABLED: 'zenhub.task_sync_enabled',
+  TASK_SYNC_CREATOR_ID: 'zenhub.task_sync_creator_id',
+  STATUS_SYNC_ENABLED: 'zenhub.status_sync_enabled',
+  PIPELINE_STATUS_MAPPING: 'zenhub.pipeline_status_mapping',
 } as const;
 
 const DEFAULT_POLLING_INTERVAL_MS = 900_000; // 15 minutes
+
+const DEFAULT_PIPELINE_STATUS_MAPPING: Record<string, string> = {
+  Backlog: 'AVAILABLE',
+  'Sprint Backlog': 'AVAILABLE',
+  'In Progress': 'IN_PROGRESS',
+  'In Review': 'IN_PROGRESS',
+  Done: 'COMPLETED',
+};
 
 @Injectable()
 export class ZenhubConfigService {
@@ -27,14 +40,29 @@ export class ZenhubConfigService {
   ) {}
 
   async getConfig(): Promise<ZenhubConfigResponse> {
-    const [apiToken, webhookUrl, webhookSecret, pollingInterval, workspaceMapping] =
-      await Promise.all([
-        this.resolveApiToken(),
-        this.resolveWebhookUrl(),
-        this.resolveWebhookSecret(),
-        this.resolvePollingInterval(),
-        this.resolveWorkspaceMapping(),
-      ]);
+    const [
+      apiToken,
+      webhookUrl,
+      webhookSecret,
+      pollingInterval,
+      workspaceMapping,
+      taskSyncEnabled,
+      contributorTaskLabel,
+      taskSyncCreatorId,
+      statusSyncEnabled,
+      pipelineStatusMapping,
+    ] = await Promise.all([
+      this.resolveApiToken(),
+      this.resolveWebhookUrl(),
+      this.resolveWebhookSecret(),
+      this.resolvePollingInterval(),
+      this.resolveWorkspaceMapping(),
+      this.resolveTaskSyncEnabled(),
+      this.resolveContributorTaskLabel(),
+      this.resolveTaskSyncCreatorId(),
+      this.resolveStatusSyncEnabled(),
+      this.resolvePipelineStatusMapping(),
+    ]);
 
     return {
       apiTokenConfigured: apiToken !== null,
@@ -43,6 +71,11 @@ export class ZenhubConfigService {
       webhookSecretConfigured: webhookSecret !== null,
       pollingIntervalMs: pollingInterval,
       workspaceMapping,
+      taskSyncEnabled,
+      contributorTaskLabel,
+      taskSyncCreatorId,
+      statusSyncEnabled,
+      pipelineStatusMapping,
     };
   }
 
@@ -53,6 +86,11 @@ export class ZenhubConfigService {
       webhookSecret?: string;
       pollingIntervalMs?: number;
       workspaceMapping?: Record<string, string>;
+      taskSyncEnabled?: boolean;
+      contributorTaskLabel?: string;
+      taskSyncCreatorId?: string;
+      statusSyncEnabled?: boolean;
+      pipelineStatusMapping?: Record<string, string>;
     },
     adminId: string,
     correlationId?: string,
@@ -130,6 +168,56 @@ export class ZenhubConfigService {
       updatedKeys.push('workspaceMapping');
     }
 
+    if (updates.taskSyncEnabled !== undefined) {
+      await this.settingsService.updateSetting(
+        KEYS.TASK_SYNC_ENABLED,
+        updates.taskSyncEnabled,
+        adminId,
+        correlationId,
+      );
+      updatedKeys.push('taskSyncEnabled');
+    }
+
+    if (updates.contributorTaskLabel !== undefined) {
+      await this.settingsService.updateSetting(
+        KEYS.CONTRIBUTOR_TASK_LABEL,
+        updates.contributorTaskLabel,
+        adminId,
+        correlationId,
+      );
+      updatedKeys.push('contributorTaskLabel');
+    }
+
+    if (updates.taskSyncCreatorId !== undefined) {
+      await this.settingsService.updateSetting(
+        KEYS.TASK_SYNC_CREATOR_ID,
+        updates.taskSyncCreatorId,
+        adminId,
+        correlationId,
+      );
+      updatedKeys.push('taskSyncCreatorId');
+    }
+
+    if (updates.statusSyncEnabled !== undefined) {
+      await this.settingsService.updateSetting(
+        KEYS.STATUS_SYNC_ENABLED,
+        updates.statusSyncEnabled,
+        adminId,
+        correlationId,
+      );
+      updatedKeys.push('statusSyncEnabled');
+    }
+
+    if (updates.pipelineStatusMapping !== undefined) {
+      await this.settingsService.updateSetting(
+        KEYS.PIPELINE_STATUS_MAPPING,
+        updates.pipelineStatusMapping,
+        adminId,
+        correlationId,
+      );
+      updatedKeys.push('pipelineStatusMapping');
+    }
+
     if (updatedKeys.length > 0) {
       const event: ZenhubConfigUpdatedEvent = {
         eventType: 'zenhub.config.updated',
@@ -198,6 +286,43 @@ export class ZenhubConfigService {
       return { default: envWorkspaceId };
     }
     return null;
+  }
+
+  /** Resolve contributor task label from DB. */
+  async resolveContributorTaskLabel(): Promise<string | null> {
+    return this.settingsService.getSettingValue<string | null>(KEYS.CONTRIBUTOR_TASK_LABEL, null);
+  }
+
+  /** Resolve task sync enabled flag from DB (default false). */
+  async resolveTaskSyncEnabled(): Promise<boolean> {
+    const dbValue = await this.settingsService.getSettingValue<boolean | null>(
+      KEYS.TASK_SYNC_ENABLED,
+      null,
+    );
+    return dbValue === true;
+  }
+
+  /** Resolve task sync creator ID from DB. */
+  async resolveTaskSyncCreatorId(): Promise<string | null> {
+    return this.settingsService.getSettingValue<string | null>(KEYS.TASK_SYNC_CREATOR_ID, null);
+  }
+
+  /** Resolve status sync enabled flag from DB (default false). */
+  async resolveStatusSyncEnabled(): Promise<boolean> {
+    const dbValue = await this.settingsService.getSettingValue<boolean | null>(
+      KEYS.STATUS_SYNC_ENABLED,
+      null,
+    );
+    return dbValue === true;
+  }
+
+  /** Resolve pipeline-to-status mapping from DB. Returns default mapping if not configured. */
+  async resolvePipelineStatusMapping(): Promise<Record<string, string>> {
+    const dbValue = await this.settingsService.getSettingValue<Record<string, string> | null>(
+      KEYS.PIPELINE_STATUS_MAPPING,
+      null,
+    );
+    return dbValue ?? DEFAULT_PIPELINE_STATUS_MAPPING;
   }
 
   /** Mask a token to show only the last 4 characters. */

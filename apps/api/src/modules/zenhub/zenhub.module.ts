@@ -11,6 +11,11 @@ import { ZenhubPollingService } from './zenhub-polling.service.js';
 import { ZenhubPollingProcessor } from './zenhub-polling.processor.js';
 import { ZenhubBackfillController } from './zenhub-backfill.controller.js';
 import { ZenhubBackfillService } from './zenhub-backfill.service.js';
+import { ZenhubSyncLogController } from './zenhub-sync-log.controller.js';
+import { ZenhubSyncLogService } from './zenhub-sync-log.service.js';
+import { ZenhubAlertsController } from './zenhub-alerts.controller.js';
+import { ZenhubAlertsService } from './zenhub-alerts.service.js';
+import { ZenhubTaskSyncService } from './zenhub-task-sync.service.js';
 
 @Module({
   imports: [
@@ -36,7 +41,13 @@ import { ZenhubBackfillService } from './zenhub-backfill.service.js';
       },
     }),
   ],
-  controllers: [ZenhubConfigController, ZenhubWebhookController, ZenhubBackfillController],
+  controllers: [
+    ZenhubConfigController,
+    ZenhubWebhookController,
+    ZenhubBackfillController,
+    ZenhubSyncLogController,
+    ZenhubAlertsController,
+  ],
   providers: [
     ZenhubConfigService,
     ZenhubWebhookService,
@@ -44,7 +55,16 @@ import { ZenhubBackfillService } from './zenhub-backfill.service.js';
     ZenhubPollingService,
     ZenhubPollingProcessor,
     ZenhubBackfillService,
+    ZenhubSyncLogService,
+    ZenhubAlertsService,
+    ZenhubTaskSyncService,
   ],
-  exports: [ZenhubConfigService, ZenhubWebhookService, ZenhubPollingService, ZenhubBackfillService],
+  exports: [
+    ZenhubConfigService,
+    ZenhubWebhookService,
+    ZenhubPollingService,
+    ZenhubBackfillService,
+    ZenhubTaskSyncService,
+  ],
 })
 export class ZenhubModule {}

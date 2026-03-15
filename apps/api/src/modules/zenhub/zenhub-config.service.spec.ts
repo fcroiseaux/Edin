@@ -48,6 +48,17 @@ describe('ZenhubConfigService', () => {
         webhookSecretConfigured: false,
         pollingIntervalMs: 900_000,
         workspaceMapping: null,
+        taskSyncEnabled: false,
+        contributorTaskLabel: null,
+        taskSyncCreatorId: null,
+        statusSyncEnabled: false,
+        pipelineStatusMapping: {
+          Backlog: 'AVAILABLE',
+          'Sprint Backlog': 'AVAILABLE',
+          'In Progress': 'IN_PROGRESS',
+          'In Review': 'IN_PROGRESS',
+          Done: 'COMPLETED',
+        },
       });
     });
 

@@ -1,5 +1,5 @@
 # generated: 2026-03-01
-# last_updated: 2026-03-15
+# last_updated: 2026-03-15T14:00:00
 # project: Edin
 # project_key: NOKEY
 # tracking_system: file-system
@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-03-01
-last_updated: 2026-03-15
+last_updated: 2026-03-15T16:00:00
 project: Edin
 project_key: NOKEY
 tracking_system: file-system
@@ -147,7 +147,7 @@ development_status:
   # =============================================
 
   # zh-Epic 1: Integration Setup & Data Pipeline
-  zh-epic-1: in-progress
+  zh-epic-1: done
   zh-1-1-zenhub-integration-configuration-and-permissions: done
   zh-1-2-zenhub-webhook-receiver-with-hmac-verification: done
   zh-1-3-zenhub-api-polling-service: done
@@ -155,32 +155,32 @@ development_status:
   zh-epic-1-retrospective: optional
 
   # zh-Epic 2: Sprint Metrics & Project Lead Dashboard
-  zh-epic-2: backlog
-  zh-2-1-sprint-metrics-schema-and-core-calculations: backlog
-  zh-2-2-scope-change-and-estimation-accuracy-tracking: backlog
-  zh-2-3-sprint-dashboard-velocity-and-burndown-views: backlog
-  zh-2-4-sprint-dashboard-detailed-analytics-and-domain-filtering: backlog
-  zh-2-5-combined-evaluation-view-and-sprint-report-export: backlog
+  zh-epic-2: done
+  zh-2-1-sprint-metrics-schema-and-core-calculations: done
+  zh-2-2-scope-change-and-estimation-accuracy-tracking: done
+  zh-2-3-sprint-dashboard-velocity-and-burndown-views: done
+  zh-2-4-sprint-dashboard-detailed-analytics-and-domain-filtering: done
+  zh-2-5-combined-evaluation-view-and-sprint-report-export: done
   zh-epic-2-retrospective: optional
 
   # zh-Epic 3: Integration Monitoring & Operations
-  zh-epic-3: backlog
-  zh-3-1-webhook-and-polling-log-viewer: backlog
-  zh-3-2-monitoring-alerts-and-sync-conflict-viewer: backlog
+  zh-epic-3: done
+  zh-3-1-webhook-and-polling-log-viewer: done
+  zh-3-2-monitoring-alerts-and-sync-conflict-viewer: done
   zh-epic-3-retrospective: optional
 
   # zh-Epic 4: Contribution Enrichment & Contributor Metrics
-  zh-epic-4: backlog
-  zh-4-1-contribution-sprint-linking-and-enrichment: backlog
-  zh-4-2-planning-reliability-and-cross-domain-collaboration-metrics: backlog
-  zh-4-3-personal-contributor-sprint-metrics-view: backlog
+  zh-epic-4: done
+  zh-4-1-contribution-sprint-linking-and-enrichment: done
+  zh-4-2-planning-reliability-and-cross-domain-collaboration-metrics: done
+  zh-4-3-personal-contributor-sprint-metrics-view: done
   zh-epic-4-retrospective: optional
 
   # zh-Epic 5: Bidirectional Task Sync (Phase 2)
-  zh-epic-5: backlog
-  zh-5-1-auto-create-edin-tasks-from-zenhub-issues: backlog
-  zh-5-2-status-and-story-point-sync: backlog
-  zh-5-3-sync-conflict-resolution: backlog
+  zh-epic-5: done
+  zh-5-1-auto-create-edin-tasks-from-zenhub-issues: done
+  zh-5-2-status-and-story-point-sync: done
+  zh-5-3-sync-conflict-resolution: done
   zh-epic-5-retrospective: optional
 
   # zh-Epic 6: Evaluation Engine Extension (Phase 2)

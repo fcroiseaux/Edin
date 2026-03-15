@@ -6,8 +6,13 @@ import { randomUUID } from 'node:crypto';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { ZenhubConfigService } from './zenhub-config.service.js';
 import { ZenhubGraphqlClient, ZenhubRateLimitError } from './zenhub-graphql.client.js';
-import type { ZenhubPollCompletedEvent, ZenhubPollFailedEvent } from '@edin/shared';
+import type {
+  ZenhubPollCompletedEvent,
+  ZenhubPollFailedEvent,
+  ZenhubIssueData,
+} from '@edin/shared';
 import { ERROR_CODES } from '@edin/shared';
+import { ZenhubTaskSyncService } from './zenhub-task-sync.service.js';
 
 export interface ZenhubPollingJobData {
   correlationId: string;
@@ -42,9 +47,12 @@ const ISSUES_QUERY = `
           id
           number
           title
+          body
           estimate { value }
           pipelineIssue { pipeline { id name } }
           sprints { nodes { id name } }
+          labels { nodes { name } }
+          assignees { nodes { login } }
         }
         pageInfo {
           hasNextPage
@@ -79,6 +87,7 @@ export class ZenhubPollingService implements OnModuleInit {
     private readonly eventEmitter: EventEmitter2,
     @InjectQueue('zenhub-polling')
     private readonly pollingQueue: Queue,
+    private readonly taskSyncService: ZenhubTaskSyncService,
   ) {}
 
   async onModuleInit(): Promise<void> {
@@ -144,11 +153,41 @@ export class ZenhubPollingService implements OnModuleInit {
       let totalSprints = 0;
       let totalIssues = 0;
 
-      for (const workspaceId of Object.keys(workspaceMapping)) {
-        const sprints = await this.fetchAllSprints(workspaceId, correlationId);
-        const issues = await this.fetchAllIssues(workspaceId, correlationId);
+      for (const [workspaceKey, domainLabel] of Object.entries(workspaceMapping)) {
+        const sprints = await this.fetchAllSprints(workspaceKey, correlationId);
+        const issues = await this.fetchAllIssues(workspaceKey, correlationId);
         totalSprints += sprints.length;
         totalIssues += issues.length;
+
+        // Task sync: process polled issues for auto-creation
+        try {
+          await this.taskSyncService.processPolledIssues(
+            issues as ZenhubIssueData[],
+            domainLabel,
+            correlationId,
+          );
+        } catch (error) {
+          this.logger.warn('Task sync processing failed during poll, continuing', {
+            workspaceKey,
+            domainLabel,
+            error: error instanceof Error ? error.message : String(error),
+            correlationId,
+          });
+        }
+
+        // Status and estimate sync for existing linked tasks
+        try {
+          await this.taskSyncService.syncExistingTasksFromPolledIssues(
+            issues as ZenhubIssueData[],
+            correlationId,
+          );
+        } catch (error) {
+          this.logger.warn('Status/estimate sync failed during poll, continuing', {
+            workspaceKey,
+            error: error instanceof Error ? error.message : String(error),
+            correlationId,
+          });
+        }
       }
 
       const durationMs = Date.now() - startTime;

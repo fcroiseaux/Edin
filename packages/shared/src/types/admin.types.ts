@@ -64,7 +64,9 @@ export type AlertType =
   | 'API_ERROR_RATE'
   | 'INGESTION_FAILURE'
   | 'EVALUATION_THROUGHPUT'
-  | 'DB_LATENCY';
+  | 'DB_LATENCY'
+  | 'ZENHUB_WEBHOOK_FAILURE_RATE'
+  | 'ZENHUB_POLLING_TIMEOUT';
 
 export type AlertSeverity = 'WARNING' | 'CRITICAL';
 
