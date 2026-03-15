@@ -35,12 +35,21 @@ export class SettingsService {
     return setting.value as T;
   }
 
-  async updateSetting(key: string, value: unknown, adminId: string, correlationId?: string) {
+  async updateSetting(
+    key: string,
+    value: unknown,
+    adminId: string,
+    correlationId?: string,
+    options?: { redactAudit?: boolean },
+  ) {
     const existing = await this.prisma.platformSetting.findUnique({
       where: { key },
     });
 
     const oldValue = existing?.value ?? null;
+    const redact = options?.redactAudit === true;
+    const auditOldValue = redact ? '[REDACTED]' : oldValue;
+    const auditNewValue = redact ? '[REDACTED]' : value;
 
     const setting = await this.prisma.$transaction(async (tx) => {
       const result = await tx.platformSetting.upsert({
@@ -55,9 +64,9 @@ export class SettingsService {
           action: 'SETTING_UPDATED',
           entityType: 'PlatformSetting',
           entityId: key,
-          previousState: { value: oldValue },
-          newState: { value },
-          details: { key, oldValue, newValue: value },
+          previousState: { value: auditOldValue },
+          newState: { value: auditNewValue },
+          details: { key, oldValue: auditOldValue, newValue: auditNewValue },
           correlationId: correlationId ?? null,
         },
         tx,

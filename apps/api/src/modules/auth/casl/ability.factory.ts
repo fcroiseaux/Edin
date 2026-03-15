@@ -93,6 +93,9 @@ export class CaslAbilityFactory {
     can(Action.Read, 'Activity');
     can(Action.Read, 'Notification', { contributorId: user.id });
     can(Action.Update, 'Notification', { contributorId: user.id });
+
+    // Sprint: contributors can read their own metrics only
+    can(Action.Read, 'SprintMetric', { contributorId: user.id });
   }
 
   private addEditorPermissions(
@@ -126,6 +129,10 @@ export class CaslAbilityFactory {
     can(Action.Manage, 'WorkingGroup');
     can(Action.Create, 'Task');
     can(Action.Delete, 'Task');
+
+    // Project leads can read all sprint metrics and the sprint dashboard
+    can(Action.Read, 'SprintMetric');
+    can(Action.Read, 'SprintDashboard');
   }
 
   private addAdminPermissions(builder: AbilityBuilder<AppAbility>): void {

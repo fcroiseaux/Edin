@@ -22,6 +22,12 @@ export const appConfigSchema = z.object({
   ANTHROPIC_API_KEY: z.string().min(1).optional(),
   EVALUATION_MODEL_ID: z.string().optional(),
   EVALUATION_ENABLED: z.string().optional(),
+
+  // Zenhub Integration — all optional; configurable via admin panel
+  ZENHUB_API_TOKEN: z.string().min(1).optional(),
+  ZENHUB_WEBHOOK_SECRET: z.string().min(1).optional(),
+  ZENHUB_POLLING_INTERVAL_MS: z.coerce.number().int().min(60_000).default(900_000),
+  ZENHUB_WORKSPACE_ID: z.string().optional(),
 });
 
 export type AppConfig = z.infer<typeof appConfigSchema>;

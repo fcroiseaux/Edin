@@ -17,6 +17,7 @@ const ADMIN_NAV_ITEMS = [
   { href: '/admin/audit-logs', label: 'Audit Logs' },
   { href: '/admin/compliance', label: 'Compliance' },
   { href: '/admin/reports', label: 'Reports' },
+  { href: '/admin/sprints', label: 'Sprints' },
   { href: '/admin/settings', label: 'Settings' },
 ];
 

@@ -8,7 +8,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  schemas  = ["core", "evaluation", "publication", "audit"]
+  schemas  = ["core", "evaluation", "publication", "audit", "sprint"]
 }
 
 // ─── Enums ──────────────────────────────────────────────────────────────────
@@ -1123,4 +1123,44 @@ model TemporalScoreAggregate {
   @@index([contributorId, horizon, periodStart(sort: Desc)], map: "idx_temporal_aggregates_contributor_horizon_period")
   @@map("temporal_score_aggregates")
   @@schema("evaluation")
+}
+
+// ─── Sprint Schema ──────────────────────────────────────────────────────────
+
+enum ZenhubSyncType {
+  WEBHOOK
+  POLL
+  BACKFILL
+
+  @@schema("sprint")
+}
+
+enum ZenhubSyncStatus {
+  RECEIVED
+  PROCESSING
+  COMPLETED
+  FAILED
+
+  @@schema("sprint")
+}
+
+model ZenhubSync {
+  id            String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  deliveryId    String           @unique @map("delivery_id")
+  syncType      ZenhubSyncType   @map("sync_type")
+  status        ZenhubSyncStatus @default(RECEIVED)
+  eventType     String           @map("event_type")
+  payload       Json?
+  correlationId String?          @map("correlation_id")
+  errorMessage  String?          @map("error_message")
+  retryCount    Int              @default(0) @map("retry_count")
+  receivedAt    DateTime         @default(now()) @map("received_at")
+  processedAt   DateTime?        @map("processed_at")
+  createdAt     DateTime         @default(now()) @map("created_at")
+  updatedAt     DateTime         @updatedAt @map("updated_at")
+
+  @@index([syncType, status], map: "zenhub_syncs_type_status_idx")
+  @@index([receivedAt], map: "zenhub_syncs_received_at_idx")
+  @@map("zenhub_syncs")
+  @@schema("sprint")
 }

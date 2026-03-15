@@ -208,6 +208,30 @@ describe('CaslAbilityFactory', () => {
       expect(ability.can(Action.Read, 'HealthMetrics')).toBe(false);
     });
 
+    it('can read own SprintMetric', () => {
+      const ability = factory.createForUser(makeUser('CONTRIBUTOR', 'own-id'));
+      expect(
+        ability.can(Action.Read, subject('SprintMetric', { contributorId: 'own-id' }) as never),
+      ).toBe(true);
+    });
+
+    it('cannot read other contributor SprintMetric', () => {
+      const ability = factory.createForUser(makeUser('CONTRIBUTOR', 'own-id'));
+      expect(
+        ability.can(Action.Read, subject('SprintMetric', { contributorId: 'other-id' }) as never),
+      ).toBe(false);
+    });
+
+    it('cannot read SprintDashboard', () => {
+      const ability = factory.createForUser(makeUser('CONTRIBUTOR'));
+      expect(ability.can(Action.Read, 'SprintDashboard')).toBe(false);
+    });
+
+    it('cannot manage IntegrationConfig', () => {
+      const ability = factory.createForUser(makeUser('CONTRIBUTOR'));
+      expect(ability.can(Action.Manage, 'IntegrationConfig')).toBe(false);
+    });
+
     it('can read own notifications', () => {
       const ability = factory.createForUser(makeUser('CONTRIBUTOR', 'own-id'));
       expect(
@@ -288,6 +312,23 @@ describe('CaslAbilityFactory', () => {
       const ability = factory.createForUser(makeUser('EDITOR'));
       expect(ability.can(Action.Manage, 'WorkingGroup')).toBe(false);
     });
+
+    it('can read own SprintMetric (inherits from contributor)', () => {
+      const ability = factory.createForUser(makeUser('EDITOR', 'editor-id'));
+      expect(
+        ability.can(Action.Read, subject('SprintMetric', { contributorId: 'editor-id' }) as never),
+      ).toBe(true);
+    });
+
+    it('cannot read SprintDashboard', () => {
+      const ability = factory.createForUser(makeUser('EDITOR'));
+      expect(ability.can(Action.Read, 'SprintDashboard')).toBe(false);
+    });
+
+    it('cannot manage IntegrationConfig', () => {
+      const ability = factory.createForUser(makeUser('EDITOR'));
+      expect(ability.can(Action.Manage, 'IntegrationConfig')).toBe(false);
+    });
   });
 
   describe('FOUNDING_CONTRIBUTOR role', () => {
@@ -320,6 +361,30 @@ describe('CaslAbilityFactory', () => {
     it('cannot delete tasks', () => {
       const ability = factory.createForUser(makeUser('FOUNDING_CONTRIBUTOR'));
       expect(ability.can(Action.Delete, 'Task')).toBe(false);
+    });
+
+    it('can read own SprintMetric', () => {
+      const ability = factory.createForUser(makeUser('FOUNDING_CONTRIBUTOR', 'founder-id'));
+      expect(
+        ability.can(Action.Read, subject('SprintMetric', { contributorId: 'founder-id' }) as never),
+      ).toBe(true);
+    });
+
+    it('cannot read other contributor SprintMetric', () => {
+      const ability = factory.createForUser(makeUser('FOUNDING_CONTRIBUTOR', 'founder-id'));
+      expect(
+        ability.can(Action.Read, subject('SprintMetric', { contributorId: 'other-id' }) as never),
+      ).toBe(false);
+    });
+
+    it('cannot read SprintDashboard', () => {
+      const ability = factory.createForUser(makeUser('FOUNDING_CONTRIBUTOR'));
+      expect(ability.can(Action.Read, 'SprintDashboard')).toBe(false);
+    });
+
+    it('cannot manage IntegrationConfig', () => {
+      const ability = factory.createForUser(makeUser('FOUNDING_CONTRIBUTOR'));
+      expect(ability.can(Action.Manage, 'IntegrationConfig')).toBe(false);
     });
   });
 
@@ -359,6 +424,21 @@ describe('CaslAbilityFactory', () => {
     it('cannot update articles (not editor)', () => {
       const ability = factory.createForUser(makeUser('WORKING_GROUP_LEAD'));
       expect(ability.can(Action.Update, 'Article')).toBe(false);
+    });
+
+    it('can read all SprintMetric (project lead)', () => {
+      const ability = factory.createForUser(makeUser('WORKING_GROUP_LEAD'));
+      expect(ability.can(Action.Read, 'SprintMetric')).toBe(true);
+    });
+
+    it('can read SprintDashboard (project lead)', () => {
+      const ability = factory.createForUser(makeUser('WORKING_GROUP_LEAD'));
+      expect(ability.can(Action.Read, 'SprintDashboard')).toBe(true);
+    });
+
+    it('cannot manage IntegrationConfig', () => {
+      const ability = factory.createForUser(makeUser('WORKING_GROUP_LEAD'));
+      expect(ability.can(Action.Manage, 'IntegrationConfig')).toBe(false);
     });
   });
 
@@ -402,6 +482,21 @@ describe('CaslAbilityFactory', () => {
     it('can manage PeerFeedback', () => {
       const ability = factory.createForUser(makeUser('ADMIN'));
       expect(ability.can(Action.Manage, 'PeerFeedback')).toBe(true);
+    });
+
+    it('can manage SprintMetric', () => {
+      const ability = factory.createForUser(makeUser('ADMIN'));
+      expect(ability.can(Action.Manage, 'SprintMetric')).toBe(true);
+    });
+
+    it('can manage SprintDashboard', () => {
+      const ability = factory.createForUser(makeUser('ADMIN'));
+      expect(ability.can(Action.Manage, 'SprintDashboard')).toBe(true);
+    });
+
+    it('can manage IntegrationConfig', () => {
+      const ability = factory.createForUser(makeUser('ADMIN'));
+      expect(ability.can(Action.Manage, 'IntegrationConfig')).toBe(true);
     });
   });
 

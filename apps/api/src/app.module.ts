@@ -24,6 +24,7 @@ import { PublicationModule } from './modules/publication/publication.module.js';
 import { RewardModule } from './modules/reward/reward.module.js';
 import { AdminModule } from './modules/admin/admin.module.js';
 import { ComplianceModule } from './modules/compliance/compliance.module.js';
+import { ZenhubModule } from './modules/zenhub/zenhub.module.js';
 import { validateConfig } from './config/app.config.js';
 import type { AppConfig } from './config/app.config.js';
 
@@ -101,6 +102,7 @@ import type { AppConfig } from './config/app.config.js';
     PublicationModule,
     RewardModule,
     AdminModule,
+    ZenhubModule,
   ],
 })
 export class AppModule {}

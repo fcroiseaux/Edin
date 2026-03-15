@@ -589,3 +589,28 @@ export type {
   CollaborationDisputedEvent,
   AttributionOverriddenEvent,
 } from './types/ingestion.types.js';
+
+export {
+  zenhubConfigResponseSchema,
+  updateZenhubConfigSchema,
+} from './schemas/zenhub-config.schema.js';
+export type {
+  ZenhubConfigResponseDto,
+  UpdateZenhubConfigDto,
+} from './schemas/zenhub-config.schema.js';
+
+export type {
+  ZenhubConfigResponse,
+  UpdateZenhubConfigInput,
+  ZenhubConfigUpdatedEvent,
+  ZenhubWebhookEvent,
+  ZenhubWebhookReceivedEvent,
+  ZenhubPollCompletedEvent,
+  ZenhubPollFailedEvent,
+} from './types/zenhub.types.js';
+
+export { zenhubWebhookPayloadSchema } from './schemas/zenhub-webhook.schema.js';
+export type { ZenhubWebhookPayloadDto } from './schemas/zenhub-webhook.schema.js';
+
+export { triggerBackfillSchema } from './schemas/zenhub-backfill.schema.js';
+export type { TriggerBackfillDto } from './schemas/zenhub-backfill.schema.js';

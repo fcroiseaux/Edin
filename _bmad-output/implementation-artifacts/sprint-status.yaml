@@ -1,4 +1,5 @@
 # generated: 2026-03-01
+# last_updated: 2026-03-15
 # project: Edin
 # project_key: NOKEY
 # tracking_system: file-system
@@ -34,14 +35,17 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-03-01
+last_updated: 2026-03-15
 project: Edin
 project_key: NOKEY
 tracking_system: file-system
 story_location: _bmad-output/implementation-artifacts
 
-last_updated: 2026-03-14
-
 development_status:
+  # =============================================
+  # MAIN PROJECT (epics.md) — Epics 0-10
+  # =============================================
+
   # Epic 0: ROSE Design System Foundation
   epic-0: done
   0-1-rose-design-tokens-abc-normal-font-integration: done
@@ -137,3 +141,56 @@ development_status:
   10-3-immutable-audit-logs: done
   10-4-gdpr-compliance-and-eu-ai-act-documentation: done
   epic-10-retrospective: optional
+
+  # =============================================
+  # ZENHUB INTEGRATION (epics-zenhub-integration.md) — zh-Epics 1-7
+  # =============================================
+
+  # zh-Epic 1: Integration Setup & Data Pipeline
+  zh-epic-1: in-progress
+  zh-1-1-zenhub-integration-configuration-and-permissions: done
+  zh-1-2-zenhub-webhook-receiver-with-hmac-verification: done
+  zh-1-3-zenhub-api-polling-service: done
+  zh-1-4-manual-data-backfill: done
+  zh-epic-1-retrospective: optional
+
+  # zh-Epic 2: Sprint Metrics & Project Lead Dashboard
+  zh-epic-2: backlog
+  zh-2-1-sprint-metrics-schema-and-core-calculations: backlog
+  zh-2-2-scope-change-and-estimation-accuracy-tracking: backlog
+  zh-2-3-sprint-dashboard-velocity-and-burndown-views: backlog
+  zh-2-4-sprint-dashboard-detailed-analytics-and-domain-filtering: backlog
+  zh-2-5-combined-evaluation-view-and-sprint-report-export: backlog
+  zh-epic-2-retrospective: optional
+
+  # zh-Epic 3: Integration Monitoring & Operations
+  zh-epic-3: backlog
+  zh-3-1-webhook-and-polling-log-viewer: backlog
+  zh-3-2-monitoring-alerts-and-sync-conflict-viewer: backlog
+  zh-epic-3-retrospective: optional
+
+  # zh-Epic 4: Contribution Enrichment & Contributor Metrics
+  zh-epic-4: backlog
+  zh-4-1-contribution-sprint-linking-and-enrichment: backlog
+  zh-4-2-planning-reliability-and-cross-domain-collaboration-metrics: backlog
+  zh-4-3-personal-contributor-sprint-metrics-view: backlog
+  zh-epic-4-retrospective: optional
+
+  # zh-Epic 5: Bidirectional Task Sync (Phase 2)
+  zh-epic-5: backlog
+  zh-5-1-auto-create-edin-tasks-from-zenhub-issues: backlog
+  zh-5-2-status-and-story-point-sync: backlog
+  zh-5-3-sync-conflict-resolution: backlog
+  zh-epic-5-retrospective: optional
+
+  # zh-Epic 6: Evaluation Engine Extension (Phase 2)
+  zh-epic-6: backlog
+  zh-6-1-planning-context-in-evaluation-prompts: backlog
+  zh-6-2-planning-reliability-score-and-combined-evaluation: backlog
+  zh-epic-6-retrospective: optional
+
+  # zh-Epic 7: Sprint Activity & Notifications (Phase 2)
+  zh-epic-7: backlog
+  zh-7-1-sprint-events-in-activity-feed: backlog
+  zh-7-2-sprint-notifications: backlog
+  zh-epic-7-retrospective: optional

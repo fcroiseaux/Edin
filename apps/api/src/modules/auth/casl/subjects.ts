@@ -22,4 +22,7 @@ export type AppSubjects =
   | 'Contribution'
   | 'ContributionCollaboration'
   | 'Activity'
-  | 'Notification';
+  | 'Notification'
+  | 'SprintMetric'
+  | 'SprintDashboard'
+  | 'IntegrationConfig';

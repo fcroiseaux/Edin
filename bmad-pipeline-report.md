@@ -1,9 +1,9 @@
-# BMAD Pipeline Report: Story 0.5
+# BMAD Pipeline Report: Story zh-1-4
 
-**Story:** 0-5-reading-canvas-and-public-portal
-**Epic:** 0 — ROSE Design System Foundation
+**Story:** zh-1-4-manual-data-backfill
+**Epic:** zh-Epic 1 — Integration Setup & Data Pipeline
 **Pipeline:** bmad-cycle (create-story -> dev-story -> code-review)
-**Date:** 2026-03-14
+**Date:** 2026-03-15
 **Model:** Claude Opus 4.6
 
 ## Pipeline Steps
@@ -11,67 +11,59 @@
 ### Step 1: Create Story
 
 - **Status:** Completed
-- **Output:** `_bmad-output/implementation-artifacts/0-5-reading-canvas-and-public-portal.md`
-- 5 task groups, 6 acceptance criteria
-- Full dev notes with ReadingCanvas, HeroSection, PublicLayout TypeScript APIs, ROSE token mapping, accessibility requirements
+- **Output:** `_bmad-output/implementation-artifacts/stories/zh-1-4-manual-data-backfill.md`
+- Covers FR7
+- Admin-only backfill trigger with status checking, reusing existing polling infrastructure
 
 ### Step 2: Dev Story (Implementation)
 
 - **Status:** Completed
-- **Files created:** 6 new files, 2 modified files
+- **Files created:** 5 new files, 2 modified files
 
-**New Component Files (6):**
+**New Files (5):**
 
-- `packages/ui/src/layout/reading-canvas.tsx` — Immersive article reading: surface-reading bg, 680px centered article, body-lg text, 1.7 line-height, 1.5em paragraph spacing, blush-pink headings, topBar slot
-- `packages/ui/src/layout/reading-canvas.test.tsx` — 13 tests
-- `packages/ui/src/layout/hero-section.tsx` — Cinematic gradient hero: radial orange/pink glow (CSS custom properties), overline/headline/subtitle/CTA slots, full/compact variants
-- `packages/ui/src/layout/hero-section.test.tsx` — 12 tests
-- `packages/ui/src/layout/public-layout.tsx` — Public portal frame: top nav with logo/items/auth, mobile hamburger + full-screen overlay with focus trap, renderLink prop
-- `packages/ui/src/layout/public-layout.test.tsx` — 15 tests
+- `packages/shared/src/schemas/zenhub-backfill.schema.ts` — Zod schema for trigger backfill request (optional startDate/endDate)
+- `apps/api/src/modules/zenhub/zenhub-backfill.controller.ts` — Admin-only POST `/api/v1/admin/zenhub-backfill` (trigger) + GET `/status` (check progress), with JwtAuthGuard + AbilityGuard + CheckAbility(IntegrationConfig)
+- `apps/api/src/modules/zenhub/zenhub-backfill.service.ts` — triggerBackfill (creates BACKFILL sync record, enqueues BullMQ job) + getBackfillStatus (queries latest BACKFILL sync)
+- `apps/api/src/modules/zenhub/zenhub-backfill.controller.spec.ts` — 3 vitest tests (trigger success, with dates, status check)
+- `apps/api/src/modules/zenhub/zenhub-backfill.service.spec.ts` — 3 vitest tests (trigger creates record + enqueues, status returns latest, null when none)
 
 **Modified Files (2):**
 
-- `packages/ui/src/layout/index.ts` — Added ReadingCanvas, HeroSection, PublicLayout exports
-- `packages/ui/src/index.ts` — Added layout re-exports
+- `apps/api/src/modules/zenhub/zenhub.module.ts` — Added ZenhubBackfillController + ZenhubBackfillService
+- `packages/shared/src/index.ts` — Exported triggerBackfillSchema + TriggerBackfillDto
 
-**Tests:** 215 tests passing (23 test files)
+**Tests:** 6 new tests passing, 48 total in zenhub module (9 test files)
 
 ### Step 3: Code Review
 
-- **Status:** Completed (Approved after fixes)
-- **Issues found:** 3 Critical, 5 Important
-- **Issues fixed:** 7 (all Critical + actionable Important)
-- **Issues deferred:** 1 Important (renderNavLink useCallback — functional but inconsistent)
-
-#### Fixes Applied
-
-| #   | Severity  | Issue                                                         | Fix                                                                |
-| --- | --------- | ------------------------------------------------------------- | ------------------------------------------------------------------ |
-| 1   | CRITICAL  | HeroSection headline missing font-weight 900                  | Added `font-black` class to headline div                           |
-| 2   | CRITICAL  | ReadingCanvas paragraph spacing (1.5em) not implemented       | Added `[&_p+p]:mt-[1.5em]` to article element                      |
-| 3   | CRITICAL  | `React` namespace used without import in test file            | Added `import type React from 'react'`                             |
-| 4   | IMPORTANT | Gradient uses hardcoded RGBA values                           | Switched to `rgb(from var(--color-accent-primary) ...)` CSS syntax |
-| 5   | IMPORTANT | Missing tests for paragraph spacing, line-height, font-weight | Added 3 tests: paragraph spacing, line-height, headline font-black |
-
-#### Tests After Fixes
-
-- @edin/ui: 215/215 passed (23 test files)
-- Build: Clean (tsc)
-- Lint: Clean (eslint — 0 errors)
-- Web app build: Clean (Next.js)
-- 0 retries needed
+- **Status:** Completed (Clean — no issues found)
+- **Issues found:** 0
+- All ACs verified: admin trigger, status check, 403 enforcement via CASL
 
 ## Final Status
 
 - **Story status:** done
-- **Sprint status:** 0-5-reading-canvas-and-public-portal -> done
-- **Epic status:** epic-0 -> in-progress (5/6 stories completed)
+- **Sprint status:** zh-1-4-manual-data-backfill -> done
+- **Epic status:** zh-epic-1 -> COMPLETE (4/4 stories done)
 
 ## Auto-Approve Criteria
 
-- [x] Green tests (215 @edin/ui tests passing)
-- [x] Clean lint (0 errors)
-- [x] Clean build (tsc + Next.js)
-- [x] Consistent with existing architecture (ROSE tokens, forwardRef, cn(), barrel exports, framework-agnostic, ReactNode import pattern)
-- [x] Code review issues fixed (7/8 resolved, 1 deferred)
-- [x] No retries needed
+- [x] Green tests (48 tests passing in zenhub module, no regressions)
+- [x] Clean shared build (tsc)
+- [x] Consistent with existing architecture (mirrors zenhub-config.controller pattern exactly)
+- [x] Code review: clean (0 issues)
+- [x] No new npm dependencies, no Prisma migration needed
+- [x] 0 retries needed
+
+## Epic 1 Summary
+
+All 4 stories in zh-Epic 1 are now complete:
+
+| Story                                                  | Status       | Tests        |
+| ------------------------------------------------------ | ------------ | ------------ |
+| zh-1-1: Zenhub Integration Configuration & Permissions | done         | 16           |
+| zh-1-2: Zenhub Webhook Receiver with HMAC Verification | done         | 14           |
+| zh-1-3: Zenhub API Polling Service                     | done         | 12           |
+| zh-1-4: Manual Data Backfill                           | done         | 6            |
+| **Total**                                              | **4/4 done** | **48 tests** |
