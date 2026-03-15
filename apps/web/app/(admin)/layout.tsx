@@ -37,12 +37,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="min-h-screen bg-surface-base lg:flex">
-      <aside className="shrink-0 border-b border-surface-border bg-brand-primary text-surface-raised lg:min-h-screen lg:w-[240px] lg:border-b-0 lg:border-r">
-        <div className="px-[var(--spacing-lg)] py-[var(--spacing-xl)]">
-          <Link
-            href="/"
-            className="flex items-center gap-[var(--spacing-sm)] transition-opacity duration-[var(--transition-fast)] hover:opacity-80"
-          >
+      <aside className="shrink-0 border-b border-surface-subtle bg-surface-raised lg:min-h-screen lg:w-[240px] lg:border-b-0 lg:border-r">
+        <div className="px-6 py-8">
+          <Link href="/" className="flex items-center gap-2 transition-opacity hover:opacity-80">
             <Image
               src="/edin-logo.png"
               alt=""
@@ -50,17 +47,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               height={48}
               className="rounded-full brightness-125"
             />
-            <p className="font-serif text-[24px] font-bold">Edin</p>
+            <p className="font-serif text-[24px] font-bold text-text-primary">Edin</p>
           </Link>
-          <p className="mt-[var(--spacing-xs)] font-sans text-[13px] text-surface-raised/70">
-            Administration
-          </p>
+          <p className="mt-1 font-sans text-[13px] text-text-tertiary">Administration</p>
         </div>
-        <nav
-          className="px-[var(--spacing-md)] pb-[var(--spacing-xl)]"
-          aria-label="Admin navigation"
-        >
-          <ul className="flex flex-col gap-[var(--spacing-xs)]">
+        <nav className="px-4 pb-8" aria-label="Admin navigation">
+          <ul className="flex flex-col gap-1">
             {ADMIN_NAV_ITEMS.map((item) => {
               const isActive =
                 'exact' in item && item.exact
@@ -70,10 +62,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className={`flex min-h-[44px] items-center rounded-[var(--radius-md)] px-[var(--spacing-md)] font-sans text-[15px] transition-colors duration-[var(--transition-fast)] ${
+                    className={`flex min-h-[44px] items-center rounded-md px-4 font-sans text-[15px] transition-colors ${
                       isActive
-                        ? 'bg-brand-accent-subtle text-brand-primary'
-                        : 'text-surface-raised/85 hover:bg-surface-raised/10 hover:text-surface-raised'
+                        ? 'bg-accent-primary/8 text-accent-primary'
+                        : 'text-text-primary hover:bg-surface-subtle'
                     }`}
                     aria-current={isActive ? 'page' : undefined}
                   >

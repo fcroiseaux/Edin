@@ -43,7 +43,7 @@ last_updated: 2026-03-14
 
 development_status:
   # Epic 0: ROSE Design System Foundation
-  epic-0: in-progress
+  epic-0: done
   0-1-rose-design-tokens-abc-normal-font-integration: done
   0-2-foundation-ui-primitives: done
   0-3-radix-ui-wrappers-with-rose-theming: done

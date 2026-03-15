@@ -32,6 +32,60 @@ export default function AboutPage() {
       <div className="bg-surface-sunken">
         <ManifestoGrid manifestos={DOMAIN_MANIFESTOS} />
       </div>
+
+      {/* Psalm — Paul Celan */}
+      <section className="px-6 py-24" aria-label="Psalm">
+        <div className="mx-auto max-w-[600px] text-center">
+          <h2 className="font-serif text-[1.5rem] font-bold italic text-text-heading">Psalm</h2>
+          <div className="mt-10 space-y-6 font-serif text-[17px] leading-[1.8] text-text-secondary">
+            <p>
+              No one moulds us again out of earth and clay,
+              <br />
+              no one conjures our dust.
+              <br />
+              No one.
+            </p>
+            <p>
+              Praised be your name, no one.
+              <br />
+              For your sake we shall
+              <br />
+              flower.
+              <br />
+              Towards
+              <br />
+              you.
+            </p>
+            <p>
+              A nothing
+              <br />
+              we were, are, shall
+              <br />
+              remain, flowering:
+              <br />
+              the nothing-, the
+              <br />
+              no one&rsquo;s rose.
+            </p>
+            <p>
+              With
+              <br />
+              our pistil soul-bright,
+              <br />
+              our stamen heaven-ravaged,
+              <br />
+              our corolla red
+              <br />
+              with the crimson word which we sang
+              <br />
+              over, O over
+              <br />
+              the thorn.
+            </p>
+          </div>
+          <p className="mt-8 text-caption text-text-tertiary">Paul Celan</p>
+        </div>
+      </section>
     </main>
   );
 }

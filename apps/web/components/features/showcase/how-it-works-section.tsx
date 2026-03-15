@@ -21,7 +21,7 @@ const STEPS = [
 
 export function HowItWorksSection() {
   return (
-    <section className="px-[var(--spacing-lg)] py-[var(--spacing-2xl)]" aria-label="How it works">
+    <section className="px-6 py-20" aria-label="How it works">
       <div className="mx-auto max-w-[1200px]">
         <h2 className="text-center font-serif text-[clamp(1.5rem,3vw,2rem)] leading-[1.25] font-bold text-brand-primary">
           How It Works

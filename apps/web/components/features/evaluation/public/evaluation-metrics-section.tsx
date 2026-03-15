@@ -22,10 +22,7 @@ export function EvaluationMetricsSection({ initialData }: EvaluationMetricsSecti
   }
 
   return (
-    <section
-      className="mx-auto max-w-[64rem] px-[var(--spacing-lg)] py-[var(--spacing-2xl)]"
-      aria-label="Evaluation intelligence"
-    >
+    <section className="mx-auto max-w-[64rem] px-6 py-20" aria-label="Evaluation intelligence">
       <h2 className="font-serif text-[clamp(1.5rem,3vw,2rem)] leading-[1.2] font-bold text-brand-primary">
         Evaluation Intelligence
       </h2>
@@ -108,7 +105,7 @@ export function EvaluationMetricsSection({ initialData }: EvaluationMetricsSecti
 function EvaluationMetricsSkeleton() {
   return (
     <section
-      className="mx-auto max-w-[64rem] px-[var(--spacing-lg)] py-[var(--spacing-2xl)]"
+      className="mx-auto max-w-[64rem] px-6 py-20"
       role="status"
       aria-label="Loading evaluation metrics"
     >

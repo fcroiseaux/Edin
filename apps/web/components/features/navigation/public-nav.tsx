@@ -20,10 +20,10 @@ export function PublicNav() {
 
   return (
     <nav className="border-b border-surface-border bg-surface-raised" aria-label="Main navigation">
-      <div className="mx-auto flex max-w-[1200px] items-center justify-between px-[var(--spacing-lg)] py-[var(--spacing-md)]">
+      <div className="mx-auto flex max-w-[1200px] items-center justify-between px-6 py-4">
         <Link
           href="/"
-          className="flex items-center gap-[var(--spacing-sm)] font-serif text-[20px] font-bold text-brand-primary transition-colors duration-[var(--transition-fast)] hover:text-brand-accent"
+          className="flex items-center gap-2 font-serif text-[20px] font-bold text-brand-primary transition-colors hover:text-brand-accent"
         >
           <Image
             src="/edin-logo.png"
@@ -35,14 +35,14 @@ export function PublicNav() {
           Edin
         </Link>
 
-        <ul className="flex items-center gap-[var(--spacing-lg)]">
+        <ul className="flex items-center gap-6">
           {NAV_LINKS.map((link) => {
             const isActive = pathname === link.href;
             return (
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className={`font-sans text-[14px] font-medium transition-colors duration-[var(--transition-fast)] ${
+                  className={`font-sans text-[14px] font-medium transition-colors ${
                     isActive ? 'text-brand-accent' : 'text-brand-secondary hover:text-brand-primary'
                   }`}
                   aria-current={isActive ? 'page' : undefined}
@@ -54,17 +54,17 @@ export function PublicNav() {
           })}
           <li>
             {isLoading ? null : isAuthenticated ? (
-              <div className="flex items-center gap-[var(--spacing-md)]">
+              <div className="flex items-center gap-6">
                 <Link
                   href="/dashboard"
-                  className="font-sans text-[14px] font-medium text-brand-secondary transition-colors duration-[var(--transition-fast)] hover:text-brand-primary"
+                  className="font-sans text-[14px] font-medium text-brand-secondary transition-colors hover:text-brand-primary"
                 >
                   Dashboard
                 </Link>
                 {user?.role === 'ADMIN' && (
                   <Link
                     href="/admin"
-                    className={`font-sans text-[14px] font-medium transition-colors duration-[var(--transition-fast)] ${
+                    className={`font-sans text-[14px] font-medium transition-colors ${
                       pathname.startsWith('/admin')
                         ? 'text-brand-accent'
                         : 'text-brand-secondary hover:text-brand-primary'
@@ -76,7 +76,7 @@ export function PublicNav() {
                 )}
                 <button
                   onClick={logout}
-                  className="rounded-[var(--radius-md)] border border-surface-border px-[var(--spacing-md)] py-[var(--spacing-xs)] font-sans text-[14px] font-medium text-brand-secondary transition-colors duration-[var(--transition-fast)] hover:bg-surface-base hover:text-brand-primary"
+                  className="rounded-md border border-surface-border px-4 py-1.5 font-sans text-[14px] font-medium text-brand-secondary transition-colors hover:bg-surface-base hover:text-brand-primary"
                 >
                   Logout
                 </button>
@@ -84,7 +84,7 @@ export function PublicNav() {
             ) : (
               <button
                 onClick={login}
-                className="rounded-[var(--radius-md)] bg-brand-primary px-[var(--spacing-md)] py-[var(--spacing-xs)] font-sans text-[14px] font-medium text-surface-raised transition-colors duration-[var(--transition-fast)] hover:bg-brand-accent"
+                className="rounded-md bg-accent-primary px-4 py-1.5 font-sans text-[14px] font-medium text-text-primary transition-colors hover:bg-accent-primary-hover"
               >
                 Login with GitHub
               </button>

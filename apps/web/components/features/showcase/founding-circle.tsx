@@ -7,10 +7,7 @@ interface FoundingCircleProps {
 
 export function FoundingCircle({ contributors }: FoundingCircleProps) {
   return (
-    <section
-      className="mx-auto max-w-[1200px] px-[var(--spacing-lg)] py-[var(--spacing-2xl)]"
-      aria-label="Founding Circle"
-    >
+    <section className="mx-auto max-w-[1200px] px-6 py-20" aria-label="Founding Circle">
       <h2 className="text-center font-serif text-[2rem] leading-[1.25] font-bold text-brand-primary">
         Founding Circle
       </h2>
@@ -35,7 +32,7 @@ export function FoundingCircle({ contributors }: FoundingCircleProps) {
 export function FoundingCircleSkeleton() {
   return (
     <section
-      className="mx-auto max-w-[1200px] px-[var(--spacing-lg)] py-[var(--spacing-2xl)]"
+      className="mx-auto max-w-[1200px] px-6 py-20"
       role="status"
       aria-label="Loading founding circle"
     >

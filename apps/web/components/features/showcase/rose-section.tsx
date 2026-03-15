@@ -1,23 +1,35 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import * as Accordion from '@radix-ui/react-accordion';
 import { ROSE_INTRO, ROSE_CONCEPTS } from '../rose/rose-data';
 
 export function RoseSection() {
   return (
-    <section
-      className="bg-surface-sunken px-[var(--spacing-lg)] py-[var(--spacing-2xl)]"
-      aria-label="About Rose"
-    >
+    <section className="bg-surface-sunken px-6 py-20" aria-label="About Rose">
       <div className="mx-auto max-w-[1200px]">
+        <Image
+          src="/rose-logo.svg"
+          alt="Rose logo"
+          width={200}
+          height={200}
+          className="mx-auto mb-8 opacity-80"
+        />
         <p className="text-center font-mono text-[13px] font-medium uppercase tracking-[0.15em] text-brand-accent">
           The Rose Project
         </p>
-        <h2 className="mt-[var(--spacing-sm)] text-center font-serif text-[clamp(1.5rem,3vw,2rem)] leading-[1.25] font-bold text-brand-primary">
+        <h2 className="mt-2 text-center font-serif text-[clamp(1.5rem,3vw,2rem)] leading-[1.25] font-bold text-brand-primary">
           A New Financial Infrastructure for a Fairer Economy
         </h2>
-        <p className="mx-auto mt-[var(--spacing-md)] max-w-[680px] text-center font-sans text-[15px] leading-[1.6] text-brand-secondary">
+        <p className="mx-auto mt-6 max-w-[720px] text-center font-sans text-[16px] leading-[1.7] text-text-secondary">
+          Under the umbrella of the public benefit foundation IOUR, a diverse group of contributors
+          has launched ROSE—an initiative to create a system of real-time finance that serves life
+          and the commons. ROSE will support collaborative communities and open knowledge platforms
+          while developing financial services that channel market energy to foster an equitable,
+          knowledge-driven society that benefits everyone.
+        </p>
+        <p className="mx-auto mt-4 max-w-[680px] text-center font-sans text-[15px] leading-[1.6] text-brand-secondary">
           {ROSE_INTRO}
         </p>
 
