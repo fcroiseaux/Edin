@@ -333,6 +333,131 @@ describe('AnthropicEvaluationProvider', () => {
     );
   });
 
+  it('includes planning context in user prompt when provided', async () => {
+    mockCreate.mockResolvedValue({
+      content: [{ type: 'text', text: validResponse }],
+      usage: { input_tokens: 100, output_tokens: 200 },
+    });
+
+    await provider.evaluateCode({
+      ...codeInput,
+      planningContext: {
+        storyPoints: 5,
+        sprintVelocity: 42,
+        estimationAccuracy: 0.85,
+        commitmentRatio: 0.92,
+        sprintId: 'sprint-1',
+      },
+    });
+
+    expect(mockCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        messages: [
+          {
+            role: 'user',
+            content: expect.stringContaining('Planning Context'),
+          },
+        ],
+      }),
+    );
+    expect(mockCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        messages: [
+          {
+            role: 'user',
+            content: expect.stringContaining('Story Points: 5'),
+          },
+        ],
+      }),
+    );
+    expect(mockCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        messages: [
+          {
+            role: 'user',
+            content: expect.stringContaining('Sprint Velocity: 42'),
+          },
+        ],
+      }),
+    );
+    expect(mockCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        messages: [
+          {
+            role: 'user',
+            content: expect.stringContaining('Estimation Accuracy: 85.0%'),
+          },
+        ],
+      }),
+    );
+    expect(mockCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        messages: [
+          {
+            role: 'user',
+            content: expect.stringContaining('Commitment Ratio: 92.0%'),
+          },
+        ],
+      }),
+    );
+  });
+
+  it('does NOT include planning context section when absent', async () => {
+    mockCreate.mockResolvedValue({
+      content: [{ type: 'text', text: validResponse }],
+      usage: { input_tokens: 100, output_tokens: 200 },
+    });
+
+    await provider.evaluateCode(codeInput);
+
+    const callArg = mockCreate.mock.calls[0][0];
+    expect(callArg.messages[0].content).not.toContain('Planning Context');
+  });
+
+  it('returns code-eval-v2 prompt version when planning context is provided', () => {
+    expect(
+      provider.getEffectiveCodePromptVersion({
+        ...codeInput,
+        planningContext: {
+          storyPoints: 3,
+          sprintVelocity: 30,
+          estimationAccuracy: null,
+          commitmentRatio: null,
+          sprintId: 'sprint-1',
+        },
+      }),
+    ).toBe('code-eval-v2');
+  });
+
+  it('returns code-eval-v1 prompt version when no planning context', () => {
+    expect(provider.getEffectiveCodePromptVersion(codeInput)).toBe('code-eval-v1');
+  });
+
+  it('omits null planning context fields from prompt', async () => {
+    mockCreate.mockResolvedValue({
+      content: [{ type: 'text', text: validResponse }],
+      usage: { input_tokens: 100, output_tokens: 200 },
+    });
+
+    await provider.evaluateCode({
+      ...codeInput,
+      planningContext: {
+        storyPoints: 3,
+        sprintVelocity: null,
+        estimationAccuracy: null,
+        commitmentRatio: null,
+        sprintId: 'sprint-1',
+      },
+    });
+
+    const callArg = mockCreate.mock.calls[0][0];
+    const userContent = callArg.messages[0].content;
+    expect(userContent).toContain('Story Points: 3');
+    expect(userContent).not.toContain('Sprint Velocity:');
+    expect(userContent).not.toContain('Estimation Accuracy:');
+    expect(userContent).not.toContain('Commitment Ratio:');
+  });
+
   it('listAvailableModels returns models from Anthropic API', async () => {
     const mockModels = [
       {

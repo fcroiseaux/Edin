@@ -22,6 +22,7 @@ import {
 } from '@edin/shared';
 import { EvaluationService } from './evaluation.service.js';
 import { EvaluationReviewService } from './services/evaluation-review.service.js';
+import { CombinedEvaluationService } from './services/combined-evaluation.service.js';
 import { randomUUID } from 'crypto';
 
 @Controller({ path: 'evaluations', version: '1' })
@@ -32,6 +33,7 @@ export class EvaluationController {
   constructor(
     private readonly evaluationService: EvaluationService,
     private readonly evaluationReviewService: EvaluationReviewService,
+    private readonly combinedEvaluationService: CombinedEvaluationService,
   ) {}
 
   @Get()
@@ -177,6 +179,23 @@ export class EvaluationController {
       correlationId,
     });
 
+    return createSuccessResponse(result, correlationId);
+  }
+
+  @Get(':id/combined')
+  async getCombinedEvaluation(@CurrentUser() user: CurrentUserPayload, @Param('id') id: string) {
+    const correlationId = randomUUID();
+    const evaluation = await this.evaluationService.getEvaluation(id);
+
+    if (evaluation.contributorId !== user.id && user.role !== 'ADMIN') {
+      throw new DomainException(
+        ERROR_CODES.FORBIDDEN,
+        'You can only view your own evaluations',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    const result = await this.combinedEvaluationService.getCombinedEvaluation(id);
     return createSuccessResponse(result, correlationId);
   }
 

@@ -21,6 +21,10 @@ export const zenhubConfigResponseSchema = z.object({
   taskSyncCreatorId: z.string().uuid().nullable().default(null),
   statusSyncEnabled: z.boolean().default(false),
   pipelineStatusMapping: z.record(z.string(), z.enum(taskStatusValues)).nullable().default(null),
+  planningContextEnabled: z.boolean().default(false),
+  combinedScoreEnabled: z.boolean().default(false),
+  qualityWeight: z.number().min(0).max(1).default(0.8),
+  planningWeight: z.number().min(0).max(1).default(0.2),
 });
 
 export const updateZenhubConfigSchema = z.object({
@@ -34,6 +38,10 @@ export const updateZenhubConfigSchema = z.object({
   taskSyncCreatorId: z.string().uuid().optional(),
   statusSyncEnabled: z.boolean().optional(),
   pipelineStatusMapping: z.record(z.string(), z.enum(taskStatusValues)).optional(),
+  planningContextEnabled: z.boolean().optional(),
+  combinedScoreEnabled: z.boolean().optional(),
+  qualityWeight: z.number().min(0).max(1).optional(),
+  planningWeight: z.number().min(0).max(1).optional(),
 });
 
 export type ZenhubConfigResponseDto = z.infer<typeof zenhubConfigResponseSchema>;

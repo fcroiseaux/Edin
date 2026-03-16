@@ -59,6 +59,10 @@ describe('ZenhubConfigService', () => {
           'In Review': 'IN_PROGRESS',
           Done: 'COMPLETED',
         },
+        planningContextEnabled: false,
+        combinedScoreEnabled: false,
+        qualityWeight: 0.8,
+        planningWeight: 0.2,
       });
     });
 
@@ -180,6 +184,70 @@ describe('ZenhubConfigService', () => {
 
       expect(result).toBeDefined();
       expect(result.apiTokenConfigured).toBe(false);
+    });
+  });
+
+  describe('resolvePlanningContextEnabled', () => {
+    it('returns false by default when no DB value set', async () => {
+      const result = await service.resolvePlanningContextEnabled();
+      expect(result).toBe(false);
+    });
+
+    it('returns true when DB value is true', async () => {
+      mockSettingsService.getSettingValue.mockResolvedValueOnce(true);
+      const result = await service.resolvePlanningContextEnabled();
+      expect(result).toBe(true);
+    });
+
+    it('returns false when DB value is null', async () => {
+      mockSettingsService.getSettingValue.mockResolvedValueOnce(null);
+      const result = await service.resolvePlanningContextEnabled();
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('resolveCombinedScoreEnabled', () => {
+    it('returns false by default when no DB value set', async () => {
+      const result = await service.resolveCombinedScoreEnabled();
+      expect(result).toBe(false);
+    });
+
+    it('returns true when DB value is true', async () => {
+      mockSettingsService.getSettingValue.mockResolvedValueOnce(true);
+      const result = await service.resolveCombinedScoreEnabled();
+      expect(result).toBe(true);
+    });
+
+    it('returns false when DB value is null', async () => {
+      mockSettingsService.getSettingValue.mockResolvedValueOnce(null);
+      const result = await service.resolveCombinedScoreEnabled();
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('resolveQualityWeight', () => {
+    it('returns 0.80 by default', async () => {
+      const result = await service.resolveQualityWeight();
+      expect(result).toBe(0.8);
+    });
+
+    it('returns DB value when configured', async () => {
+      mockSettingsService.getSettingValue.mockResolvedValueOnce(0.7);
+      const result = await service.resolveQualityWeight();
+      expect(result).toBe(0.7);
+    });
+  });
+
+  describe('resolvePlanningWeight', () => {
+    it('returns 0.20 by default', async () => {
+      const result = await service.resolvePlanningWeight();
+      expect(result).toBe(0.2);
+    });
+
+    it('returns DB value when configured', async () => {
+      mockSettingsService.getSettingValue.mockResolvedValueOnce(0.3);
+      const result = await service.resolvePlanningWeight();
+      expect(result).toBe(0.3);
     });
   });
 });

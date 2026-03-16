@@ -11,6 +11,8 @@ import {
   type EvaluationProvider,
   type CodeEvaluationInput,
 } from '../providers/evaluation-provider.interface.js';
+import { SprintEnrichmentService } from '../../sprint/sprint-enrichment.service.js';
+import { ZenhubConfigService } from '../../zenhub/zenhub-config.service.js';
 import {
   DEFAULT_CODE_WEIGHTS,
   FORMULA_VERSION,
@@ -18,7 +20,11 @@ import {
   MAX_PATCH_LENGTH,
   MAX_EVALUATION_FILES,
 } from '@edin/shared';
-import type { EvaluationDimensionKey, EvaluationCompletedEvent } from '@edin/shared';
+import type {
+  EvaluationDimensionKey,
+  EvaluationCompletedEvent,
+  PlanningContextEnrichment,
+} from '@edin/shared';
 
 export interface CodeEvaluationJobData {
   evaluationId: string;
@@ -40,6 +46,8 @@ export class CodeEvaluationProcessor extends WorkerHost {
     private readonly evaluationProvider: EvaluationProvider,
     private readonly eventEmitter: EventEmitter2,
     private readonly auditService: AuditService,
+    private readonly sprintEnrichmentService: SprintEnrichmentService,
+    private readonly zenhubConfigService: ZenhubConfigService,
   ) {
     super();
   }
@@ -69,11 +77,22 @@ export class CodeEvaluationProcessor extends WorkerHost {
       const input = this.buildEvaluationInput(contribution);
       input.modelId = model.apiModelId;
 
+      // Fetch planning context if feature flag is enabled
+      const planningContext = await this.fetchPlanningContext(
+        contributionId,
+        contributorId,
+        correlationId,
+      );
+      if (planningContext) {
+        input.planningContext = planningContext;
+      }
+
       this.logger.log('Calling evaluation provider', {
         module: 'evaluation',
         evaluationId,
         contributionId,
         fileCount: input.files.length,
+        planningContextIncluded: !!planningContext,
         correlationId,
       });
 
@@ -111,8 +130,11 @@ export class CodeEvaluationProcessor extends WorkerHost {
               weights: DEFAULT_CODE_WEIGHTS,
               taskComplexityMultiplier,
               domainNormalizationFactor,
-              modelPromptVersion:
-                (model.config as Record<string, unknown>)?.promptVersion ?? 'unknown',
+              modelPromptVersion: input.planningContext
+                ? 'code-eval-v2'
+                : ((model.config as Record<string, unknown>)?.promptVersion ?? 'unknown'),
+              planningContextIncluded: !!planningContext,
+              ...(planningContext ? { planningContext } : {}),
             },
             metadata: {
               rawModelOutput: result.rawModelOutput,
@@ -254,6 +276,82 @@ export class CodeEvaluationProcessor extends WorkerHost {
     if (totalFiles <= 10 && totalLines < 500) return 1.05;
     if (totalFiles <= 30 && totalLines < 1500) return 1.1;
     return 1.15;
+  }
+
+  /**
+   * Fetch planning context for a contribution if the feature flag is enabled.
+   * Returns null if disabled, unavailable, or on any error (graceful degradation).
+   */
+  private async fetchPlanningContext(
+    contributionId: string,
+    contributorId: string,
+    correlationId: string,
+  ): Promise<PlanningContextEnrichment | null> {
+    try {
+      const enabled = await this.zenhubConfigService.resolvePlanningContextEnabled();
+      if (!enabled) {
+        return null;
+      }
+
+      const contexts =
+        await this.sprintEnrichmentService.getContributionSprintContexts(contributionId);
+      if (contexts.length === 0) {
+        return null;
+      }
+
+      // Use the most recent sprint context
+      const ctx = contexts[0];
+
+      // Fetch sprint velocity from SprintMetric
+      const sprintMetric = await this.prisma.sprintMetric.findFirst({
+        where: { sprintId: ctx.sprintId, domain: null },
+        select: { velocity: true },
+      });
+
+      // Fetch contributor estimation for this sprint
+      const estimation = await this.prisma.contributorSprintEstimation.findFirst({
+        where: {
+          contributorId,
+          sprintMetric: { sprintId: ctx.sprintId },
+        },
+        select: { plannedPoints: true, deliveredPoints: true, accuracy: true },
+      });
+
+      const rawRatio =
+        estimation && estimation.plannedPoints > 0
+          ? estimation.deliveredPoints / estimation.plannedPoints
+          : null;
+      const commitmentRatio = rawRatio !== null ? Math.max(0, rawRatio) : null;
+      const estimationAccuracy =
+        estimation?.accuracy !== null && estimation?.accuracy !== undefined
+          ? Math.max(0, Math.min(1, estimation.accuracy))
+          : null;
+
+      this.logger.log('Planning context fetched for evaluation enrichment', {
+        module: 'evaluation',
+        contributionId,
+        sprintId: ctx.sprintId,
+        storyPoints: ctx.storyPoints,
+        sprintVelocity: sprintMetric?.velocity ?? null,
+        correlationId,
+      });
+
+      return {
+        storyPoints: ctx.storyPoints,
+        sprintVelocity: sprintMetric?.velocity ?? null,
+        estimationAccuracy,
+        commitmentRatio,
+        sprintId: ctx.sprintId,
+      };
+    } catch (error) {
+      this.logger.warn('Failed to fetch planning context — proceeding without enrichment', {
+        module: 'evaluation',
+        contributionId,
+        error: error instanceof Error ? error.message : String(error),
+        correlationId,
+      });
+      return null;
+    }
   }
 
   private computeCompositeScore(

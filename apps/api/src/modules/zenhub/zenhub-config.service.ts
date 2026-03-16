@@ -17,6 +17,10 @@ const KEYS = {
   TASK_SYNC_CREATOR_ID: 'zenhub.task_sync_creator_id',
   STATUS_SYNC_ENABLED: 'zenhub.status_sync_enabled',
   PIPELINE_STATUS_MAPPING: 'zenhub.pipeline_status_mapping',
+  PLANNING_CONTEXT_ENABLED: 'evaluation.planning_context_enabled',
+  COMBINED_SCORE_ENABLED: 'evaluation.combined_score_enabled',
+  QUALITY_WEIGHT: 'evaluation.quality_weight',
+  PLANNING_WEIGHT: 'evaluation.planning_weight',
 } as const;
 
 const DEFAULT_POLLING_INTERVAL_MS = 900_000; // 15 minutes
@@ -51,6 +55,10 @@ export class ZenhubConfigService {
       taskSyncCreatorId,
       statusSyncEnabled,
       pipelineStatusMapping,
+      planningContextEnabled,
+      combinedScoreEnabled,
+      qualityWeight,
+      planningWeight,
     ] = await Promise.all([
       this.resolveApiToken(),
       this.resolveWebhookUrl(),
@@ -62,6 +70,10 @@ export class ZenhubConfigService {
       this.resolveTaskSyncCreatorId(),
       this.resolveStatusSyncEnabled(),
       this.resolvePipelineStatusMapping(),
+      this.resolvePlanningContextEnabled(),
+      this.resolveCombinedScoreEnabled(),
+      this.resolveQualityWeight(),
+      this.resolvePlanningWeight(),
     ]);
 
     return {
@@ -76,6 +88,10 @@ export class ZenhubConfigService {
       taskSyncCreatorId,
       statusSyncEnabled,
       pipelineStatusMapping,
+      planningContextEnabled,
+      combinedScoreEnabled,
+      qualityWeight,
+      planningWeight,
     };
   }
 
@@ -91,6 +107,10 @@ export class ZenhubConfigService {
       taskSyncCreatorId?: string;
       statusSyncEnabled?: boolean;
       pipelineStatusMapping?: Record<string, string>;
+      planningContextEnabled?: boolean;
+      combinedScoreEnabled?: boolean;
+      qualityWeight?: number;
+      planningWeight?: number;
     },
     adminId: string,
     correlationId?: string,
@@ -218,6 +238,46 @@ export class ZenhubConfigService {
       updatedKeys.push('pipelineStatusMapping');
     }
 
+    if (updates.planningContextEnabled !== undefined) {
+      await this.settingsService.updateSetting(
+        KEYS.PLANNING_CONTEXT_ENABLED,
+        updates.planningContextEnabled,
+        adminId,
+        correlationId,
+      );
+      updatedKeys.push('planningContextEnabled');
+    }
+
+    if (updates.combinedScoreEnabled !== undefined) {
+      await this.settingsService.updateSetting(
+        KEYS.COMBINED_SCORE_ENABLED,
+        updates.combinedScoreEnabled,
+        adminId,
+        correlationId,
+      );
+      updatedKeys.push('combinedScoreEnabled');
+    }
+
+    if (updates.qualityWeight !== undefined) {
+      await this.settingsService.updateSetting(
+        KEYS.QUALITY_WEIGHT,
+        updates.qualityWeight,
+        adminId,
+        correlationId,
+      );
+      updatedKeys.push('qualityWeight');
+    }
+
+    if (updates.planningWeight !== undefined) {
+      await this.settingsService.updateSetting(
+        KEYS.PLANNING_WEIGHT,
+        updates.planningWeight,
+        adminId,
+        correlationId,
+      );
+      updatedKeys.push('planningWeight');
+    }
+
     if (updatedKeys.length > 0) {
       const event: ZenhubConfigUpdatedEvent = {
         eventType: 'zenhub.config.updated',
@@ -314,6 +374,42 @@ export class ZenhubConfigService {
       null,
     );
     return dbValue === true;
+  }
+
+  /** Resolve planning context enrichment flag from DB (default false). */
+  async resolvePlanningContextEnabled(): Promise<boolean> {
+    const dbValue = await this.settingsService.getSettingValue<boolean | null>(
+      KEYS.PLANNING_CONTEXT_ENABLED,
+      null,
+    );
+    return dbValue === true;
+  }
+
+  /** Resolve combined score enabled flag from DB (default false). */
+  async resolveCombinedScoreEnabled(): Promise<boolean> {
+    const dbValue = await this.settingsService.getSettingValue<boolean | null>(
+      KEYS.COMBINED_SCORE_ENABLED,
+      null,
+    );
+    return dbValue === true;
+  }
+
+  /** Resolve quality weight from DB (default 0.80). */
+  async resolveQualityWeight(): Promise<number> {
+    const dbValue = await this.settingsService.getSettingValue<number | null>(
+      KEYS.QUALITY_WEIGHT,
+      null,
+    );
+    return dbValue !== null ? dbValue : 0.8;
+  }
+
+  /** Resolve planning weight from DB (default 0.20). */
+  async resolvePlanningWeight(): Promise<number> {
+    const dbValue = await this.settingsService.getSettingValue<number | null>(
+      KEYS.PLANNING_WEIGHT,
+      null,
+    );
+    return dbValue !== null ? dbValue : 0.2;
   }
 
   /** Resolve pipeline-to-status mapping from DB. Returns default mapping if not configured. */

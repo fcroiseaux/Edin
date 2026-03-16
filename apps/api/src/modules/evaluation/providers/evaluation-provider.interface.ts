@@ -2,6 +2,7 @@ import type {
   EvaluationDimensionKey,
   DocEvaluationDimensionKey,
   EvaluationRubricParameters,
+  PlanningContextEnrichment,
 } from '@edin/shared';
 
 export interface CodeEvaluationInput {
@@ -19,6 +20,7 @@ export interface CodeEvaluationInput {
   pullRequestTitle?: string;
   pullRequestDescription?: string;
   modelId?: string;
+  planningContext?: PlanningContextEnrichment;
 }
 
 export interface CodeEvaluationOutput {

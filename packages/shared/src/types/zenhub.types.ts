@@ -10,6 +10,10 @@ export interface ZenhubConfigResponse {
   taskSyncCreatorId: string | null;
   statusSyncEnabled: boolean;
   pipelineStatusMapping: Record<string, string> | null;
+  planningContextEnabled: boolean;
+  combinedScoreEnabled: boolean;
+  qualityWeight: number;
+  planningWeight: number;
 }
 
 export interface UpdateZenhubConfigInput {
@@ -23,6 +27,10 @@ export interface UpdateZenhubConfigInput {
   taskSyncCreatorId?: string;
   statusSyncEnabled?: boolean;
   pipelineStatusMapping?: Record<string, string>;
+  planningContextEnabled?: boolean;
+  combinedScoreEnabled?: boolean;
+  qualityWeight?: number;
+  planningWeight?: number;
 }
 
 export interface ZenhubConfigUpdatedEvent {

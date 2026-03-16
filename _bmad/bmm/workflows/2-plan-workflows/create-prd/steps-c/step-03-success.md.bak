@@ -7,8 +7,8 @@ nextStepFile: '{project-root}/_bmad/bmm/workflows/2-plan-workflows/create-prd/st
 outputFile: '{planning_artifacts}/prd.md'
 
 # Task References
-advancedElicitationTask: '{project-root}/_bmad/core/workflows/advanced-elicitation/workflow.xml'
-partyModeWorkflow: '{project-root}/_bmad/core/workflows/party-mode/workflow.md'
+advancedElicitationTask: '{project-root}/_bmad/core/workflows/advanced-elicitation/workflow.md'
+partyModeWorkflow: '{project-root}/_bmad/core/workflows/bmad-party-mode/workflow.md'
 ---
 
 # Step 3: Success Criteria Definition
@@ -220,7 +220,7 @@ When user selects 'C', append the content directly to the document using the str
 
 ## DOMAIN CONSIDERATIONS:
 
-If working in regulated domains (healthcare, finance, govtech):
+If working in regulated domains (healthcare, fintech, govtech):
 
 - Include compliance milestones in success criteria
 - Add regulatory approval timelines to MVP scope

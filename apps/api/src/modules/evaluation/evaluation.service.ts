@@ -564,6 +564,7 @@ export class EvaluationService {
             parameters: evaluation.rubric.parameters as Record<string, unknown>,
           }
         : null,
+      combinedEvaluation: meta?.combinedEvaluation ?? null,
     };
   }
 

@@ -395,6 +395,15 @@ export type {
   ScoreDistributionBucketDto,
   PublicEvaluationAggregateDto,
   ContributorEvaluationSummaryDto,
+  PlanningContextEnrichment,
+  PlanningReliabilityScore,
+  CombinedEvaluationResult,
+} from './types/evaluation.types.js';
+
+export {
+  DEFAULT_QUALITY_WEIGHT,
+  DEFAULT_PLANNING_WEIGHT,
+  CONFIDENCE_SPRINT_THRESHOLD,
 } from './types/evaluation.types.js';
 
 export {

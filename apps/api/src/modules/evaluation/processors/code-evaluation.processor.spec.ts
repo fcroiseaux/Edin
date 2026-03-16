@@ -8,6 +8,8 @@ import { RedisService } from '../../../common/redis/redis.service.js';
 import { EvaluationModelRegistry } from '../models/evaluation-model.registry.js';
 import { EVALUATION_PROVIDER } from '../providers/evaluation-provider.interface.js';
 import { AuditService } from '../../compliance/audit/audit.service.js';
+import { SprintEnrichmentService } from '../../sprint/sprint-enrichment.service.js';
+import { ZenhubConfigService } from '../../zenhub/zenhub-config.service.js';
 import type { Job } from 'bullmq';
 import type { CodeEvaluationJobData } from './code-evaluation.processor.js';
 
@@ -17,6 +19,12 @@ const mockPrisma = {
   },
   evaluation: {
     update: vi.fn(),
+  },
+  sprintMetric: {
+    findFirst: vi.fn(),
+  },
+  contributorSprintEstimation: {
+    findFirst: vi.fn(),
   },
   $transaction: vi.fn((fn: (tx: typeof mockPrisma) => Promise<unknown>) => fn(mockPrisma)),
 };
@@ -36,6 +44,14 @@ const mockEvaluationProvider = {
 };
 
 const mockAuditService = { log: vi.fn().mockResolvedValue(undefined) };
+
+const mockSprintEnrichmentService = {
+  getContributionSprintContexts: vi.fn(),
+};
+
+const mockZenhubConfigService = {
+  resolvePlanningContextEnabled: vi.fn(),
+};
 
 function createJob(data: Partial<CodeEvaluationJobData> = {}): Job<CodeEvaluationJobData> {
   return {
@@ -113,12 +129,18 @@ describe('CodeEvaluationProcessor', () => {
         { provide: EvaluationModelRegistry, useValue: mockModelRegistry },
         { provide: EVALUATION_PROVIDER, useValue: mockEvaluationProvider },
         { provide: AuditService, useValue: mockAuditService },
+        { provide: SprintEnrichmentService, useValue: mockSprintEnrichmentService },
+        { provide: ZenhubConfigService, useValue: mockZenhubConfigService },
         { provide: getQueueToken('code-evaluation'), useValue: {} },
       ],
     }).compile();
 
     processor = module.get(CodeEvaluationProcessor);
     eventEmitter = module.get(EventEmitter2);
+
+    // Default: feature flag disabled, no sprint contexts
+    mockZenhubConfigService.resolvePlanningContextEnabled.mockResolvedValue(false);
+    mockSprintEnrichmentService.getContributionSprintContexts.mockResolvedValue([]);
   });
 
   it('processes code contribution and produces 4 dimension scores', async () => {
@@ -284,6 +306,167 @@ describe('CodeEvaluationProcessor', () => {
       where: { id: 'eval-1' },
       data: expect.objectContaining({
         compositeScore: 89,
+      }),
+    });
+  });
+
+  // ─── Planning Context Enrichment Tests ─────────────────────────────────────
+
+  it('enriches input with planning context when available and flag enabled', async () => {
+    mockZenhubConfigService.resolvePlanningContextEnabled.mockResolvedValue(true);
+    mockSprintEnrichmentService.getContributionSprintContexts.mockResolvedValue([
+      {
+        id: 'ctx-1',
+        contributionId: 'contrib-1',
+        sprintId: 'sprint-1',
+        storyPoints: 5,
+        zenhubIssueId: 'zh-issue-1',
+        epicId: null,
+        pipelineStatus: 'Done',
+        createdAt: '2026-03-10',
+        updatedAt: '2026-03-15',
+      },
+    ]);
+    mockPrisma.sprintMetric.findFirst.mockResolvedValue({ velocity: 42 });
+    mockPrisma.contributorSprintEstimation.findFirst.mockResolvedValue({
+      plannedPoints: 10,
+      deliveredPoints: 9,
+      accuracy: 0.9,
+    });
+    mockPrisma.contribution.findUniqueOrThrow.mockResolvedValue(mockContribution);
+    mockModelRegistry.getActiveModel.mockResolvedValue(mockModel);
+    mockEvaluationProvider.evaluateCode.mockResolvedValue(mockEvaluationResult);
+    mockPrisma.evaluation.update.mockResolvedValue({});
+
+    await processor.process(createJob());
+
+    expect(mockEvaluationProvider.evaluateCode).toHaveBeenCalledWith(
+      expect.objectContaining({
+        planningContext: {
+          storyPoints: 5,
+          sprintVelocity: 42,
+          estimationAccuracy: 0.9,
+          commitmentRatio: 0.9,
+          sprintId: 'sprint-1',
+        },
+      }),
+    );
+  });
+
+  it('proceeds without planning context when flag is disabled', async () => {
+    mockZenhubConfigService.resolvePlanningContextEnabled.mockResolvedValue(false);
+    mockPrisma.contribution.findUniqueOrThrow.mockResolvedValue(mockContribution);
+    mockModelRegistry.getActiveModel.mockResolvedValue(mockModel);
+    mockEvaluationProvider.evaluateCode.mockResolvedValue(mockEvaluationResult);
+    mockPrisma.evaluation.update.mockResolvedValue({});
+
+    await processor.process(createJob());
+
+    expect(mockSprintEnrichmentService.getContributionSprintContexts).not.toHaveBeenCalled();
+    expect(mockEvaluationProvider.evaluateCode).toHaveBeenCalledWith(
+      expect.not.objectContaining({
+        planningContext: expect.anything(),
+      }),
+    );
+  });
+
+  it('proceeds without planning context when no sprint context exists', async () => {
+    mockZenhubConfigService.resolvePlanningContextEnabled.mockResolvedValue(true);
+    mockSprintEnrichmentService.getContributionSprintContexts.mockResolvedValue([]);
+    mockPrisma.contribution.findUniqueOrThrow.mockResolvedValue(mockContribution);
+    mockModelRegistry.getActiveModel.mockResolvedValue(mockModel);
+    mockEvaluationProvider.evaluateCode.mockResolvedValue(mockEvaluationResult);
+    mockPrisma.evaluation.update.mockResolvedValue({});
+
+    await processor.process(createJob());
+
+    expect(mockEvaluationProvider.evaluateCode).toHaveBeenCalledWith(
+      expect.not.objectContaining({
+        planningContext: expect.anything(),
+      }),
+    );
+  });
+
+  it('stores planningContextIncluded: true in rawInputs when context provided', async () => {
+    mockZenhubConfigService.resolvePlanningContextEnabled.mockResolvedValue(true);
+    mockSprintEnrichmentService.getContributionSprintContexts.mockResolvedValue([
+      {
+        id: 'ctx-1',
+        contributionId: 'contrib-1',
+        sprintId: 'sprint-1',
+        storyPoints: 3,
+        zenhubIssueId: 'zh-1',
+        epicId: null,
+        pipelineStatus: 'Done',
+        createdAt: '2026-03-10',
+        updatedAt: '2026-03-15',
+      },
+    ]);
+    mockPrisma.sprintMetric.findFirst.mockResolvedValue({ velocity: 30 });
+    mockPrisma.contributorSprintEstimation.findFirst.mockResolvedValue(null);
+    mockPrisma.contribution.findUniqueOrThrow.mockResolvedValue(mockContribution);
+    mockModelRegistry.getActiveModel.mockResolvedValue(mockModel);
+    mockEvaluationProvider.evaluateCode.mockResolvedValue(mockEvaluationResult);
+    mockPrisma.evaluation.update.mockResolvedValue({});
+
+    await processor.process(createJob());
+
+    expect(mockPrisma.evaluation.update).toHaveBeenCalledWith({
+      where: { id: 'eval-1' },
+      data: expect.objectContaining({
+        rawInputs: expect.objectContaining({
+          planningContextIncluded: true,
+          planningContext: expect.objectContaining({
+            sprintId: 'sprint-1',
+            storyPoints: 3,
+          }),
+        }),
+      }),
+    });
+  });
+
+  it('stores planningContextIncluded: false in rawInputs when no context', async () => {
+    mockPrisma.contribution.findUniqueOrThrow.mockResolvedValue(mockContribution);
+    mockModelRegistry.getActiveModel.mockResolvedValue(mockModel);
+    mockEvaluationProvider.evaluateCode.mockResolvedValue(mockEvaluationResult);
+    mockPrisma.evaluation.update.mockResolvedValue({});
+
+    await processor.process(createJob());
+
+    expect(mockPrisma.evaluation.update).toHaveBeenCalledWith({
+      where: { id: 'eval-1' },
+      data: expect.objectContaining({
+        rawInputs: expect.objectContaining({
+          planningContextIncluded: false,
+        }),
+      }),
+    });
+  });
+
+  it('gracefully degrades when sprint enrichment throws', async () => {
+    mockZenhubConfigService.resolvePlanningContextEnabled.mockResolvedValue(true);
+    mockSprintEnrichmentService.getContributionSprintContexts.mockRejectedValue(
+      new Error('DB connection error'),
+    );
+    mockPrisma.contribution.findUniqueOrThrow.mockResolvedValue(mockContribution);
+    mockModelRegistry.getActiveModel.mockResolvedValue(mockModel);
+    mockEvaluationProvider.evaluateCode.mockResolvedValue(mockEvaluationResult);
+    mockPrisma.evaluation.update.mockResolvedValue({});
+
+    // Should NOT throw — graceful degradation
+    await processor.process(createJob());
+
+    expect(mockEvaluationProvider.evaluateCode).toHaveBeenCalledWith(
+      expect.not.objectContaining({
+        planningContext: expect.anything(),
+      }),
+    );
+    expect(mockPrisma.evaluation.update).toHaveBeenCalledWith({
+      where: { id: 'eval-1' },
+      data: expect.objectContaining({
+        rawInputs: expect.objectContaining({
+          planningContextIncluded: false,
+        }),
       }),
     });
   });

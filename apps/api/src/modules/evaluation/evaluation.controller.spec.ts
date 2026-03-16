@@ -3,6 +3,7 @@ import { Test } from '@nestjs/testing';
 import { EvaluationController } from './evaluation.controller.js';
 import { EvaluationService } from './evaluation.service.js';
 import { EvaluationReviewService } from './services/evaluation-review.service.js';
+import { CombinedEvaluationService } from './services/combined-evaluation.service.js';
 
 const mockEvaluationService = {
   getEvaluation: vi.fn(),
@@ -15,6 +16,11 @@ const mockEvaluationService = {
 const mockEvaluationReviewService = {
   flagEvaluation: vi.fn(),
   getReviewStatusForEvaluation: vi.fn(),
+};
+
+const mockCombinedEvaluationService = {
+  getCombinedEvaluation: vi.fn(),
+  computeCombinedScore: vi.fn(),
 };
 
 const user = {
@@ -43,6 +49,7 @@ describe('EvaluationController', () => {
       providers: [
         { provide: EvaluationService, useValue: mockEvaluationService },
         { provide: EvaluationReviewService, useValue: mockEvaluationReviewService },
+        { provide: CombinedEvaluationService, useValue: mockCombinedEvaluationService },
       ],
     }).compile();
 

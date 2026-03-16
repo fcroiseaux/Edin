@@ -308,6 +308,42 @@ export interface PublicEvaluationAggregateDto {
   };
 }
 
+// ─── Planning Reliability Score & Combined Evaluation (Story zh-6.2) ─────────
+
+export const DEFAULT_QUALITY_WEIGHT = 0.8;
+export const DEFAULT_PLANNING_WEIGHT = 0.2;
+export const CONFIDENCE_SPRINT_THRESHOLD = 3;
+
+export interface PlanningReliabilityScore {
+  score: number;
+  deliveryRatioScore: number;
+  estimationAccuracyScore: number;
+  consistencyScore: number;
+  sprintCount: number;
+  confidenceFactor: number;
+}
+
+export interface CombinedEvaluationResult {
+  qualityScore: number;
+  planningReliabilityScore: number;
+  combinedScore: number;
+  weights: { quality: number; planning: number };
+  effectiveWeights: { quality: number; planning: number };
+  sprintCount: number;
+  confidenceFactor: number;
+  planningReliabilityIncluded: boolean;
+}
+
+// ─── Planning Context Enrichment (Story zh-6.1) ─────────────────────────────
+
+export interface PlanningContextEnrichment {
+  storyPoints: number | null;
+  sprintVelocity: number | null;
+  estimationAccuracy: number | null;
+  commitmentRatio: number | null;
+  sprintId: string;
+}
+
 export interface ContributorEvaluationSummaryDto {
   contributorId: string;
   averageScore: number;

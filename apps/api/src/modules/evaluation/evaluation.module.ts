@@ -3,12 +3,15 @@ import { BullModule } from '@nestjs/bullmq';
 import { PrismaModule } from '../../prisma/prisma.module.js';
 import { CaslModule } from '../auth/casl/casl.module.js';
 import { RedisModule } from '../../common/redis/redis.module.js';
+import { SprintModule } from '../sprint/sprint.module.js';
+import { ZenhubModule } from '../zenhub/zenhub.module.js';
 import { EvaluationController } from './evaluation.controller.js';
 import { EvaluationAdminController } from './controllers/evaluation-admin.controller.js';
 import { EvaluationPublicController } from './controllers/evaluation-public.controller.js';
 import { EvaluationService } from './evaluation.service.js';
 import { EvaluationRubricService } from './services/evaluation-rubric.service.js';
 import { EvaluationReviewService } from './services/evaluation-review.service.js';
+import { CombinedEvaluationService } from './services/combined-evaluation.service.js';
 import { EvaluationDispatchProcessor } from './processors/evaluation-dispatch.processor.js';
 import { CodeEvaluationProcessor } from './processors/code-evaluation.processor.js';
 import { DocEvaluationProcessor } from './processors/doc-evaluation.processor.js';
@@ -21,6 +24,8 @@ import { EVALUATION_PROVIDER } from './providers/evaluation-provider.interface.j
     PrismaModule,
     CaslModule,
     RedisModule,
+    SprintModule,
+    ZenhubModule,
     BullModule.registerQueue({
       name: 'evaluation-dispatch',
       defaultJobOptions: {
@@ -54,6 +59,7 @@ import { EVALUATION_PROVIDER } from './providers/evaluation-provider.interface.j
     EvaluationService,
     EvaluationRubricService,
     EvaluationReviewService,
+    CombinedEvaluationService,
     EvaluationDispatchProcessor,
     CodeEvaluationProcessor,
     DocEvaluationProcessor,
@@ -63,6 +69,6 @@ import { EVALUATION_PROVIDER } from './providers/evaluation-provider.interface.j
       useClass: AnthropicEvaluationProvider,
     },
   ],
-  exports: [EvaluationService, EvaluationReviewService],
+  exports: [EvaluationService, EvaluationReviewService, CombinedEvaluationService],
 })
 export class EvaluationModule {}

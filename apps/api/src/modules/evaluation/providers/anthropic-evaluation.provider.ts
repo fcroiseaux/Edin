@@ -12,6 +12,7 @@ import type {
 } from './evaluation-provider.interface.js';
 
 const CODE_PROMPT_VERSION = 'code-eval-v1';
+const CODE_PROMPT_VERSION_V2 = 'code-eval-v2';
 const DOC_PROMPT_VERSION = 'doc-eval-v1';
 
 const SYSTEM_PROMPT = `You are a code quality evaluator for the Edin platform. Evaluate the following code contribution across 4 dimensions. Return a JSON object with scores (0-100) and brief explanations for each dimension.
@@ -93,6 +94,10 @@ export class AnthropicEvaluationProvider implements EvaluationProvider {
     return DOC_PROMPT_VERSION;
   }
 
+  getEffectiveCodePromptVersion(input: CodeEvaluationInput): string {
+    return input.planningContext ? CODE_PROMPT_VERSION_V2 : CODE_PROMPT_VERSION;
+  }
+
   async evaluateCode(input: CodeEvaluationInput): Promise<CodeEvaluationOutput> {
     const userPrompt = this.buildUserPrompt(input);
     const effectiveModelId = input.modelId ?? this.defaultModelId;
@@ -102,6 +107,7 @@ export class AnthropicEvaluationProvider implements EvaluationProvider {
       contributionId: input.contributionId,
       modelId: effectiveModelId,
       fileCount: input.files.length,
+      planningContextIncluded: !!input.planningContext,
     });
 
     const response = await this.client.messages.create({
@@ -168,6 +174,25 @@ export class AnthropicEvaluationProvider implements EvaluationProvider {
 
     if (input.files.length > MAX_EVALUATION_FILES) {
       parts.push(`\n... and ${input.files.length - MAX_EVALUATION_FILES} more files (not shown)`);
+    }
+
+    if (input.planningContext) {
+      const ctx = input.planningContext;
+      parts.push(
+        '\nPlanning Context (for informational context only — do not add new scoring dimensions):',
+      );
+      if (ctx.storyPoints !== null) {
+        parts.push(`Story Points: ${ctx.storyPoints}`);
+      }
+      if (ctx.sprintVelocity !== null) {
+        parts.push(`Sprint Velocity: ${ctx.sprintVelocity}`);
+      }
+      if (ctx.estimationAccuracy !== null) {
+        parts.push(`Estimation Accuracy: ${(ctx.estimationAccuracy * 100).toFixed(1)}%`);
+      }
+      if (ctx.commitmentRatio !== null) {
+        parts.push(`Commitment Ratio: ${(ctx.commitmentRatio * 100).toFixed(1)}%`);
+      }
     }
 
     return parts.join('\n');
