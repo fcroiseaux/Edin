@@ -5,14 +5,18 @@ export type NotificationType =
   | 'CONTRIBUTION_TO_DOMAIN'
   | 'TASK_ASSIGNED'
   | 'ARTICLE_FEEDBACK'
-  | 'ARTICLE_PUBLISHED';
+  | 'ARTICLE_PUBLISHED'
+  | 'SPRINT_DEADLINE_APPROACHING'
+  | 'SPRINT_VELOCITY_DROP'
+  | 'SPRINT_SCOPE_CHANGED';
 
 export type NotificationCategory =
   | 'evaluations'
   | 'feedback'
   | 'working-groups'
   | 'tasks'
-  | 'publications';
+  | 'publications'
+  | 'sprints';
 
 export interface NotificationDto {
   id: string;

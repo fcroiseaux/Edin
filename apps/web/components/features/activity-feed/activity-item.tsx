@@ -9,7 +9,18 @@ const EVENT_TYPE_LABELS: Record<string, string> = {
   ANNOUNCEMENT_CREATED: 'Announcement',
   MEMBER_JOINED: 'New Member',
   TASK_COMPLETED: 'Task Completed',
+  SPRINT_STARTED: 'Sprint Started',
+  SPRINT_COMPLETED: 'Sprint Completed',
+  SPRINT_VELOCITY_MILESTONE: 'Velocity Milestone',
 };
+
+const SPRINT_EVENT_TYPES = new Set([
+  'SPRINT_STARTED',
+  'SPRINT_COMPLETED',
+  'SPRINT_VELOCITY_MILESTONE',
+]);
+
+const SPRINT_ACCENT_COLOR = '#7C3AED';
 
 const CONTRIBUTION_TYPE_ICONS: Record<string, string> = {
   COMMIT: 'Commit',
@@ -58,8 +69,9 @@ interface ActivityItemProps {
 }
 
 export function ActivityItem({ activity, isNew }: ActivityItemProps) {
+  const isSprint = SPRINT_EVENT_TYPES.has(activity.eventType);
   const domainDetail = DOMAIN_DETAILS[activity.domain as keyof typeof DOMAIN_DETAILS];
-  const accentColor = domainDetail?.accentColor ?? '#666';
+  const accentColor = isSprint ? SPRINT_ACCENT_COLOR : (domainDetail?.accentColor ?? '#666');
   const eventLabel = EVENT_TYPE_LABELS[activity.eventType] ?? activity.eventType;
 
   return (

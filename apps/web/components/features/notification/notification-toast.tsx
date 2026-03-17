@@ -38,7 +38,11 @@ export function NotificationToast({ notification }: NotificationToastProps) {
         category: notification.category,
       });
     }
-    router.push(`/dashboard/${notification.category.replace('working-groups', 'working-groups')}`);
+    const route =
+      notification.category === 'sprints'
+        ? '/admin/sprints'
+        : `/dashboard/${notification.category}`;
+    router.push(route);
   }
 
   return (

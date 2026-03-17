@@ -1,0 +1,4 @@
+-- AlterEnum
+ALTER TYPE "core"."ActivityEventType" ADD VALUE 'SPRINT_STARTED';
+ALTER TYPE "core"."ActivityEventType" ADD VALUE 'SPRINT_COMPLETED';
+ALTER TYPE "core"."ActivityEventType" ADD VALUE 'SPRINT_VELOCITY_MILESTONE';

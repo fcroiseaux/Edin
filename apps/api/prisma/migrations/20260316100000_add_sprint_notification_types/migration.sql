@@ -1,0 +1,4 @@
+-- AlterEnum
+ALTER TYPE "core"."NotificationType" ADD VALUE 'SPRINT_DEADLINE_APPROACHING';
+ALTER TYPE "core"."NotificationType" ADD VALUE 'SPRINT_VELOCITY_DROP';
+ALTER TYPE "core"."NotificationType" ADD VALUE 'SPRINT_SCOPE_CHANGED';

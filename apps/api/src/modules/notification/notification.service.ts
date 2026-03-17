@@ -19,6 +19,8 @@ import type {
   EditorApplicationReviewedEvent,
   EditorRoleRevokedEvent,
   RoleChangeEvent,
+  SprintNotificationEvent,
+  ScopeChangeEvent,
 } from '@edin/shared';
 
 export interface NotificationJobData {
@@ -784,6 +786,173 @@ export class NotificationService {
       this.logger.error('Failed to process role change notification', {
         module: 'notification',
         contributorId: event.payload.contributorId,
+        correlationId: event.correlationId,
+        error: message,
+      });
+    }
+  }
+
+  // --- Sprint Notification Handlers ---
+
+  private sprintRecipientCache: { ids: string[]; cachedAt: number } | null = null;
+  private readonly SPRINT_RECIPIENT_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+  private async resolveSprintNotificationRecipients(): Promise<string[]> {
+    const now = Date.now();
+    if (
+      this.sprintRecipientCache &&
+      now - this.sprintRecipientCache.cachedAt < this.SPRINT_RECIPIENT_CACHE_TTL
+    ) {
+      return this.sprintRecipientCache.ids;
+    }
+
+    const recipients = await this.prisma.contributor.findMany({
+      where: {
+        role: { in: ['ADMIN', 'WORKING_GROUP_LEAD'] as never[] },
+        isActive: true,
+      },
+      select: { id: true },
+    });
+
+    const ids = recipients.map((r) => r.id);
+    this.sprintRecipientCache = { ids, cachedAt: now };
+    return ids;
+  }
+
+  @OnEvent('sprint.notification.deadline')
+  async handleSprintDeadlineApproaching(event: SprintNotificationEvent): Promise<void> {
+    try {
+      const recipientIds = await this.resolveSprintNotificationRecipients();
+      if (recipientIds.length === 0) return;
+
+      const hoursRemaining = event.payload.hoursRemaining ?? 0;
+      const jobs = recipientIds.map((contributorId) => ({
+        name: 'send-notification',
+        data: {
+          contributorId,
+          type: 'SPRINT_DEADLINE_APPROACHING' as PrismaNotificationType,
+          title: `Sprint deadline approaching: ${event.payload.sprintName}`,
+          description: `${hoursRemaining}h remaining — ${event.payload.deliveredPoints ?? 0}/${event.payload.committedPoints ?? 0} points delivered`,
+          entityId: event.payload.sprintId,
+          category: 'sprints',
+          correlationId: event.correlationId,
+        } satisfies NotificationJobData,
+        opts: { removeOnComplete: true, removeOnFail: false },
+      }));
+
+      await this.notificationQueue.addBulk(jobs);
+
+      this.logger.debug('Sprint deadline notifications enqueued', {
+        module: 'notification',
+        sprintId: event.payload.sprintId,
+        recipientCount: jobs.length,
+        correlationId: event.correlationId,
+      });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      this.logger.error('Failed to process sprint deadline notification', {
+        module: 'notification',
+        sprintId: event.payload.sprintId,
+        correlationId: event.correlationId,
+        error: message,
+      });
+    }
+  }
+
+  @OnEvent('sprint.notification.velocity_drop')
+  async handleSprintVelocityDrop(event: SprintNotificationEvent): Promise<void> {
+    try {
+      const recipientIds = await this.resolveSprintNotificationRecipients();
+      if (recipientIds.length === 0) return;
+
+      const percentage = event.payload.deliveryPercentage ?? 0;
+      const jobs = recipientIds.map((contributorId) => ({
+        name: 'send-notification',
+        data: {
+          contributorId,
+          type: 'SPRINT_VELOCITY_DROP' as PrismaNotificationType,
+          title: `Sprint velocity alert: ${event.payload.sprintName}`,
+          description: `Delivery at ${percentage}% of committed (${event.payload.deliveredPoints ?? 0}/${event.payload.committedPoints ?? 0} points)`,
+          entityId: event.payload.sprintId,
+          category: 'sprints',
+          correlationId: event.correlationId,
+        } satisfies NotificationJobData,
+        opts: { removeOnComplete: true, removeOnFail: false },
+      }));
+
+      await this.notificationQueue.addBulk(jobs);
+
+      this.logger.debug('Sprint velocity drop notifications enqueued', {
+        module: 'notification',
+        sprintId: event.payload.sprintId,
+        recipientCount: jobs.length,
+        correlationId: event.correlationId,
+      });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      this.logger.error('Failed to process sprint velocity drop notification', {
+        module: 'notification',
+        sprintId: event.payload.sprintId,
+        correlationId: event.correlationId,
+        error: message,
+      });
+    }
+  }
+
+  @OnEvent('sprint.scope.changed')
+  async handleSprintScopeChanged(event: ScopeChangeEvent): Promise<void> {
+    try {
+      const recipientIds = await this.resolveSprintNotificationRecipients();
+      if (recipientIds.length === 0) return;
+
+      // Look up sprint name from the sprint metric
+      const sprintMetric = await this.prisma.sprintMetric.findFirst({
+        where: { sprintId: event.payload.sprintId },
+        select: { sprintName: true },
+      });
+
+      if (!sprintMetric) {
+        this.logger.warn(
+          'Sprint metric not found for scope change notification, using sprintId as fallback',
+          {
+            module: 'notification',
+            sprintId: event.payload.sprintId,
+            correlationId: event.correlationId,
+          },
+        );
+      }
+      const sprintName = sprintMetric?.sprintName ?? event.payload.sprintId;
+      const changeLabel = event.payload.changeType === 'ADDED' ? 'added to' : 'removed from';
+      const pointsLabel =
+        event.payload.storyPoints != null ? `${event.payload.storyPoints} story points` : 'Issue';
+
+      const jobs = recipientIds.map((contributorId) => ({
+        name: 'send-notification',
+        data: {
+          contributorId,
+          type: 'SPRINT_SCOPE_CHANGED' as PrismaNotificationType,
+          title: `Sprint scope changed: ${sprintName}`,
+          description: `${pointsLabel} ${changeLabel} sprint`,
+          entityId: event.payload.sprintId,
+          category: 'sprints',
+          correlationId: event.correlationId,
+        } satisfies NotificationJobData,
+        opts: { removeOnComplete: true, removeOnFail: false },
+      }));
+
+      await this.notificationQueue.addBulk(jobs);
+
+      this.logger.debug('Sprint scope change notifications enqueued', {
+        module: 'notification',
+        sprintId: event.payload.sprintId,
+        recipientCount: jobs.length,
+        correlationId: event.correlationId,
+      });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      this.logger.error('Failed to process sprint scope change notification', {
+        module: 'notification',
+        sprintId: event.payload.sprintId,
         correlationId: event.correlationId,
         error: message,
       });

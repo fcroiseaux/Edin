@@ -8,7 +8,10 @@ export type ActivityEventType =
   | 'TASK_COMPLETED'
   | 'FEEDBACK_ASSIGNED'
   | 'FEEDBACK_SUBMITTED'
-  | 'FEEDBACK_REASSIGNED';
+  | 'FEEDBACK_REASSIGNED'
+  | 'SPRINT_STARTED'
+  | 'SPRINT_COMPLETED'
+  | 'SPRINT_VELOCITY_MILESTONE';
 
 export interface ActivityEvent {
   id: string;

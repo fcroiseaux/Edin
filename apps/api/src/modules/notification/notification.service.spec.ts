@@ -24,9 +24,13 @@ const mockPrisma = {
   },
   contributor: {
     findUnique: vi.fn(),
+    findMany: vi.fn(),
   },
   contribution: {
     findUnique: vi.fn(),
+  },
+  sprintMetric: {
+    findFirst: vi.fn(),
   },
 };
 
@@ -439,6 +443,130 @@ describe('NotificationService', () => {
       expect(callArgs.category).toBe('feedback');
       expect(callArgs.title).toBe("You've been asked to review a contribution");
       expect(callArgs.description).toBe('Review pull request: Add payment flow');
+    });
+  });
+
+  describe('sprint notification handlers', () => {
+    beforeEach(() => {
+      mockPrisma.contributor.findMany.mockResolvedValue([{ id: 'admin-1' }, { id: 'lead-1' }]);
+      mockQueue.addBulk.mockResolvedValue([]);
+    });
+
+    it('handleSprintDeadlineApproaching sends notifications to admins and WG leads', async () => {
+      await service.handleSprintDeadlineApproaching({
+        eventType: 'sprint.notification.deadline',
+        timestamp: new Date().toISOString(),
+        correlationId: 'corr-deadline',
+        payload: {
+          sprintId: 'sprint-1',
+          sprintName: 'Sprint 43',
+          hoursRemaining: 24,
+          committedPoints: 20,
+          deliveredPoints: 15,
+        },
+      });
+
+      expect(mockQueue.addBulk).toHaveBeenCalledTimes(1);
+      const jobs = mockQueue.addBulk.mock.calls[0][0] as Array<{
+        data: { contributorId: string; type: string; category: string; title: string };
+      }>;
+      expect(jobs).toHaveLength(2);
+      expect(jobs[0].data.type).toBe('SPRINT_DEADLINE_APPROACHING');
+      expect(jobs[0].data.category).toBe('sprints');
+      expect(jobs[0].data.title).toBe('Sprint deadline approaching: Sprint 43');
+      expect(jobs[1].data.contributorId).toBe('lead-1');
+    });
+
+    it('handleSprintVelocityDrop sends notifications to admins and WG leads', async () => {
+      await service.handleSprintVelocityDrop({
+        eventType: 'sprint.notification.velocity_drop',
+        timestamp: new Date().toISOString(),
+        correlationId: 'corr-velocity',
+        payload: {
+          sprintId: 'sprint-1',
+          sprintName: 'Sprint 43',
+          committedPoints: 20,
+          deliveredPoints: 5,
+          deliveryPercentage: 25,
+        },
+      });
+
+      expect(mockQueue.addBulk).toHaveBeenCalledTimes(1);
+      const jobs = mockQueue.addBulk.mock.calls[0][0] as Array<{
+        data: { type: string; category: string; title: string; description: string };
+      }>;
+      expect(jobs).toHaveLength(2);
+      expect(jobs[0].data.type).toBe('SPRINT_VELOCITY_DROP');
+      expect(jobs[0].data.category).toBe('sprints');
+      expect(jobs[0].data.title).toBe('Sprint velocity alert: Sprint 43');
+      expect(jobs[0].data.description).toContain('25%');
+    });
+
+    it('handleSprintScopeChanged sends notifications to admins and WG leads', async () => {
+      mockPrisma.sprintMetric.findFirst.mockResolvedValue({
+        sprintName: 'Sprint 43',
+      });
+
+      await service.handleSprintScopeChanged({
+        eventType: 'sprint.scope.changed',
+        timestamp: new Date().toISOString(),
+        correlationId: 'corr-scope',
+        payload: {
+          sprintId: 'sprint-1',
+          issueId: 'issue-1',
+          changeType: 'ADDED',
+          storyPoints: 5,
+        },
+      });
+
+      expect(mockQueue.addBulk).toHaveBeenCalledTimes(1);
+      const jobs = mockQueue.addBulk.mock.calls[0][0] as Array<{
+        data: { type: string; category: string; title: string; description: string };
+      }>;
+      expect(jobs).toHaveLength(2);
+      expect(jobs[0].data.type).toBe('SPRINT_SCOPE_CHANGED');
+      expect(jobs[0].data.category).toBe('sprints');
+      expect(jobs[0].data.title).toBe('Sprint scope changed: Sprint 43');
+      expect(jobs[0].data.description).toContain('added to sprint');
+    });
+
+    it('uses addBulk for batch enqueueing sprint notifications', async () => {
+      await service.handleSprintDeadlineApproaching({
+        eventType: 'sprint.notification.deadline',
+        timestamp: new Date().toISOString(),
+        correlationId: 'corr-bulk',
+        payload: {
+          sprintId: 'sprint-1',
+          sprintName: 'Sprint 43',
+          hoursRemaining: 24,
+          committedPoints: 20,
+          deliveredPoints: 15,
+        },
+      });
+
+      expect(mockQueue.addBulk).toHaveBeenCalledTimes(1);
+      expect(mockQueue.add).not.toHaveBeenCalled();
+    });
+
+    it('sends no notifications if no eligible recipients', async () => {
+      mockPrisma.contributor.findMany.mockResolvedValue([]);
+      // Reset the cache to pick up the empty result
+      (service as unknown as { sprintRecipientCache: null }).sprintRecipientCache = null;
+
+      await service.handleSprintDeadlineApproaching({
+        eventType: 'sprint.notification.deadline',
+        timestamp: new Date().toISOString(),
+        correlationId: 'corr-none',
+        payload: {
+          sprintId: 'sprint-1',
+          sprintName: 'Sprint 43',
+          hoursRemaining: 24,
+          committedPoints: 20,
+          deliveredPoints: 15,
+        },
+      });
+
+      expect(mockQueue.addBulk).not.toHaveBeenCalled();
     });
   });
 });

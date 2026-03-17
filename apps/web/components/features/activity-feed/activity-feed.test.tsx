@@ -457,3 +457,72 @@ describe('ActivityFeed', () => {
     expect(screen.getByRole('list', { name: 'Activity feed' })).toBeInTheDocument();
   });
 });
+
+describe('ActivityItem - Sprint Events', () => {
+  const sprintStartedActivity: ActivityEvent = {
+    id: 'sprint-event-1',
+    eventType: 'SPRINT_STARTED',
+    title: 'Sprint started: Sprint 42',
+    description: '20 points committed',
+    contributorId: 'admin-1',
+    contributorName: 'Admin',
+    contributorAvatarUrl: null,
+    domain: 'Technology',
+    contributionType: null,
+    entityId: 'sprint-1',
+    metadata: { sprintId: 'sprint-1', sprintName: 'Sprint 42', committedPoints: 20 },
+    createdAt: new Date(Date.now() - 60000).toISOString(),
+  };
+
+  const sprintCompletedActivity: ActivityEvent = {
+    ...sprintStartedActivity,
+    id: 'sprint-event-2',
+    eventType: 'SPRINT_COMPLETED',
+    title: 'Sprint completed: Sprint 41',
+    description: 'Velocity: 18 points (18/20 delivered)',
+    metadata: { velocity: 18, committedPoints: 20, deliveredPoints: 18 },
+  };
+
+  const velocityMilestoneActivity: ActivityEvent = {
+    ...sprintStartedActivity,
+    id: 'sprint-event-3',
+    eventType: 'SPRINT_VELOCITY_MILESTONE',
+    title: 'Velocity milestone: 75% of sprint goal reached',
+    description: 'Sprint 42: 15/20 points delivered',
+    metadata: { milestonePercentage: 75, velocity: 15, committedPoints: 20, deliveredPoints: 15 },
+  };
+
+  it('renders SPRINT_STARTED event with correct label', () => {
+    render(<ActivityItem activity={sprintStartedActivity} />);
+
+    expect(screen.getByText('Sprint started: Sprint 42')).toBeInTheDocument();
+    expect(screen.getByText('Sprint Started')).toBeInTheDocument();
+    expect(screen.getByText('20 points committed')).toBeInTheDocument();
+  });
+
+  it('renders SPRINT_COMPLETED event with correct label', () => {
+    render(<ActivityItem activity={sprintCompletedActivity} />);
+
+    expect(screen.getByText('Sprint completed: Sprint 41')).toBeInTheDocument();
+    expect(screen.getByText('Sprint Completed')).toBeInTheDocument();
+  });
+
+  it('renders SPRINT_VELOCITY_MILESTONE event with correct label', () => {
+    render(<ActivityItem activity={velocityMilestoneActivity} />);
+
+    expect(screen.getByText('Velocity milestone: 75% of sprint goal reached')).toBeInTheDocument();
+    expect(screen.getByText('Velocity Milestone')).toBeInTheDocument();
+  });
+
+  it('renders sprint events with purple accent color', () => {
+    const { container } = render(<ActivityItem activity={sprintStartedActivity} />);
+
+    const dots = container.querySelectorAll('[style*="background-color"]');
+    const hasPurple = Array.from(dots).some(
+      (dot) =>
+        (dot as HTMLElement).style.backgroundColor === 'rgb(124, 58, 237)' ||
+        (dot as HTMLElement).style.cssText.includes('#7C3AED'),
+    );
+    expect(hasPurple).toBe(true);
+  });
+});

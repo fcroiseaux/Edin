@@ -158,6 +158,23 @@ describe('NotificationToast', () => {
     const button = screen.getByRole('button');
     expect(button).not.toHaveClass('animate-highlight-fade');
   });
+
+  it('routes to /admin/sprints for sprints category notifications', () => {
+    const sprintNotification: NotificationDto = {
+      ...mockNotification,
+      id: 'n-sprint',
+      type: 'SPRINT_DEADLINE_APPROACHING',
+      title: 'Sprint deadline approaching: Sprint 43',
+      description: '24h remaining — 15/20 points delivered',
+      category: 'sprints',
+    };
+
+    render(<NotificationToast notification={sprintNotification} />);
+
+    fireEvent.click(screen.getByRole('button'));
+
+    expect(mockPush).toHaveBeenCalledWith('/admin/sprints');
+  });
 });
 
 describe('NotificationInlineList', () => {

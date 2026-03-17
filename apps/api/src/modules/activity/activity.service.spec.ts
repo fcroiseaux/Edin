@@ -19,6 +19,7 @@ const mockPrisma = {
   },
   contributor: {
     findUnique: vi.fn(),
+    findFirst: vi.fn(),
   },
 };
 
@@ -555,6 +556,187 @@ describe('ActivityService', () => {
       });
 
       expect(mockPrisma.activityEvent.create).not.toHaveBeenCalled();
+    });
+
+    it('handles sprint.lifecycle.started event', async () => {
+      mockPrisma.contributor.findFirst.mockResolvedValue({ id: 'admin-1' });
+      mockPrisma.activityEvent.create.mockResolvedValue({
+        id: 'event-sprint-1',
+        eventType: 'SPRINT_STARTED',
+        title: 'Sprint started: Sprint 42',
+        description: '20 points committed',
+        contributorId: 'admin-1',
+        domain: 'Technology',
+        contributionType: null,
+        entityId: 'sprint-1',
+        metadata: { sprintId: 'sprint-1', sprintName: 'Sprint 42', committedPoints: 20 },
+        createdAt: new Date(),
+        contributor: { id: 'admin-1', name: 'Admin', avatarUrl: null },
+      });
+
+      await service.handleSprintStarted({
+        eventType: 'sprint.lifecycle.started',
+        timestamp: new Date().toISOString(),
+        correlationId: 'corr-sprint-1',
+        payload: {
+          sprintId: 'sprint-1',
+          sprintName: 'Sprint 42',
+          committedPoints: 20,
+        },
+      });
+
+      expect(mockPrisma.activityEvent.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            eventType: 'SPRINT_STARTED',
+            title: 'Sprint started: Sprint 42',
+          }),
+        }),
+      );
+    });
+
+    it('handles sprint.lifecycle.completed event with velocity metadata', async () => {
+      mockPrisma.contributor.findFirst.mockResolvedValue({ id: 'admin-1' });
+      mockPrisma.activityEvent.create.mockResolvedValue({
+        id: 'event-sprint-2',
+        eventType: 'SPRINT_COMPLETED',
+        title: 'Sprint completed: Sprint 41',
+        description: 'Velocity: 18 points (18/20 delivered)',
+        contributorId: 'admin-1',
+        domain: 'Technology',
+        contributionType: null,
+        entityId: 'sprint-1',
+        metadata: {
+          sprintId: 'sprint-1',
+          sprintName: 'Sprint 41',
+          velocity: 18,
+          committedPoints: 20,
+          deliveredPoints: 18,
+        },
+        createdAt: new Date(),
+        contributor: { id: 'admin-1', name: 'Admin', avatarUrl: null },
+      });
+
+      await service.handleSprintCompleted({
+        eventType: 'sprint.lifecycle.completed',
+        timestamp: new Date().toISOString(),
+        correlationId: 'corr-sprint-2',
+        payload: {
+          sprintId: 'sprint-1',
+          sprintName: 'Sprint 41',
+          velocity: 18,
+          committedPoints: 20,
+          deliveredPoints: 18,
+        },
+      });
+
+      expect(mockPrisma.activityEvent.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            eventType: 'SPRINT_COMPLETED',
+            metadata: expect.objectContaining({
+              velocity: 18,
+              deliveredPoints: 18,
+              committedPoints: 20,
+            }),
+          }),
+        }),
+      );
+    });
+
+    it('handles sprint.velocity.milestone event', async () => {
+      mockPrisma.contributor.findFirst.mockResolvedValue({ id: 'admin-1' });
+      mockPrisma.activityEvent.create.mockResolvedValue({
+        id: 'event-sprint-3',
+        eventType: 'SPRINT_VELOCITY_MILESTONE',
+        title: 'Velocity milestone: 75% of sprint goal reached',
+        description: 'Sprint 42: 15/20 points delivered',
+        contributorId: 'admin-1',
+        domain: 'Technology',
+        contributionType: null,
+        entityId: 'sprint-1',
+        metadata: {
+          sprintId: 'sprint-1',
+          sprintName: 'Sprint 42',
+          milestonePercentage: 75,
+          velocity: 15,
+          committedPoints: 20,
+          deliveredPoints: 15,
+        },
+        createdAt: new Date(),
+        contributor: { id: 'admin-1', name: 'Admin', avatarUrl: null },
+      });
+
+      await service.handleVelocityMilestone({
+        eventType: 'sprint.velocity.milestone',
+        timestamp: new Date().toISOString(),
+        correlationId: 'corr-sprint-3',
+        payload: {
+          sprintId: 'sprint-1',
+          sprintName: 'Sprint 42',
+          milestonePercentage: 75,
+          velocity: 15,
+          committedPoints: 20,
+          deliveredPoints: 15,
+        },
+      });
+
+      expect(mockPrisma.activityEvent.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            eventType: 'SPRINT_VELOCITY_MILESTONE',
+            title: 'Velocity milestone: 75% of sprint goal reached',
+          }),
+        }),
+      );
+    });
+
+    it('skips sprint event creation when no admin contributor exists', async () => {
+      mockPrisma.contributor.findFirst.mockResolvedValue(null);
+
+      await service.handleSprintStarted({
+        eventType: 'sprint.lifecycle.started',
+        timestamp: new Date().toISOString(),
+        correlationId: 'corr-no-admin',
+        payload: {
+          sprintId: 'sprint-1',
+          sprintName: 'Sprint 42',
+        },
+      });
+
+      expect(mockPrisma.activityEvent.create).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('getFeed with excludeEventTypes', () => {
+    it('excludes sprint events when excludeEventTypes provided', async () => {
+      mockPrisma.activityEvent.findMany.mockResolvedValue([]);
+      mockPrisma.activityEvent.count.mockResolvedValue(0);
+
+      await service.getFeed({
+        limit: 20,
+        excludeEventTypes: ['SPRINT_STARTED', 'SPRINT_COMPLETED', 'SPRINT_VELOCITY_MILESTONE'],
+      });
+
+      expect(mockPrisma.activityEvent.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            eventType: {
+              notIn: ['SPRINT_STARTED', 'SPRINT_COMPLETED', 'SPRINT_VELOCITY_MILESTONE'],
+            },
+          }),
+        }),
+      );
+    });
+
+    it('does not filter when excludeEventTypes is empty', async () => {
+      mockPrisma.activityEvent.findMany.mockResolvedValue([]);
+      mockPrisma.activityEvent.count.mockResolvedValue(0);
+
+      await service.getFeed({ limit: 20, excludeEventTypes: [] });
+
+      const callArgs = mockPrisma.activityEvent.findMany.mock.calls[0][0];
+      expect(callArgs.where.eventType).toBeUndefined();
     });
   });
 });

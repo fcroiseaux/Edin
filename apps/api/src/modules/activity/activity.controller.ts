@@ -1,6 +1,7 @@
-import { Controller, Get, Query, Sse, UseGuards, Logger, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Query, Req, Sse, UseGuards, Logger, HttpStatus } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import type { MessageEvent } from '@nestjs/common';
+import type { Request } from 'express';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard.js';
 import { AbilityGuard } from '../../common/guards/ability.guard.js';
 import { CheckAbility } from '../../common/decorators/check-ability.decorator.js';
@@ -8,10 +9,11 @@ import { Action } from '../auth/casl/action.enum.js';
 import { createSuccessResponse } from '../../common/types/api-response.type.js';
 import { DomainException } from '../../common/exceptions/domain.exception.js';
 import { ERROR_CODES } from '@edin/shared';
-import { ActivityService } from './activity.service.js';
+import { ActivityService, SPRINT_EVENT_TYPES } from './activity.service.js';
 import { ActivitySseService } from './activity-sse.service.js';
 import { activityFeedQuerySchema } from './dto/activity-feed-query.dto.js';
 import { randomUUID } from 'crypto';
+import type { AppAbility } from '../auth/casl/app-ability.type.js';
 
 @Controller({ path: 'activity', version: '1' })
 export class ActivityController {
@@ -25,7 +27,7 @@ export class ActivityController {
   @Get()
   @UseGuards(JwtAuthGuard, AbilityGuard)
   @CheckAbility((ability) => ability.can(Action.Read, 'Activity'))
-  async getFeed(@Query() rawQuery: Record<string, unknown>) {
+  async getFeed(@Query() rawQuery: Record<string, unknown>, @Req() req: Request) {
     const correlationId = randomUUID();
     const parsed = activityFeedQuerySchema.safeParse(rawQuery);
 
@@ -41,7 +43,14 @@ export class ActivityController {
       );
     }
 
-    const result = await this.activityService.getFeed(parsed.data);
+    const ability = (req as Request & { ability?: AppAbility }).ability;
+    const canReadSprint = ability?.can(Action.Read, 'SprintDashboard') ?? false;
+    const excludeEventTypes = canReadSprint ? [] : [...SPRINT_EVENT_TYPES];
+
+    const result = await this.activityService.getFeed({
+      ...parsed.data,
+      excludeEventTypes,
+    });
 
     return createSuccessResponse(result.items, correlationId, result.pagination);
   }
@@ -49,9 +58,13 @@ export class ActivityController {
   @Sse('stream')
   @UseGuards(JwtAuthGuard, AbilityGuard)
   @CheckAbility((ability) => ability.can(Action.Read, 'Activity'))
-  stream(): Observable<MessageEvent> {
+  stream(@Req() req: Request): Observable<MessageEvent> {
+    const ability = (req as Request & { ability?: AppAbility }).ability;
+    const canReadSprint = ability?.can(Action.Read, 'SprintDashboard') ?? false;
+    const excludeEventTypes = canReadSprint ? undefined : [...SPRINT_EVENT_TYPES];
+
     this.logger.log('Activity SSE stream established', { module: 'activity' });
-    return this.activitySseService.createStream();
+    return this.activitySseService.createStream(excludeEventTypes);
   }
 
   @Get('public')
@@ -71,7 +84,10 @@ export class ActivityController {
       );
     }
 
-    const result = await this.activityService.getPublicFeed(parsed.data);
+    const result = await this.activityService.getPublicFeed({
+      ...parsed.data,
+      excludeEventTypes: [...SPRINT_EVENT_TYPES],
+    });
 
     return createSuccessResponse(result.items, correlationId, result.pagination);
   }

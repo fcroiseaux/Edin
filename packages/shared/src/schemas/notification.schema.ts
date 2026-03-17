@@ -8,6 +8,9 @@ const notificationTypeEnum = z.enum([
   'TASK_ASSIGNED',
   'ARTICLE_FEEDBACK',
   'ARTICLE_PUBLISHED',
+  'SPRINT_DEADLINE_APPROACHING',
+  'SPRINT_VELOCITY_DROP',
+  'SPRINT_SCOPE_CHANGED',
 ]);
 
 const notificationCategoryEnum = z.enum([
@@ -16,6 +19,7 @@ const notificationCategoryEnum = z.enum([
   'working-groups',
   'tasks',
   'publications',
+  'sprints',
 ]);
 
 export const notificationSchema = z.object({

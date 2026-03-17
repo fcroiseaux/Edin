@@ -8,6 +8,7 @@ import type {
   FeedbackSubmittedEvent,
   FeedbackReassignedEvent,
   EvaluationCompletedEvent,
+  SprintActivityPayload,
 } from '@edin/shared';
 import type {
   ContributionType as PrismaContributionType,
@@ -64,10 +65,17 @@ interface TaskStatusChangedPayload {
   };
 }
 
+export const SPRINT_EVENT_TYPES = [
+  'SPRINT_STARTED',
+  'SPRINT_COMPLETED',
+  'SPRINT_VELOCITY_MILESTONE',
+] as const;
+
 interface ActivityFeedQuery {
   cursor?: string;
   limit: number;
   domain?: string;
+  excludeEventTypes?: string[];
 }
 
 @Injectable()
@@ -80,11 +88,14 @@ export class ActivityService {
   ) {}
 
   async getFeed(query: ActivityFeedQuery) {
-    const { cursor, limit = 20, domain } = query;
+    const { cursor, limit = 20, domain, excludeEventTypes } = query;
 
     const where: Record<string, unknown> = {};
     if (domain) {
       where.domain = domain;
+    }
+    if (excludeEventTypes && excludeEventTypes.length > 0) {
+      where.eventType = { notIn: excludeEventTypes };
     }
     if (cursor) {
       const separatorIdx = cursor.lastIndexOf('|');
@@ -116,7 +127,10 @@ export class ActivityService {
         },
       }),
       this.prisma.activityEvent.count({
-        where: domain ? { domain: domain as ContributorDomain } : undefined,
+        where: {
+          ...(domain ? { domain: domain as ContributorDomain } : {}),
+          ...(excludeEventTypes?.length ? { eventType: { notIn: excludeEventTypes } } : {}),
+        },
       }),
     ]);
 
@@ -151,8 +165,11 @@ export class ActivityService {
     };
   }
 
-  async getPublicFeed(query: ActivityFeedQuery) {
-    const result = await this.getFeed(query);
+  async getPublicFeed(query: Omit<ActivityFeedQuery, 'excludeEventTypes'>) {
+    const result = await this.getFeed({
+      ...query,
+      excludeEventTypes: [...SPRINT_EVENT_TYPES],
+    });
 
     const publicItems = result.items.map((item) => ({
       id: item.id,
@@ -467,5 +484,136 @@ export class ActivityService {
         taskTitle: event.payload.title,
       },
     });
+  }
+
+  @OnEvent('sprint.lifecycle.started')
+  async handleSprintStarted(event: SprintActivityPayload): Promise<void> {
+    try {
+      const adminContributorId = await this.resolveSystemContributorId();
+      if (!adminContributorId) return;
+
+      await this.createActivityEvent({
+        eventType: 'SPRINT_STARTED',
+        title: `Sprint started: ${event.payload.sprintName}`,
+        description: event.payload.committedPoints
+          ? `${event.payload.committedPoints} points committed`
+          : undefined,
+        contributorId: adminContributorId,
+        domain: 'Technology' as ContributorDomain,
+        entityId: event.payload.sprintId,
+        metadata: {
+          sprintId: event.payload.sprintId,
+          sprintName: event.payload.sprintName,
+          committedPoints: event.payload.committedPoints,
+        },
+      });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      this.logger.error('Failed to create sprint started activity event', {
+        module: 'activity',
+        sprintId: event.payload.sprintId,
+        correlationId: event.correlationId,
+        error: message,
+      });
+    }
+  }
+
+  @OnEvent('sprint.lifecycle.completed')
+  async handleSprintCompleted(event: SprintActivityPayload): Promise<void> {
+    try {
+      const adminContributorId = await this.resolveSystemContributorId();
+      if (!adminContributorId) return;
+
+      await this.createActivityEvent({
+        eventType: 'SPRINT_COMPLETED',
+        title: `Sprint completed: ${event.payload.sprintName}`,
+        description:
+          event.payload.velocity != null
+            ? `Velocity: ${event.payload.velocity} points (${event.payload.deliveredPoints ?? 0}/${event.payload.committedPoints ?? 0} delivered)`
+            : undefined,
+        contributorId: adminContributorId,
+        domain: 'Technology' as ContributorDomain,
+        entityId: event.payload.sprintId,
+        metadata: {
+          sprintId: event.payload.sprintId,
+          sprintName: event.payload.sprintName,
+          velocity: event.payload.velocity,
+          committedPoints: event.payload.committedPoints,
+          deliveredPoints: event.payload.deliveredPoints,
+        },
+      });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      this.logger.error('Failed to create sprint completed activity event', {
+        module: 'activity',
+        sprintId: event.payload.sprintId,
+        correlationId: event.correlationId,
+        error: message,
+      });
+    }
+  }
+
+  @OnEvent('sprint.velocity.milestone')
+  async handleVelocityMilestone(event: SprintActivityPayload): Promise<void> {
+    try {
+      const adminContributorId = await this.resolveSystemContributorId();
+      if (!adminContributorId) return;
+
+      const milestone = event.payload.milestonePercentage ?? 0;
+
+      await this.createActivityEvent({
+        eventType: 'SPRINT_VELOCITY_MILESTONE',
+        title: `Velocity milestone: ${milestone}% of sprint goal reached`,
+        description: `${event.payload.sprintName}: ${event.payload.deliveredPoints ?? 0}/${event.payload.committedPoints ?? 0} points delivered`,
+        contributorId: adminContributorId,
+        domain: 'Technology' as ContributorDomain,
+        entityId: event.payload.sprintId,
+        metadata: {
+          sprintId: event.payload.sprintId,
+          sprintName: event.payload.sprintName,
+          milestonePercentage: milestone,
+          velocity: event.payload.velocity,
+          committedPoints: event.payload.committedPoints,
+          deliveredPoints: event.payload.deliveredPoints,
+        },
+      });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      this.logger.error('Failed to create velocity milestone activity event', {
+        module: 'activity',
+        sprintId: event.payload.sprintId,
+        correlationId: event.correlationId,
+        error: message,
+      });
+    }
+  }
+
+  private cachedAdminId: string | null | undefined = undefined;
+  private cachedAdminIdExpiry = 0;
+
+  private async resolveSystemContributorId(): Promise<string | null> {
+    const now = Date.now();
+    if (this.cachedAdminId !== undefined && now < this.cachedAdminIdExpiry) {
+      return this.cachedAdminId;
+    }
+
+    const admin = await this.prisma.contributor.findFirst({
+      where: { role: 'ADMIN' as never },
+      select: { id: true },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    if (!admin) {
+      this.logger.warn('No admin contributor found for sprint activity events', {
+        module: 'activity',
+      });
+      this.cachedAdminId = null;
+      this.cachedAdminIdExpiry = now + 60_000; // cache null for 1 min
+      return null;
+    }
+
+    this.cachedAdminId = admin.id;
+    this.cachedAdminIdExpiry = now + 300_000; // cache for 5 min
+    return admin.id;
   }
 }

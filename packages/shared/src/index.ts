@@ -676,6 +676,8 @@ export type {
   PlanningReliabilityCalculatedEvent,
   CrossDomainCollaborationDetectedEvent,
   PersonalSprintMetrics,
+  SprintActivityPayload,
+  SprintNotificationEvent,
 } from './types/sprint.types.js';
 
 export {

@@ -25,10 +25,11 @@ export class ActivitySseService implements OnModuleDestroy {
     this.logger.log('All activity SSE subscriptions cleaned up');
   }
 
-  createStream(): Observable<MessageEvent> {
+  createStream(excludeEventTypes?: string[]): Observable<MessageEvent> {
     const subject = new Subject<MessageEvent>();
     const subscriber = this.redisService.createSubscriber();
     const subscriptionKey = `activity-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const excludeSet = excludeEventTypes?.length ? new Set(excludeEventTypes) : null;
 
     void subscriber.subscribe(ACTIVITY_FEED_CHANNEL).then(() => {
       this.logger.debug('SSE client subscribed to activity feed channel', {
@@ -38,7 +39,10 @@ export class ActivitySseService implements OnModuleDestroy {
 
     subscriber.on('message', (_ch: string, message: string) => {
       try {
-        const data: unknown = JSON.parse(message);
+        const data = JSON.parse(message) as { activity?: { eventType?: string } };
+        if (excludeSet && data.activity?.eventType && excludeSet.has(data.activity.eventType)) {
+          return;
+        }
         subject.next({ data: data as Record<string, unknown> });
       } catch (error) {
         this.logger.warn('Failed to parse activity feed Redis message', {

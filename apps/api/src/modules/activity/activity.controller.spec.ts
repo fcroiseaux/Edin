@@ -40,6 +40,11 @@ describe('ActivityController', () => {
   });
 
   describe('GET /activity', () => {
+    const makeReq = (canReadSprint: boolean) =>
+      ({
+        ability: { can: vi.fn().mockReturnValue(canReadSprint) },
+      }) as never;
+
     it('returns paginated activity feed with standard envelope', async () => {
       const feedResult = {
         items: [
@@ -67,7 +72,7 @@ describe('ActivityController', () => {
 
       mockActivityService.getFeed.mockResolvedValue(feedResult);
 
-      const result = await controller.getFeed({ limit: '20' });
+      const result = await controller.getFeed({ limit: '20' }, makeReq(true));
 
       expect(result).toHaveProperty('data');
       expect(result).toHaveProperty('meta');
@@ -84,7 +89,7 @@ describe('ActivityController', () => {
         pagination: { cursor: null, hasMore: false, total: 0 },
       });
 
-      await controller.getFeed({ limit: '10', domain: 'Finance' });
+      await controller.getFeed({ limit: '10', domain: 'Finance' }, makeReq(true));
 
       expect(mockActivityService.getFeed).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -95,19 +100,78 @@ describe('ActivityController', () => {
     });
 
     it('rejects invalid query parameters with 400', async () => {
-      await expect(controller.getFeed({ limit: 'not-a-number' })).rejects.toThrow();
+      await expect(controller.getFeed({ limit: 'not-a-number' }, makeReq(true))).rejects.toThrow();
+    });
+
+    it('excludes sprint events for users without SprintDashboard permission', async () => {
+      mockActivityService.getFeed.mockResolvedValue({
+        items: [],
+        pagination: { cursor: null, hasMore: false, total: 0 },
+      });
+
+      await controller.getFeed({ limit: '20' }, makeReq(false));
+
+      expect(mockActivityService.getFeed).toHaveBeenCalledWith(
+        expect.objectContaining({
+          excludeEventTypes: expect.arrayContaining([
+            'SPRINT_STARTED',
+            'SPRINT_COMPLETED',
+            'SPRINT_VELOCITY_MILESTONE',
+          ]),
+        }),
+      );
+    });
+
+    it('includes sprint events for users with SprintDashboard permission', async () => {
+      mockActivityService.getFeed.mockResolvedValue({
+        items: [],
+        pagination: { cursor: null, hasMore: false, total: 0 },
+      });
+
+      await controller.getFeed({ limit: '20' }, makeReq(true));
+
+      expect(mockActivityService.getFeed).toHaveBeenCalledWith(
+        expect.objectContaining({
+          excludeEventTypes: [],
+        }),
+      );
     });
   });
 
   describe('SSE stream', () => {
+    const makeReq = (canReadSprint: boolean) =>
+      ({
+        ability: { can: vi.fn().mockReturnValue(canReadSprint) },
+      }) as never;
+
     it('returns Observable from SSE service', () => {
       const mockObservable = new Observable();
       mockActivitySseService.createStream.mockReturnValue(mockObservable);
 
-      const result = controller.stream();
+      const result = controller.stream(makeReq(true));
 
       expect(result).toBeInstanceOf(Observable);
       expect(mockActivitySseService.createStream).toHaveBeenCalledTimes(1);
+    });
+
+    it('passes sprint exclusion to SSE stream for users without SprintDashboard permission', () => {
+      const mockObservable = new Observable();
+      mockActivitySseService.createStream.mockReturnValue(mockObservable);
+
+      controller.stream(makeReq(false));
+
+      expect(mockActivitySseService.createStream).toHaveBeenCalledWith(
+        expect.arrayContaining(['SPRINT_STARTED', 'SPRINT_COMPLETED', 'SPRINT_VELOCITY_MILESTONE']),
+      );
+    });
+
+    it('does not pass exclusion to SSE stream for users with SprintDashboard permission', () => {
+      const mockObservable = new Observable();
+      mockActivitySseService.createStream.mockReturnValue(mockObservable);
+
+      controller.stream(makeReq(true));
+
+      expect(mockActivitySseService.createStream).toHaveBeenCalledWith(undefined);
     });
   });
 
@@ -137,6 +201,25 @@ describe('ActivityController', () => {
 
       expect(result.data).toHaveLength(1);
       expect(result.data[0]).not.toHaveProperty('contributorId');
+    });
+
+    it('always excludes sprint events from public feed', async () => {
+      mockActivityService.getPublicFeed.mockResolvedValue({
+        items: [],
+        pagination: { cursor: null, hasMore: false, total: 0 },
+      });
+
+      await controller.getPublicFeed({ limit: '20' });
+
+      expect(mockActivityService.getPublicFeed).toHaveBeenCalledWith(
+        expect.objectContaining({
+          excludeEventTypes: expect.arrayContaining([
+            'SPRINT_STARTED',
+            'SPRINT_COMPLETED',
+            'SPRINT_VELOCITY_MILESTONE',
+          ]),
+        }),
+      );
     });
   });
 });

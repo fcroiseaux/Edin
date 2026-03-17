@@ -218,6 +218,43 @@ export interface CrossDomainCollaborationDetectedEvent {
   };
 }
 
+export interface SprintActivityPayload {
+  eventType:
+    | 'sprint.lifecycle.started'
+    | 'sprint.lifecycle.completed'
+    | 'sprint.velocity.milestone';
+  timestamp: string;
+  correlationId: string;
+  payload: {
+    sprintId: string;
+    sprintName: string;
+    velocity?: number;
+    committedPoints?: number;
+    deliveredPoints?: number;
+    milestonePercentage?: number;
+  };
+}
+
+export interface SprintNotificationEvent {
+  eventType:
+    | 'sprint.notification.deadline'
+    | 'sprint.notification.velocity_drop'
+    | 'sprint.notification.scope_changed';
+  timestamp: string;
+  correlationId: string;
+  payload: {
+    sprintId: string;
+    sprintName: string;
+    hoursRemaining?: number;
+    committedPoints?: number;
+    deliveredPoints?: number;
+    deliveryPercentage?: number;
+    changeType?: 'ADDED' | 'REMOVED';
+    storyPoints?: number | null;
+    issueId?: string;
+  };
+}
+
 export interface PersonalSprintMetrics {
   contributorId: string;
   contributorName: string | null;
