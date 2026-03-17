@@ -2,6 +2,7 @@ import { Inject, Logger } from '@nestjs/common';
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import type { Job } from 'bullmq';
+import type { Prisma } from '../../../../generated/prisma/client/client.js';
 import { PrismaService } from '../../../prisma/prisma.service.js';
 import { RedisService } from '../../../common/redis/redis.service.js';
 import { AuditService } from '../../compliance/audit/audit.service.js';
@@ -137,7 +138,7 @@ export class CodeEvaluationProcessor extends WorkerHost {
                 planningContextIncluded: !!planningContext,
                 ...(planningContext ? { planningContext } : {}),
               }),
-            ) as Record<string, unknown>,
+            ) as Prisma.InputJsonValue,
             metadata: {
               rawModelOutput: result.rawModelOutput,
             },

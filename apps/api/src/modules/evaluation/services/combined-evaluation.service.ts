@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
+import type { Prisma } from '../../../../generated/prisma/client/client.js';
 import { PrismaService } from '../../../prisma/prisma.service.js';
 import { ZenhubConfigService } from '../../zenhub/zenhub-config.service.js';
 import { CONFIDENCE_SPRINT_THRESHOLD } from '@edin/shared';
@@ -213,7 +214,7 @@ export class CombinedEvaluationService {
               ...existingMeta,
               combinedEvaluation: combinedResult,
             }),
-          ) as Record<string, unknown>,
+          ) as Prisma.InputJsonValue,
         },
       });
 
