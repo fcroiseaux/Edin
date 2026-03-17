@@ -267,21 +267,6 @@ export class ContributorService {
       );
     }
 
-    if (contributor.role === 'FOUNDING_CONTRIBUTOR') {
-      this.logger.warn('Attempted role change on Founding Contributor', {
-        contributorId,
-        role: 'FOUNDING_CONTRIBUTOR',
-        attemptedNewRole: dto.role,
-        actorId,
-        correlationId,
-      });
-      throw new DomainException(
-        ERROR_CODES.FOUNDING_STATUS_PERMANENT,
-        'Founding Contributor status is permanent and cannot be changed',
-        HttpStatus.UNPROCESSABLE_ENTITY,
-      );
-    }
-
     if (contributor.role === dto.role) {
       throw new DomainException(
         ERROR_CODES.VALIDATION_ERROR,
