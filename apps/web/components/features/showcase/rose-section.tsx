@@ -7,27 +7,26 @@ import { ROSE_INTRO, ROSE_CONCEPTS } from '../rose/rose-data';
 
 export function RoseSection() {
   return (
-    <section className="bg-surface-sunken px-6 py-20" aria-label="About Rose">
+    <section className="bg-surface-sunken px-6 py-20" aria-label="About ROSE">
       <div className="mx-auto max-w-[1200px]">
         <Image
           src="/rose-logo.svg"
-          alt="Rose logo"
+          alt="ROSE logo"
           width={200}
           height={200}
           className="mx-auto mb-8 opacity-80"
         />
         <p className="text-center font-mono text-[13px] font-medium uppercase tracking-[0.15em] text-accent-primary">
-          The Rose Project
+          The ROSE Project
         </p>
         <h2 className="mt-2 text-center font-serif text-[clamp(1.5rem,3vw,2rem)] leading-[1.25] font-bold text-text-primary">
-          A New Financial Infrastructure for a Fairer Economy
+          Reinventing Financial Architecture
         </h2>
         <p className="mx-auto mt-6 max-w-[720px] text-center font-sans text-[16px] leading-[1.7] text-text-secondary">
-          Under the umbrella of the public benefit foundation IOUR, a diverse group of contributors
-          has launched ROSE—an initiative to create a system of real-time finance that serves life
-          and the commons. ROSE will support collaborative communities and open knowledge platforms
-          while developing financial services that channel market energy to foster an equitable,
-          knowledge-driven society that benefits everyone.
+          ROSE is a common good initiative to build a decentralized financial infrastructure that
+          reimagines how markets operate. Rooted in decades of research into high-frequency market
+          microstructure, ROSE channels the vast value of market volatility into a Common Good
+          Treasury that funds ecological and societal regeneration.
         </p>
         <p className="mx-auto mt-4 max-w-[680px] text-center font-sans text-[15px] leading-[1.6] text-text-secondary">
           {ROSE_INTRO}
@@ -75,7 +74,7 @@ export function RoseSection() {
             href="/rose"
             className="font-sans text-[14px] font-semibold text-accent-primary transition-colors duration-[var(--transition-fast)] hover:text-text-primary"
           >
-            Learn more about Rose &rarr;
+            Learn more about ROSE &rarr;
           </Link>
         </div>
       </div>

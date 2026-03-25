@@ -9,7 +9,7 @@ const NAV_LINKS = [
   { href: '/articles', label: 'Publication' },
   { href: '/contributors', label: 'Contributors' },
   { href: '/about', label: 'About' },
-  { href: '/rose', label: 'About Rose' },
+  { href: '/rose', label: 'About ROSE' },
   { href: '/docs', label: 'Docs' },
   { href: '/apply', label: 'Apply' },
 ];

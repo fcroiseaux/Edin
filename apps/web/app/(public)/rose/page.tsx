@@ -2,9 +2,9 @@ import type { Metadata } from 'next';
 import { RoseHero } from '../../../components/features/rose/rose-hero';
 import { RoseDetails } from '../../../components/features/rose/rose-details';
 
-const META_TITLE = 'About Rose — A New Financial Infrastructure for a Fairer Economy';
+const META_TITLE = 'About ROSE — Reinventing Financial Architecture';
 const META_DESCRIPTION =
-  'Rose is a non-profit financial infrastructure project by the IOUR Foundation, reinventing the global financial system through intrinsic time, fractal markets, and atomic settlement.';
+  'ROSE is a common good initiative operating under a Swiss non-profit association to build a decentralized financial infrastructure through intrinsic time, coupled assets, and atomic settlement.';
 
 export async function generateMetadata(): Promise<Metadata> {
   return {

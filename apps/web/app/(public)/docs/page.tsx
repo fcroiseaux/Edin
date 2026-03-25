@@ -57,9 +57,9 @@ export default function DocsPage() {
           What is Edin?
         </h2>
         <p className="mt-[var(--spacing-md)] font-sans text-[15px] leading-[1.7] text-text-secondary">
-          Edin is a curated contributor platform for the Rose decentralized finance ecosystem. It
-          solves a fundamental problem in open-source: contributors produce enormous value but
-          receive no structured recognition or compensation.
+          Edin is a curated contributor platform for the ROSE decentralized financial infrastructure
+          ecosystem. It solves a fundamental problem in open-source: contributors produce enormous
+          value but receive no structured recognition or compensation.
         </p>
         <p className="mt-[var(--spacing-sm)] font-sans text-[15px] leading-[1.7] text-text-secondary">
           The platform combines three innovations to change that:

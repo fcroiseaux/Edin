@@ -40,8 +40,8 @@ export function DomainsSection() {
           and governance design just as much as engineering.
         </p>
         <p className="mx-auto mt-[var(--spacing-sm)] max-w-[520px] text-center font-sans text-[15px] leading-[1.6] text-text-secondary">
-          Rose is built by contributors across four complementary domains. Every contribution,
-          regardless of domain, advances the Rose mission.
+          ROSE is built by contributors across four complementary domains. Every contribution,
+          regardless of domain, advances the ROSE mission.
         </p>
 
         <div className="mt-[var(--spacing-xl)] grid grid-cols-1 gap-[var(--spacing-md)] sm:grid-cols-2 lg:grid-cols-4">

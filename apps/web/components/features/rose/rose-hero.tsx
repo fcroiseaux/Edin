@@ -5,19 +5,19 @@ export function RoseHero() {
   return (
     <section
       className="bg-linear-to-b from-surface-raised to-surface-sunken px-6 py-20"
-      aria-label="About Rose"
+      aria-label="About ROSE"
     >
       <div className="mx-auto max-w-[1200px] text-center">
         <Image
           src="/rose-logo.svg"
-          alt="Rose logo"
+          alt="ROSE logo"
           width={400}
           height={400}
           className="mx-auto mb-10 opacity-80"
           priority
         />
         <h1 className="font-serif text-[clamp(2rem,5vw,2.5rem)] leading-[1.2] font-bold text-text-primary">
-          About Rose
+          About ROSE
         </h1>
         <p className="mx-auto mt-6 max-w-[680px] font-sans text-[15px] leading-[1.6] font-normal text-text-secondary">
           {ROSE_INTRO}
@@ -32,7 +32,7 @@ export function RoseHeroSkeleton() {
     <section
       className="bg-linear-to-b from-surface-raised to-surface-sunken px-[var(--spacing-lg)] py-[var(--spacing-3xl)]"
       role="status"
-      aria-label="Loading Rose section"
+      aria-label="Loading ROSE section"
     >
       <div className="mx-auto max-w-[1200px] text-center">
         <div className="skeleton mx-auto h-[40px] w-[300px] max-w-full" />

@@ -53,7 +53,7 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: 'Edin — Curated Contributor Platform',
   description:
-    'A curated contributor platform for the Rose DeFi ecosystem where every contribution is evaluated, recognized, and rewarded.',
+    'A curated contributor platform for the ROSE decentralized financial infrastructure ecosystem where every contribution is evaluated, recognized, and rewarded.',
   icons: {
     icon: '/favicon.ico',
     apple: '/apple-touch-icon.png',

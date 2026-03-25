@@ -42,20 +42,20 @@ async function fetchEvaluationMetrics(): Promise<PublicEvaluationAggregateDto | 
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: 'Edin — Contributor Platform Powering Rose',
+    title: 'Edin — Contributor Platform Powering ROSE',
     description:
-      'Edin is the contributor platform for Rose, a non-profit financial infrastructure project. Contribute across technology, finance, impact, and governance — evaluated by AI, rewarded through scaling-law economics.',
+      'Edin is the contributor platform for ROSE, a common good initiative building decentralized financial infrastructure. Contribute across technology, finance, impact, and governance — evaluated by AI, rewarded through scaling-law economics.',
     openGraph: {
-      title: 'Edin — Contributor Platform Powering Rose',
+      title: 'Edin — Contributor Platform Powering ROSE',
       description:
-        'Edin is the contributor platform for Rose, a non-profit financial infrastructure project. Contribute across technology, finance, impact, and governance — evaluated by AI, rewarded through scaling-law economics.',
+        'Edin is the contributor platform for ROSE, a common good initiative building decentralized financial infrastructure. Contribute across technology, finance, impact, and governance — evaluated by AI, rewarded through scaling-law economics.',
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
-      title: 'Edin — Contributor Platform Powering Rose',
+      title: 'Edin — Contributor Platform Powering ROSE',
       description:
-        'Edin is the contributor platform for Rose, a non-profit financial infrastructure project. Contribute across technology, finance, impact, and governance — evaluated by AI, rewarded through scaling-law economics.',
+        'Edin is the contributor platform for ROSE, a common good initiative building decentralized financial infrastructure. Contribute across technology, finance, impact, and governance — evaluated by AI, rewarded through scaling-law economics.',
     },
   };
 }

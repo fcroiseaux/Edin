@@ -7,7 +7,7 @@ export function RoseDetails() {
       <section className="px-[var(--spacing-lg)] py-[var(--spacing-2xl)]" aria-label="The Problem">
         <div className="mx-auto max-w-[800px]">
           <h2 className="font-serif text-[1.75rem] leading-[1.3] font-bold text-text-primary">
-            The Problem Rose Solves
+            The Problem ROSE Addresses First
           </h2>
           <p className="mt-[var(--spacing-md)] font-serif text-[15px] leading-[1.7] text-text-primary">
             Today&apos;s financial system runs on infrastructure designed decades ago. Settlement
@@ -19,14 +19,14 @@ export function RoseDetails() {
         </div>
       </section>
 
-      {/* The Rose Approach */}
+      {/* The ROSE Approach */}
       <section
         className="bg-surface-sunken px-[var(--spacing-lg)] py-[var(--spacing-2xl)]"
-        aria-label="The Rose Approach"
+        aria-label="The ROSE Approach"
       >
         <div className="mx-auto max-w-[800px]">
           <h2 className="font-serif text-[1.75rem] leading-[1.3] font-bold text-text-primary">
-            The Rose Approach
+            The ROSE Approach
           </h2>
           <div className="mt-[var(--spacing-xl)] flex flex-col gap-[var(--spacing-lg)]">
             {ROSE_CONCEPTS.map((concept, index) => (
@@ -66,27 +66,29 @@ export function RoseDetails() {
             The Broader Vision
           </h2>
           <p className="mt-[var(--spacing-md)] font-serif text-[15px] leading-[1.7] text-text-primary">
-            Rose is more than a financial engine. The efficiency gains and yield captured by the
-            Alpha Engine are designed to fund commons — free water, free energy, and peace-building
-            initiatives. The project aims to shift the economy from extraction to regeneration.
+            ROSE is more than a financial engine. The Alpha Engine captures the vast, previously
+            wasted value of the price coastline and channels it into a Common Good Treasury that
+            funds ecological and societal regeneration. The project aims to reprogram the economy,
+            shifting it from profit-driven extraction to an abundance model where financial
+            efficiency funds free water, free energy, and shared prosperity.
           </p>
         </div>
       </section>
 
-      {/* Foundation Structure */}
+      {/* Decentralized Common Good Structure */}
       <section
         className="bg-surface-sunken px-[var(--spacing-lg)] py-[var(--spacing-2xl)]"
-        aria-label="Foundation Structure"
+        aria-label="Decentralized Common Good Structure"
       >
         <div className="mx-auto max-w-[800px]">
           <h2 className="font-serif text-[1.75rem] leading-[1.3] font-bold text-text-primary">
-            Foundation Structure
+            Decentralized Common Good Structure
           </h2>
           <p className="mt-[var(--spacing-md)] font-serif text-[15px] leading-[1.7] text-text-primary">
-            Rose operates under the IOUR Foundation, a Belgian public benefit foundation. All
-            intellectual property is held by the foundation. Commercial entities may be licensed to
-            operate the technology, but always under conditions set by the foundation&apos;s
-            governance.
+            ROSE originated from trusted relationships across jurisdictions and domains. Designed to
+            be &ldquo;sharded&rdquo; it starts formal operations under a Swiss Non-profit
+            Association. ROSE is building a network of partner organisations as it extends the reach
+            and scope of its vision.
           </p>
         </div>
       </section>

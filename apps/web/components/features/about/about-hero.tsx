@@ -20,8 +20,8 @@ export function AboutHero() {
         </h1>
         <p className="mx-auto mt-6 max-w-[680px] font-sans text-[15px] leading-[1.6] font-normal text-text-secondary">
           Named after the Sumerian word for a fertile plain, Edin is a curated contributor platform
-          designed to organize, evaluate, and reward collaborative development within the Rose
-          decentralized finance ecosystem.
+          designed to organize, evaluate, and reward collaborative development within the ROSE
+          decentralized financial infrastructure ecosystem.
         </p>
       </div>
     </section>
