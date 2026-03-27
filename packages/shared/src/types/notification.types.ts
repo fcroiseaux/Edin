@@ -8,7 +8,10 @@ export type NotificationType =
   | 'ARTICLE_PUBLISHED'
   | 'SPRINT_DEADLINE_APPROACHING'
   | 'SPRINT_VELOCITY_DROP'
-  | 'SPRINT_SCOPE_CHANGED';
+  | 'SPRINT_SCOPE_CHANGED'
+  | 'PRIZE_AWARDED'
+  | 'PEER_NOMINATION_RECEIVED'
+  | 'TRACK_RECORD_MILESTONE';
 
 export type NotificationCategory =
   | 'evaluations'
@@ -16,7 +19,9 @@ export type NotificationCategory =
   | 'working-groups'
   | 'tasks'
   | 'publications'
-  | 'sprints';
+  | 'sprints'
+  | 'prizes'
+  | 'track-record';
 
 export interface NotificationDto {
   id: string;

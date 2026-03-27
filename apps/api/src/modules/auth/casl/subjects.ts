@@ -25,4 +25,11 @@ export type AppSubjects =
   | 'Notification'
   | 'SprintMetric'
   | 'SprintDashboard'
-  | 'IntegrationConfig';
+  | 'IntegrationConfig'
+  | 'Channel'
+  | 'PrizeCategory'
+  | 'PrizeAward'
+  | 'CommunityNomination'
+  | 'NominationVote'
+  | 'NewspaperItem'
+  | 'NewspaperItemVote';

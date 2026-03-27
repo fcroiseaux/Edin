@@ -193,6 +193,11 @@ describe('CaslAbilityFactory', () => {
       expect(ability.can(Action.Update, 'Article')).toBe(false);
     });
 
+    it('cannot update NewspaperItem (not editor)', () => {
+      const ability = factory.createForUser(makeUser('CONTRIBUTOR'));
+      expect(ability.can(Action.Update, 'NewspaperItem')).toBe(false);
+    });
+
     it('cannot manage all', () => {
       const ability = factory.createForUser(makeUser('CONTRIBUTOR'));
       expect(ability.can(Action.Manage, 'all')).toBe(false);
@@ -328,6 +333,11 @@ describe('CaslAbilityFactory', () => {
     it('cannot manage IntegrationConfig', () => {
       const ability = factory.createForUser(makeUser('EDITOR'));
       expect(ability.can(Action.Manage, 'IntegrationConfig')).toBe(false);
+    });
+
+    it('can update NewspaperItem', () => {
+      const ability = factory.createForUser(makeUser('EDITOR'));
+      expect(ability.can(Action.Update, 'NewspaperItem')).toBe(true);
     });
   });
 

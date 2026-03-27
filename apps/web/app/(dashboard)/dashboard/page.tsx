@@ -8,6 +8,7 @@ import { useContributions } from '../../../hooks/use-contributions';
 import { useMyScores } from '../../../hooks/use-scores';
 import { useReceivedFeedback } from '../../../hooks/use-received-feedback';
 import { usePendingAssignments } from '../../../hooks/use-feedback-review';
+import { usePrizeAwards } from '../../../hooks/use-prize-awards';
 import { OnboardingWelcome } from '../../../components/features/onboarding/onboarding-welcome';
 
 const DOMAIN_COLORS: Record<string, { bg: string; text: string }> = {
@@ -31,6 +32,12 @@ const CONTRIBUTION_TYPE_ICONS: Record<string, string> = {
   CODE_REVIEW: '\u25CE',
 };
 
+const SIGNIFICANCE_LABELS: Record<number, { label: string; color: string }> = {
+  1: { label: 'Notable', color: 'text-text-secondary' },
+  2: { label: 'Significant', color: 'text-accent-primary' },
+  3: { label: 'Exceptional', color: 'text-[#D97706]' },
+};
+
 const TREND_LABELS: Record<string, { label: string; color: string }> = {
   RISING: { label: 'Rising', color: 'text-semantic-success' },
   STABLE: { label: 'Stable', color: 'text-text-secondary' },
@@ -45,6 +52,7 @@ export default function DashboardPage() {
   const { summary: scoreSummary, isLoading: isScoresLoading } = useMyScores();
   const { items: receivedFeedback, isPending: isFeedbackLoading } = useReceivedFeedback();
   const { data: pendingData, isLoading: isPendingLoading } = usePendingAssignments();
+  const { awards: prizeAwards, isLoading: isPrizesLoading } = usePrizeAwards();
 
   if (isLoading) {
     return (
@@ -267,6 +275,66 @@ export default function DashboardPage() {
               </p>
             )}
           </section>
+          {/* Prizes Section */}
+          <section className="rounded-[var(--radius-lg)] border border-surface-subtle bg-surface-raised p-[var(--spacing-lg)] shadow-[var(--shadow-card)]">
+            <div className="flex items-center justify-between">
+              <h2 className="font-sans text-[16px] font-medium text-text-primary">Prizes</h2>
+            </div>
+            {isPrizesLoading ? (
+              <div className="mt-[var(--spacing-md)] space-y-[var(--spacing-sm)]">
+                <div className="skeleton h-[60px] w-full rounded-[var(--radius-md)]" />
+                <div className="skeleton h-[60px] w-full rounded-[var(--radius-md)]" />
+              </div>
+            ) : prizeAwards.length > 0 ? (
+              <ul className="mt-[var(--spacing-md)] space-y-[var(--spacing-sm)]">
+                {prizeAwards.slice(0, 3).map((award) => {
+                  const sig =
+                    SIGNIFICANCE_LABELS[award.significanceLevel] ?? SIGNIFICANCE_LABELS[1];
+                  return (
+                    <li
+                      key={award.id}
+                      className="flex items-start gap-[var(--spacing-md)] rounded-[var(--radius-md)] border border-surface-subtle p-[var(--spacing-md)]"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-[var(--spacing-xs)]">
+                          <span className="font-serif text-[14px] font-medium text-text-primary">
+                            {award.prizeCategoryName}
+                          </span>
+                          <span
+                            className={`inline-flex items-center rounded-full px-[var(--spacing-sm)] py-[1px] font-sans text-[11px] font-medium ${sig.color} bg-surface-sunken`}
+                          >
+                            {sig.label}
+                          </span>
+                        </div>
+                        <p className="mt-[2px] font-sans text-[13px] text-text-secondary truncate">
+                          {award.narrative.length > 120
+                            ? `${award.narrative.slice(0, 120)}...`
+                            : award.narrative}
+                        </p>
+                      </div>
+                      <div className="shrink-0 text-right">
+                        <span className="font-sans text-[12px] text-text-secondary">
+                          {award.channelName}
+                        </span>
+                        <p className="font-sans text-[11px] text-text-tertiary">
+                          {new Date(award.awardedAt).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                          })}
+                        </p>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <p className="mt-[var(--spacing-sm)] font-serif text-[15px] leading-[1.65] text-text-secondary">
+                No prizes awarded yet. Prizes are awarded for cross-domain collaboration,
+                breakthrough contributions, and community recognition.
+              </p>
+            )}
+          </section>
+
           <section className="rounded-[var(--radius-lg)] border border-surface-subtle bg-surface-raised p-[var(--spacing-lg)] shadow-[var(--shadow-card)]">
             <div className="flex items-center justify-between">
               <h2 className="font-sans text-[16px] font-medium text-text-primary">Peer Feedback</h2>

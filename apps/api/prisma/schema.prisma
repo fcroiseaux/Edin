@@ -152,6 +152,14 @@ enum ActivityEventType {
   SPRINT_STARTED
   SPRINT_COMPLETED
   SPRINT_VELOCITY_MILESTONE
+  CROSS_DOMAIN_COLLABORATION_DETECTED
+  HIGH_SIGNIFICANCE_CONTRIBUTION
+  PRIZE_AWARDED
+  PEER_NOMINATION_RECEIVED
+  NOMINATION_VOTE_CAST
+  TRACK_RECORD_MILESTONE_CROSSED
+  TRACK_RECORD_OUTCOME_GRANTED
+  NEWSPAPER_EDITION_PUBLISHED
 
   @@schema("core")
 }
@@ -181,6 +189,55 @@ enum NotificationType {
   SPRINT_DEADLINE_APPROACHING
   SPRINT_VELOCITY_DROP
   SPRINT_SCOPE_CHANGED
+  PRIZE_AWARDED
+  PEER_NOMINATION_RECEIVED
+  TRACK_RECORD_MILESTONE
+  TRACK_RECORD_OUTCOME
+  NEWSPAPER_EDITION_PUBLISHED
+
+  @@schema("core")
+}
+
+enum ChannelType {
+  DOMAIN
+  WORKING_GROUP
+  CROSS_DOMAIN
+  CUSTOM
+
+  @@schema("core")
+}
+
+enum PrizeDetectionType {
+  AUTOMATED
+  COMMUNITY_NOMINATED
+
+  @@schema("core")
+}
+
+enum NominationStatus {
+  OPEN
+  AWARDED
+  EXPIRED
+  WITHDRAWN
+
+  @@schema("core")
+}
+
+enum NewspaperEditionStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+
+  @@schema("core")
+}
+
+enum NewspaperItemSourceType {
+  PRIZE_AWARDED
+  TRACK_RECORD_MILESTONE
+  PEER_NOMINATION_RECEIVED
+  CONTRIBUTION_EVALUATED
+  CROSS_DOMAIN_COLLABORATION
+  CUSTOM
 
   @@schema("core")
 }
@@ -268,6 +325,14 @@ model Contributor {
   dataExportRequests       DataExportRequest[]       @relation("DataExportRequests")
   dataDeletionRequests     DataDeletionRequest[]     @relation("DataDeletionRequests")
   reviewedComplianceDocs   ComplianceDocument[]      @relation("ComplianceDocumentReviewer")
+  prizeAwards              PrizeAward[]
+  nominationsAsNominator   CommunityNomination[] @relation("NominationsAsNominator")
+  nominationsAsNominee     CommunityNomination[] @relation("NominationsAsNominee")
+  nominationVotes          NominationVote[]      @relation("NominationVotes")
+  trackRecordEvaluations   TrackRecordEvaluation[]
+  trackRecordMilestones    TrackRecordMilestone[]
+  trackRecordOutcomes      TrackRecordOutcome[]
+  newspaperItemVotes       NewspaperItemVote[]   @relation("NewspaperItemVotes")
 
   @@map("contributors")
   @@schema("core")
@@ -409,6 +474,7 @@ model Contribution {
   collaborations   ContributionCollaboration[]
   peerFeedbacks    PeerFeedback[]      @relation("ContributionFeedbacks")
   evaluations      Evaluation[]
+  prizeAwards      PrizeAward[]
 
   @@unique([source, repositoryId, sourceRef], map: "contributions_source_repo_ref_key")
   @@index([contributorId, createdAt(sort: Desc)], map: "contributions_contributor_created_idx")
@@ -557,6 +623,7 @@ model ActivityEvent {
   createdAt        DateTime          @default(now()) @map("created_at")
 
   contributor      Contributor       @relation(fields: [contributorId], references: [id])
+  newspaperItems   NewspaperItem[]
 
   @@index([createdAt(sort: Desc)], map: "idx_activity_events_created_at")
   @@index([domain, createdAt(sort: Desc)], map: "idx_activity_events_domain_created_at")
@@ -622,6 +689,192 @@ model PlatformSetting {
   updater   Contributor? @relation(fields: [updatedBy], references: [id])
 
   @@map("platform_settings")
+  @@schema("core")
+}
+
+// ─── Prize Framework ────────────────────────────────────────────────────────
+
+model Channel {
+  id              String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name            String      @unique
+  description     String      @db.Text
+  type            ChannelType
+  parentChannelId String?     @map("parent_channel_id") @db.Uuid
+  metadata        Json?
+  isActive        Boolean     @default(true) @map("is_active")
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+
+  parentChannel   Channel?    @relation("ChannelHierarchy", fields: [parentChannelId], references: [id])
+  childChannels   Channel[]   @relation("ChannelHierarchy")
+  prizeCategories      PrizeCategory[]
+  prizeAwards          PrizeAward[]
+  communityNominations CommunityNomination[]
+  newspaperItems       NewspaperItem[]
+
+  @@index([type], map: "idx_channels_type")
+  @@index([parentChannelId], map: "idx_channels_parent_channel_id")
+  @@map("channels")
+  @@schema("core")
+}
+
+model PrizeCategory {
+  id              String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name            String             @unique
+  description     String             @db.Text
+  channelId       String?            @map("channel_id") @db.Uuid
+  detectionType   PrizeDetectionType @map("detection_type")
+  thresholdConfig Json               @map("threshold_config")
+  scalingConfig   Json               @map("scaling_config")
+  isActive        Boolean            @default(true) @map("is_active")
+  createdAt       DateTime           @default(now()) @map("created_at")
+  updatedAt       DateTime           @updatedAt @map("updated_at")
+
+  channel              Channel?              @relation(fields: [channelId], references: [id])
+  prizeAwards          PrizeAward[]
+  communityNominations CommunityNomination[]
+
+  @@index([channelId], map: "idx_prize_categories_channel_id")
+  @@index([detectionType], map: "idx_prize_categories_detection_type")
+  @@map("prize_categories")
+  @@schema("core")
+}
+
+model PrizeAward {
+  id                     String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  prizeCategoryId        String        @map("prize_category_id") @db.Uuid
+  recipientContributorId String        @map("recipient_contributor_id") @db.Uuid
+  contributionId         String?       @map("contribution_id") @db.Uuid
+  significanceLevel      Int           @map("significance_level")
+  channelId              String        @map("channel_id") @db.Uuid
+  chathamHouseLabel      String        @map("chatham_house_label")
+  narrative              String        @db.Text
+  awardedAt              DateTime      @default(now()) @map("awarded_at")
+  metadata               Json?
+
+  prizeCategory          PrizeCategory @relation(fields: [prizeCategoryId], references: [id])
+  recipient              Contributor   @relation(fields: [recipientContributorId], references: [id])
+  contribution           Contribution? @relation(fields: [contributionId], references: [id])
+  channel                Channel       @relation(fields: [channelId], references: [id])
+
+  @@index([prizeCategoryId, awardedAt(sort: Desc)], map: "idx_prize_awards_category_awarded")
+  @@index([recipientContributorId, awardedAt(sort: Desc)], map: "idx_prize_awards_recipient_awarded")
+  @@index([channelId], map: "idx_prize_awards_channel_id")
+  @@index([contributionId], map: "idx_prize_awards_contribution_id")
+  @@map("prize_awards")
+  @@schema("core")
+}
+
+model CommunityNomination {
+  id              String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nominatorId     String           @map("nominator_id") @db.Uuid
+  nomineeId       String           @map("nominee_id") @db.Uuid
+  prizeCategoryId String           @map("prize_category_id") @db.Uuid
+  channelId       String           @map("channel_id") @db.Uuid
+  rationale       String           @db.Text
+  status          NominationStatus @default(OPEN)
+  createdAt       DateTime         @default(now()) @map("created_at")
+  expiresAt       DateTime         @map("expires_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+
+  nominator       Contributor      @relation("NominationsAsNominator", fields: [nominatorId], references: [id])
+  nominee         Contributor      @relation("NominationsAsNominee", fields: [nomineeId], references: [id])
+  prizeCategory   PrizeCategory    @relation(fields: [prizeCategoryId], references: [id])
+  channel         Channel          @relation(fields: [channelId], references: [id])
+  votes           NominationVote[]
+
+  @@index([nomineeId, status], map: "idx_community_nominations_nominee_status")
+  @@index([nominatorId, nomineeId, prizeCategoryId], map: "idx_community_nominations_cooldown")
+  @@index([status, expiresAt], map: "idx_community_nominations_expiry")
+  @@map("community_nominations")
+  @@schema("core")
+}
+
+model NominationVote {
+  id           String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nominationId String              @map("nomination_id") @db.Uuid
+  voterId      String              @map("voter_id") @db.Uuid
+  createdAt    DateTime            @default(now()) @map("created_at")
+
+  nomination   CommunityNomination @relation(fields: [nominationId], references: [id], onDelete: Cascade)
+  voter        Contributor         @relation("NominationVotes", fields: [voterId], references: [id])
+
+  @@unique([nominationId, voterId], map: "uq_nomination_votes_nomination_voter")
+  @@index([nominationId], map: "idx_nomination_votes_nomination")
+  @@index([voterId], map: "idx_nomination_votes_voter")
+  @@map("nomination_votes")
+  @@schema("core")
+}
+
+// ─── Newspaper Schema ───────────────────────────────────────────────────────
+
+model NewspaperEdition {
+  id                        String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  editionNumber             Int                      @unique @map("edition_number")
+  status                    NewspaperEditionStatus   @default(DRAFT)
+  temporalSpanStart         DateTime                 @map("temporal_span_start")
+  temporalSpanEnd           DateTime                 @map("temporal_span_end")
+  eventCount                Int                      @default(0) @map("event_count")
+  eventDensity              Decimal                  @default(0) @map("event_density") @db.Decimal(8, 4)
+  significanceDistribution  Json                     @map("significance_distribution")
+  referenceScaleMetadata    Json                     @map("reference_scale_metadata")
+  publishedAt               DateTime?                @map("published_at")
+  createdAt                 DateTime                 @default(now()) @map("created_at")
+  updatedAt                 DateTime                 @updatedAt @map("updated_at")
+
+  items                     NewspaperItem[]
+
+  @@index([status], map: "idx_newspaper_editions_status")
+  @@index([editionNumber(sort: Desc)], map: "idx_newspaper_editions_number_desc")
+  @@index([temporalSpanStart, temporalSpanEnd], map: "idx_newspaper_editions_temporal_span")
+  @@map("newspaper_editions")
+  @@schema("core")
+}
+
+model NewspaperItem {
+  id                    String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  editionId             String                   @map("edition_id") @db.Uuid
+  sourceEventType       NewspaperItemSourceType   @map("source_event_type")
+  sourceEventId         String                   @map("source_event_id") @db.Uuid
+  channelId             String                   @map("channel_id") @db.Uuid
+  headline              String                   @db.Text
+  body                  String                   @db.Text
+  chathamHouseLabel     String                   @map("chatham_house_label")
+  significanceScore     Int                      @map("significance_score")
+  algorithmicRank       Int                      @map("algorithmic_rank")
+  editorialRankOverride Int?                     @map("editorial_rank_override")
+  communityVoteCount    Int                      @default(0) @map("community_vote_count")
+  createdAt             DateTime                 @default(now()) @map("created_at")
+  updatedAt             DateTime                 @updatedAt @map("updated_at")
+
+  edition               NewspaperEdition         @relation(fields: [editionId], references: [id])
+  sourceEvent           ActivityEvent            @relation(fields: [sourceEventId], references: [id])
+  channel               Channel                  @relation(fields: [channelId], references: [id])
+
+  @@index([editionId, algorithmicRank], map: "idx_newspaper_items_edition_rank")
+  @@index([channelId], map: "idx_newspaper_items_channel")
+  @@index([editionId, channelId], map: "idx_newspaper_items_edition_channel")
+  @@index([sourceEventId], map: "idx_newspaper_items_source_event")
+  votes                 NewspaperItemVote[]
+
+  @@index([significanceScore(sort: Desc)], map: "idx_newspaper_items_significance")
+  @@map("newspaper_items")
+  @@schema("core")
+}
+
+model NewspaperItemVote {
+  id              String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  newspaperItemId String        @map("newspaper_item_id") @db.Uuid
+  voterId         String        @map("voter_id") @db.Uuid
+  createdAt       DateTime      @default(now()) @map("created_at")
+
+  newspaperItem   NewspaperItem @relation(fields: [newspaperItemId], references: [id], onDelete: Cascade)
+  voter           Contributor   @relation("NewspaperItemVotes", fields: [voterId], references: [id])
+
+  @@unique([newspaperItemId, voterId], map: "uq_newspaper_item_votes_item_voter")
+  @@index([newspaperItemId], map: "idx_newspaper_item_votes_item_id")
+  @@index([voterId], map: "idx_newspaper_item_votes_voter_id")
+  @@map("newspaper_item_votes")
   @@schema("core")
 }
 
@@ -1129,6 +1382,112 @@ model TemporalScoreAggregate {
   @@unique([contributorId, horizon, periodStart], map: "temporal_score_aggregates_contributor_horizon_period_key")
   @@index([contributorId, horizon, periodStart(sort: Desc)], map: "idx_temporal_aggregates_contributor_horizon_period")
   @@map("temporal_score_aggregates")
+  @@schema("evaluation")
+}
+
+// ─── Track Record Evaluation Stream ─────────────────────────────────────────
+
+enum TrackRecordMilestoneType {
+  CONSISTENCY
+  DURATION
+  VOLUME
+  CROSS_DOMAIN
+  CUSTOM
+
+  @@schema("evaluation")
+}
+
+model TrackRecordEvaluation {
+  id                       String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  contributorId            String      @map("contributor_id") @db.Uuid
+  evaluationPeriodStart    DateTime    @map("evaluation_period_start")
+  evaluationPeriodEnd      DateTime    @map("evaluation_period_end")
+  consistencyScore         Decimal     @map("consistency_score") @db.Decimal(5, 2)
+  engagementDurationMonths Int         @map("engagement_duration_months")
+  contributionCount        Int         @map("contribution_count")
+  domainBreadth            Int         @map("domain_breadth")
+  activeWeeksRatio         Decimal     @map("active_weeks_ratio") @db.Decimal(3, 2)
+  computedAt               DateTime    @default(now()) @map("computed_at")
+  metadata                 Json?
+
+  contributor              Contributor @relation(fields: [contributorId], references: [id])
+
+  @@index([contributorId, computedAt(sort: Desc)], map: "idx_track_record_evals_contributor_computed")
+  @@index([computedAt(sort: Desc)], map: "idx_track_record_evals_computed")
+  @@map("track_record_evaluations")
+  @@schema("evaluation")
+}
+
+model TrackRecordMilestone {
+  id                      String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  contributorId           String                   @map("contributor_id") @db.Uuid
+  milestoneType           TrackRecordMilestoneType @map("milestone_type")
+  thresholdName           String                   @map("threshold_name")
+  thresholdConfigSnapshot Json                     @map("threshold_config_snapshot")
+  crossedAt               DateTime                 @default(now()) @map("crossed_at")
+  metadata                Json?
+
+  contributor             Contributor              @relation(fields: [contributorId], references: [id])
+  outcomes                TrackRecordOutcome[]
+
+  @@unique([contributorId, milestoneType, thresholdName], map: "uq_track_record_milestones_contributor_type_name")
+  @@index([contributorId, crossedAt(sort: Desc)], map: "idx_track_record_milestones_contributor_crossed")
+  @@index([milestoneType], map: "idx_track_record_milestones_type")
+  @@map("track_record_milestones")
+  @@schema("evaluation")
+}
+
+model TrackRecordThresholdConfig {
+  id             String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  milestoneType  TrackRecordMilestoneType @map("milestone_type")
+  thresholdName  String                   @map("threshold_name")
+  thresholdRules Json                     @map("threshold_rules")
+  outcomeType    String                   @map("outcome_type")
+  isActive       Boolean                  @default(true) @map("is_active")
+  createdAt      DateTime                 @default(now()) @map("created_at")
+
+  @@unique([milestoneType, thresholdName], map: "uq_threshold_config_type_name")
+  @@index([isActive], map: "idx_threshold_config_active")
+  @@map("track_record_threshold_config")
+  @@schema("evaluation")
+}
+
+enum TrackRecordOutcomeType {
+  ROLE_ELIGIBILITY
+  SALARY_TIER
+  SERVICE_ACCESS
+  INVITATION
+  CUSTOM
+
+  @@schema("evaluation")
+}
+
+enum TrackRecordOutcomeStatus {
+  ACTIVE
+  EXPIRED
+  REVOKED
+
+  @@schema("evaluation")
+}
+
+model TrackRecordOutcome {
+  id              String                    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  milestoneId     String                    @map("milestone_id") @db.Uuid
+  contributorId   String                    @map("contributor_id") @db.Uuid
+  outcomeType     TrackRecordOutcomeType    @map("outcome_type")
+  outcomeDetails  Json                      @map("outcome_details")
+  grantedAt       DateTime                  @default(now()) @map("granted_at")
+  expiresAt       DateTime?                 @map("expires_at")
+  status          TrackRecordOutcomeStatus  @default(ACTIVE) @map("status")
+  metadata        Json?
+
+  milestone       TrackRecordMilestone      @relation(fields: [milestoneId], references: [id])
+  contributor     Contributor               @relation(fields: [contributorId], references: [id])
+
+  @@unique([milestoneId, outcomeType], map: "uq_track_record_outcomes_milestone_type")
+  @@index([contributorId, status], map: "idx_track_record_outcomes_contributor_status")
+  @@index([outcomeType], map: "idx_track_record_outcomes_type")
+  @@map("track_record_outcomes")
   @@schema("evaluation")
 }
 

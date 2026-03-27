@@ -31,7 +31,7 @@ export class CaslAbilityFactory {
         this.addContributorPermissions(builder, user);
         break;
       case 'APPLICANT':
-        this.addApplicantPermissions(builder);
+        this.addApplicantPermissions(builder, user);
         break;
       case 'PUBLIC':
       default:
@@ -56,24 +56,29 @@ export class CaslAbilityFactory {
     can(Action.Read, 'Article');
   }
 
-  private addApplicantPermissions(builder: AbilityBuilder<AppAbility>): void {
+  private addApplicantPermissions(
+    builder: AbilityBuilder<AppAbility>,
+    user: CurrentUserPayload,
+  ): void {
     const { can } = builder;
     can(Action.Read, 'Contributor');
+    can(Action.Update, 'Contributor', { id: user.id });
     can(Action.Read, 'Application');
     can(Action.Create, 'Application');
     can(Action.Read, 'MicroTask');
     can(Action.Create, 'MicroTask');
+    can(Action.Read, 'Activity');
+    can(Action.Read, 'Notification', { contributorId: user.id });
+    can(Action.Update, 'Notification', { contributorId: user.id });
   }
 
   private addContributorPermissions(
     builder: AbilityBuilder<AppAbility>,
     user: CurrentUserPayload,
   ): void {
-    this.addApplicantPermissions(builder);
+    this.addApplicantPermissions(builder, user);
 
     const { can } = builder;
-    can(Action.Read, 'Contributor');
-    can(Action.Update, 'Contributor', { id: user.id });
     can(Action.Read, 'Evaluation');
     can(Action.Read, 'PeerFeedback', { reviewerId: user.id });
     can(Action.Update, 'PeerFeedback', { reviewerId: user.id });
@@ -90,12 +95,27 @@ export class CaslAbilityFactory {
     can(Action.Read, 'Contribution');
     can(Action.Read, 'ContributionCollaboration');
     can(Action.Update, 'ContributionCollaboration');
-    can(Action.Read, 'Activity');
-    can(Action.Read, 'Notification', { contributorId: user.id });
-    can(Action.Update, 'Notification', { contributorId: user.id });
 
     // Sprint: contributors can read their own metrics only
     can(Action.Read, 'SprintMetric', { contributorId: user.id });
+
+    // Prizes: contributors can read channels, categories, and awards
+    can(Action.Read, 'Channel');
+    can(Action.Read, 'PrizeCategory');
+    can(Action.Read, 'PrizeAward');
+
+    // Community Nominations: contributors can create and read nominations
+    can(Action.Create, 'CommunityNomination');
+    can(Action.Read, 'CommunityNomination');
+    can(Action.Update, 'CommunityNomination', { nominatorId: user.id });
+
+    // Nomination Votes: contributors can cast and view votes
+    can(Action.Create, 'NominationVote');
+    can(Action.Read, 'NominationVote');
+
+    // Newspaper Item Votes: contributors can cast and view votes
+    can(Action.Create, 'NewspaperItemVote');
+    can(Action.Read, 'NewspaperItemVote');
   }
 
   private addEditorPermissions(
@@ -108,6 +128,7 @@ export class CaslAbilityFactory {
     can(Action.Update, 'Article');
     can(Action.Read, 'EditorialFeedback');
     can(Action.Create, 'EditorialFeedback');
+    can(Action.Update, 'NewspaperItem');
   }
 
   private addFoundingContributorPermissions(

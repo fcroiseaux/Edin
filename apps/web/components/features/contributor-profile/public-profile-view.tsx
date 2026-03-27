@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import type { PublicContributorProfile } from '@edin/shared';
 import { ContributorScoreSummary } from '../evaluation/public/contributor-score-summary';
+import { PublicPrizesSection } from '../prizes/public-prizes-section';
 
 const DOMAIN_COLORS: Record<string, { bg: string; text: string }> = {
   Technology: { bg: 'bg-domain-technology', text: 'text-white' },
@@ -137,6 +138,8 @@ export function PublicProfileView({ profile }: PublicProfileViewProps) {
         contributorId={profile.id}
         showEvaluationScores={profile.showEvaluationScores}
       />
+
+      <PublicPrizesSection contributorId={profile.id} />
 
       <section className="mt-[var(--spacing-2xl)]" aria-label="Contribution history">
         <h2 className="font-sans text-[14px] font-medium uppercase tracking-wider text-text-secondary">

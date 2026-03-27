@@ -2,6 +2,16 @@ import { getAccessToken, setAccessToken, clearAuth } from './auth';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public readonly status: number,
+  ) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
+
 let isRefreshing = false;
 let refreshPromise: Promise<boolean> | null = null;
 
@@ -70,7 +80,10 @@ export async function apiClient<T>(path: string, options?: RequestInit): Promise
 
       if (!retryResponse.ok) {
         const errorBody = await retryResponse.json().catch(() => null);
-        throw new Error(errorBody?.error?.message || `API error: ${retryResponse.status}`);
+        throw new ApiError(
+          errorBody?.error?.message || `API error: ${retryResponse.status}`,
+          retryResponse.status,
+        );
       }
 
       if (retryResponse.status === 204) {
@@ -85,7 +98,11 @@ export async function apiClient<T>(path: string, options?: RequestInit): Promise
 
   if (!response.ok) {
     const errorBody = await response.json().catch(() => null);
-    throw new Error(errorBody?.error?.message || `API error: ${response.status}`);
+    const err = new ApiError(
+      errorBody?.error?.message || `API error: ${response.status}`,
+      response.status,
+    );
+    throw err;
   }
 
   if (response.status === 204) {

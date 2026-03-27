@@ -1,5 +1,6 @@
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient } from '../generated/prisma/client/client.js';
+import { Prisma, PrismaClient } from '../generated/prisma/client/client.js';
+import type { ContributorDomain } from '../generated/prisma/client/enums.js';
 
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL!,
@@ -266,6 +267,138 @@ async function main() {
       console.log(`Created working group "${wg.name}": ${created.id}`);
     } else {
       console.log(`Working group "${wg.name}" already exists: ${existing.id}`);
+    }
+  }
+
+  // Seed channels for each domain (linked to working groups)
+  const allWorkingGroups = await prisma.workingGroup.findMany();
+  const wgByDomain = new Map(allWorkingGroups.map((wg) => [wg.domain, wg]));
+
+  const channelSeeds = [
+    {
+      name: 'Technology',
+      description: 'Technology domain channel',
+      type: 'DOMAIN' as const,
+      domain: 'Technology',
+    },
+    {
+      name: 'Finance',
+      description: 'Finance domain channel',
+      type: 'DOMAIN' as const,
+      domain: 'Finance',
+    },
+    {
+      name: 'Impact',
+      description: 'Impact domain channel',
+      type: 'DOMAIN' as const,
+      domain: 'Impact',
+    },
+    {
+      name: 'Governance',
+      description: 'Governance domain channel',
+      type: 'DOMAIN' as const,
+      domain: 'Governance',
+    },
+  ];
+
+  for (const cs of channelSeeds) {
+    const wg = wgByDomain.get(cs.domain as ContributorDomain);
+    const existing = await prisma.channel.findUnique({ where: { name: cs.name } });
+    if (!existing) {
+      const channel = await prisma.channel.create({
+        data: {
+          name: cs.name,
+          description: cs.description,
+          type: cs.type,
+          metadata: wg ? { working_group_id: wg.id, working_group_name: wg.name } : Prisma.JsonNull,
+          isActive: true,
+        },
+      });
+      console.log(`Created channel "${cs.name}": ${channel.id}`);
+    } else {
+      console.log(`Channel "${cs.name}" already exists: ${existing.id}`);
+    }
+  }
+
+  // Seed initial prize categories with discrete threshold configs (NP-NFR1)
+  const prizeCategories = [
+    {
+      name: 'Cross-Domain Collaboration',
+      description:
+        'Awarded when a contribution bridges two or more domains and meets quality thresholds',
+      detectionType: 'AUTOMATED' as const,
+      thresholdConfig: {
+        cross_domain: {
+          operator: 'discrete_step',
+          min_domains: 2,
+          min_composite_score: 70,
+        },
+      },
+      scalingConfig: {
+        temporal_decay: { enabled: true, half_life_days: 180 },
+        frequency_cap: { max_awards_per_contributor_per_period: 3, period_days: 90 },
+      },
+    },
+    {
+      name: 'Breakthrough',
+      description:
+        'Awarded when a contribution fundamentally exceeds the significance baseline for a domain',
+      detectionType: 'AUTOMATED' as const,
+      thresholdConfig: {
+        breakthrough: {
+          operator: 'discrete_step',
+          percentile_threshold: 99,
+          min_complexity_multiplier: 1.5,
+          baseline_window_days: 90,
+          min_historical_contributions: 10,
+        },
+      },
+      scalingConfig: {
+        temporal_decay: { enabled: true, half_life_days: 365 },
+        frequency_cap: { max_awards_per_contributor_per_period: 1, period_days: 90 },
+      },
+    },
+    {
+      name: 'Community Recognition',
+      description:
+        'Awarded through peer nomination and community voting when vote threshold is crossed',
+      detectionType: 'COMMUNITY_NOMINATED' as const,
+      thresholdConfig: {
+        community: {
+          operator: 'gte',
+          min_votes: 5,
+          min_approval_ratio: 0.6,
+          tiers: {
+            notable: { min_votes: 5 },
+            significant: { min_votes: 10 },
+            exceptional: { min_votes: 20 },
+          },
+        },
+      },
+      scalingConfig: {
+        temporal_decay: { enabled: false },
+        frequency_cap: { max_awards_per_contributor_per_period: 2, period_days: 90 },
+      },
+    },
+  ];
+
+  for (const pc of prizeCategories) {
+    const existing = await prisma.prizeCategory.findUnique({ where: { name: pc.name } });
+    if (!existing) {
+      const category = await prisma.prizeCategory.create({
+        data: {
+          name: pc.name,
+          description: pc.description,
+          channelId: null,
+          detectionType: pc.detectionType,
+          thresholdConfig: pc.thresholdConfig,
+          scalingConfig: pc.scalingConfig,
+          isActive: true,
+        },
+      });
+      console.log(`Created prize category "${pc.name}": ${category.id}`);
+    } else {
+      console.log(`Prize category "${pc.name}" already exists: ${existing.id}`);
     }
   }
 

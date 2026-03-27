@@ -14,6 +14,7 @@ const ADMIN_NAV_ITEMS = [
   { href: '/admin/evaluations/models', label: 'Evaluations' },
   { href: '/admin/evaluations/review-queue', label: 'Review Queue' },
   { href: '/admin/publication/moderation', label: 'Moderation' },
+  { href: '/admin/prizes', label: 'Prizes' },
   { href: '/admin/audit-logs', label: 'Audit Logs' },
   { href: '/admin/compliance', label: 'Compliance' },
   { href: '/admin/reports', label: 'Reports' },

@@ -17,6 +17,7 @@ const DASHBOARD_NAV_ITEMS = [
   { href: '/dashboard/tasks', label: 'Tasks' },
   { href: '/dashboard/activity', label: 'Activity' },
   { href: '/dashboard/feedback', label: 'Feedback' },
+  { href: '/dashboard/nominations', label: 'Nominations' },
   { href: '/publication', label: 'Publication' },
   { href: '/dashboard/working-groups', label: 'Working Groups' },
   { href: '/dashboard/profile', label: 'Profile' },

@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { useAuth } from '../../../hooks/use-auth';
 
 const NAV_LINKS = [
+  { href: '/newspaper', label: 'Newspaper' },
   { href: '/articles', label: 'Publication' },
   { href: '/contributors', label: 'Contributors' },
   { href: '/about', label: 'About' },

@@ -21,6 +21,8 @@ import type {
   RoleChangeEvent,
   SprintNotificationEvent,
   ScopeChangeEvent,
+  PrizeAwardedEvent,
+  PeerNominationReceivedEvent,
 } from '@edin/shared';
 
 export interface NotificationJobData {
@@ -953,6 +955,64 @@ export class NotificationService {
       this.logger.error('Failed to process sprint scope change notification', {
         module: 'notification',
         sprintId: event.payload.sprintId,
+        correlationId: event.correlationId,
+        error: message,
+      });
+    }
+  }
+
+  // --- Prize Notification Handlers ---
+
+  @OnEvent('prize.event.awarded')
+  async handlePrizeAwarded(event: PrizeAwardedEvent): Promise<void> {
+    try {
+      const significanceLabels: Record<number, string> = {
+        1: 'Notable',
+        2: 'Significant',
+        3: 'Exceptional',
+      };
+      const significanceLevelLabel =
+        significanceLabels[event.payload.significanceLevel] ?? 'Notable';
+
+      await this.enqueueNotification({
+        contributorId: event.payload.recipientContributorId,
+        type: 'PRIZE_AWARDED' as PrismaNotificationType,
+        title: `${event.payload.prizeCategoryName} Prize Awarded`,
+        description: `You received a ${significanceLevelLabel} ${event.payload.prizeCategoryName} Prize`,
+        entityId: event.payload.prizeAwardId,
+        category: 'prizes',
+        correlationId: event.correlationId,
+      });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      this.logger.error('Failed to process prize awarded notification', {
+        module: 'notification',
+        prizeAwardId: event.payload.prizeAwardId,
+        recipientContributorId: event.payload.recipientContributorId,
+        correlationId: event.correlationId,
+        error: message,
+      });
+    }
+  }
+
+  @OnEvent('prize.event.peer_nomination_received')
+  async handlePeerNominationReceived(event: PeerNominationReceivedEvent): Promise<void> {
+    try {
+      await this.enqueueNotification({
+        contributorId: event.payload.nomineeId,
+        type: 'PEER_NOMINATION_RECEIVED' as PrismaNotificationType,
+        title: "You've been nominated for community recognition",
+        description: `You were nominated for ${event.payload.prizeCategoryName} in ${event.payload.channelName}`,
+        entityId: event.payload.nominationId,
+        category: 'prizes',
+        correlationId: event.correlationId,
+      });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      this.logger.error('Failed to process peer nomination received notification', {
+        module: 'notification',
+        nominationId: event.payload.nominationId,
+        nomineeId: event.payload.nomineeId,
         correlationId: event.correlationId,
         error: message,
       });

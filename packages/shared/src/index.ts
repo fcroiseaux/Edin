@@ -568,6 +568,72 @@ export type {
 
 export { AUDIT_EVENT_TYPES } from './types/admin.types.js';
 
+export {
+  channelTypeEnum,
+  prizeDetectionTypeEnum,
+  channelSchema,
+  createChannelSchema,
+  updateChannelSchema,
+  prizeCategorySchema,
+  createPrizeCategorySchema,
+  updatePrizeCategorySchema,
+  prizeAwardSchema,
+  prizeAwardQuerySchema,
+  thresholdConfigSchema,
+  scalingConfigSchema,
+  nominationStatusEnum,
+  createNominationSchema,
+} from './schemas/prize.schema.js';
+export type {
+  ChannelType,
+  PrizeDetectionType,
+  CreateChannelDto,
+  UpdateChannelDto,
+  CreatePrizeCategoryDto,
+  UpdatePrizeCategoryDto,
+  PrizeAwardQueryDto,
+  NominationStatusType,
+  CreateNominationDto,
+} from './schemas/prize.schema.js';
+
+export type {
+  CrossDomainCollaborationMetadata,
+  HighSignificanceMetadata,
+  CrossDomainDetectedEvent,
+  HighSignificanceDetectedEvent,
+  PrizeAwardedMetadata,
+  PrizeAwardedEvent,
+  PeerNominationReceivedEvent,
+  NominationVoteCastEvent,
+} from './types/prize-events.types.js';
+
+export type {
+  TrackRecordMilestoneCrossedEvent,
+  TrackRecordOutcomeGrantedEvent,
+} from './types/track-record-events.types.js';
+
+export type {
+  NewspaperEditionPublishedEvent,
+  NewspaperItemVoteCastEvent,
+} from './types/newspaper-events.types.js';
+
+export type {
+  NewspaperEditionDto,
+  NewspaperItemDto,
+  NewspaperEditionWithItemsDto,
+  NewspaperEditionItemsResponse,
+  EditionChannelDto,
+  ReferenceScaleDto,
+  ActivityLevel,
+  EditorialRankUpdateItemDto,
+  BulkEditorialRankUpdateDto,
+  EditorialCurationResultDto,
+  EditorialAuditEntryDto,
+  NewspaperItemVoteResultDto,
+  NewspaperItemVoteStatusDto,
+  NewspaperItemBatchVoteStatusDto,
+} from './types/newspaper.types.js';
+
 export { KPI_DEFINITIONS } from './constants/kpi-definitions.js';
 export type { KpiDefinition } from './constants/kpi-definitions.js';
 

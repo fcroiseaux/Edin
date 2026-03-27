@@ -569,4 +569,71 @@ describe('NotificationService', () => {
       expect(mockQueue.addBulk).not.toHaveBeenCalled();
     });
   });
+
+  describe('Prize notification handlers', () => {
+    it('handlePrizeAwarded enqueues notification with correct type, title, and category', async () => {
+      await service.handlePrizeAwarded({
+        eventType: 'prize.event.awarded',
+        timestamp: new Date().toISOString(),
+        correlationId: 'corr-prize',
+        actorId: 'contributor-1',
+        payload: {
+          prizeAwardId: 'award-1',
+          prizeCategoryId: 'cat-1',
+          prizeCategoryName: 'Cross-Domain Collaboration',
+          recipientContributorId: 'contributor-1',
+          contributionId: 'contrib-1',
+          significanceLevel: 2,
+          channelId: 'ch-1',
+          chathamHouseLabel: 'a technology and finance specialist',
+          narrative: 'Recognized for bridging Technology and Finance domains',
+        },
+      });
+
+      expect(mockQueue.add).toHaveBeenCalledWith(
+        'send-notification',
+        expect.objectContaining({
+          contributorId: 'contributor-1',
+          type: 'PRIZE_AWARDED',
+          title: 'Cross-Domain Collaboration Prize Awarded',
+          description: 'You received a Significant Cross-Domain Collaboration Prize',
+          entityId: 'award-1',
+          category: 'prizes',
+          correlationId: 'corr-prize',
+        }),
+        expect.objectContaining({
+          removeOnComplete: true,
+          removeOnFail: false,
+        }),
+      );
+    });
+
+    it('handles missing significance level gracefully', async () => {
+      await service.handlePrizeAwarded({
+        eventType: 'prize.event.awarded',
+        timestamp: new Date().toISOString(),
+        correlationId: 'corr-prize-2',
+        actorId: 'contributor-2',
+        payload: {
+          prizeAwardId: 'award-2',
+          prizeCategoryId: 'cat-1',
+          prizeCategoryName: 'Breakthrough',
+          recipientContributorId: 'contributor-2',
+          contributionId: 'contrib-2',
+          significanceLevel: 99,
+          channelId: 'ch-1',
+          chathamHouseLabel: 'a technology specialist',
+          narrative: 'Breakthrough contribution',
+        },
+      });
+
+      expect(mockQueue.add).toHaveBeenCalledWith(
+        'send-notification',
+        expect.objectContaining({
+          description: 'You received a Notable Breakthrough Prize',
+        }),
+        expect.any(Object),
+      );
+    });
+  });
 });
