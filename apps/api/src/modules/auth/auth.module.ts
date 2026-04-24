@@ -5,6 +5,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service.js';
 import { AuthController } from './auth.controller.js';
 import { GithubStrategy } from './strategies/github.strategy.js';
+import { GoogleStrategy } from './strategies/google.strategy.js';
 import { JwtStrategy } from './strategies/jwt.strategy.js';
 import { CaslModule } from './casl/casl.module.js';
 import { AbilityGuard } from '../../common/guards/ability.guard.js';
@@ -28,7 +29,7 @@ import { AbilityGuard } from '../../common/guards/ability.guard.js';
     CaslModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, GithubStrategy, JwtStrategy, AbilityGuard],
+  providers: [AuthService, GithubStrategy, GoogleStrategy, JwtStrategy, AbilityGuard],
   exports: [AuthService, JwtModule, CaslModule],
 })
 export class AuthModule {}

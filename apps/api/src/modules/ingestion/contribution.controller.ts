@@ -61,7 +61,7 @@ export class ContributionController {
 
     // Find the contributor record for the authenticated user
     const contributor = await this.prisma.contributor.findUnique({
-      where: { githubId: user.githubId },
+      where: { id: user.id },
       select: { id: true },
     });
 
@@ -198,7 +198,7 @@ export class ContributionController {
   ) {
     // Find the contributor record for the authenticated user
     const contributor = await this.prisma.contributor.findUnique({
-      where: { githubId: user.githubId },
+      where: { id: user.id },
       select: { id: true },
     });
 

@@ -11,7 +11,12 @@ import { AuditService } from '../compliance/audit/audit.service.js';
 describe('AuthService', () => {
   let service: AuthService;
   let prisma: {
-    contributor: { findUnique: ReturnType<typeof vi.fn>; upsert: ReturnType<typeof vi.fn> };
+    contributor: {
+      findUnique: ReturnType<typeof vi.fn>;
+      upsert: ReturnType<typeof vi.fn>;
+      update: ReturnType<typeof vi.fn>;
+      create: ReturnType<typeof vi.fn>;
+    };
   };
   let mockAuditService: { log: ReturnType<typeof vi.fn> };
   let jwtService: { signAsync: ReturnType<typeof vi.fn> };
@@ -26,6 +31,7 @@ describe('AuthService', () => {
     id: '550e8400-e29b-41d4-a716-446655440000',
     githubId: 12345,
     githubUsername: 'testuser',
+    googleId: null,
     name: 'Test User',
     email: 'test@example.com',
     avatarUrl: 'https://avatars.githubusercontent.com/u/12345',
@@ -40,6 +46,8 @@ describe('AuthService', () => {
       contributor: {
         findUnique: vi.fn(),
         upsert: vi.fn(),
+        update: vi.fn(),
+        create: vi.fn(),
       },
     };
 
@@ -127,6 +135,157 @@ describe('AuthService', () => {
       expect(result.isNewUser).toBe(false);
       expect(result.contributor.id).toBe(mockContributor.id);
       expect(mockAuditService.log).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('validateGoogleUser', () => {
+    const verifiedGoogleProfile = {
+      googleId: 'g-117',
+      displayName: 'Alice Doe',
+      email: 'alice@example.com',
+      emailVerified: true,
+      avatarUrl: 'https://lh3.googleusercontent.com/a/alice',
+    };
+
+    const googleContributor = {
+      ...mockContributor,
+      id: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+      githubId: null,
+      githubUsername: null,
+      googleId: 'g-117',
+      email: 'alice@example.com',
+      name: 'Alice Doe',
+    };
+
+    it('returns and refreshes an existing contributor matched by googleId', async () => {
+      // findUnique({ where: { googleId } }) → existing contributor
+      prisma.contributor.findUnique.mockResolvedValueOnce(googleContributor);
+      prisma.contributor.update.mockResolvedValueOnce(googleContributor);
+
+      const result = await service.validateGoogleUser(verifiedGoogleProfile, 'corr-g-1');
+
+      expect(result.isNewUser).toBe(false);
+      expect(result.contributor.id).toBe(googleContributor.id);
+      expect(result.contributor.googleId).toBe('g-117');
+      expect(prisma.contributor.update).toHaveBeenCalledWith({
+        where: { id: googleContributor.id },
+        data: expect.objectContaining({
+          name: 'Alice Doe',
+          email: 'alice@example.com',
+        }),
+      });
+      expect(mockAuditService.log).not.toHaveBeenCalled();
+    });
+
+    it('links Google account onto an existing GitHub-only contributor when email is verified and matches', async () => {
+      // First findUnique (by googleId) → null; second findUnique (by email) → existing
+      prisma.contributor.findUnique
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(mockContributor);
+      prisma.contributor.update.mockResolvedValueOnce({
+        ...mockContributor,
+        googleId: 'g-117',
+        name: 'Alice Doe',
+      });
+
+      const result = await service.validateGoogleUser(
+        { ...verifiedGoogleProfile, email: mockContributor.email },
+        'corr-g-2',
+      );
+
+      expect(result.isNewUser).toBe(false);
+      expect(result.contributor.id).toBe(mockContributor.id);
+      expect(result.contributor.googleId).toBe('g-117');
+      expect(prisma.contributor.update).toHaveBeenCalledWith({
+        where: { id: mockContributor.id },
+        data: expect.objectContaining({ googleId: 'g-117' }),
+      });
+      expect(mockAuditService.log).toHaveBeenCalledWith(
+        expect.objectContaining({
+          action: 'UPDATED',
+          entityType: 'contributor',
+          details: expect.objectContaining({ source: 'google_oauth_link' }),
+        }),
+      );
+    });
+
+    it('throws ACCOUNT_LINK_CONFLICT when matched email already has a different googleId', async () => {
+      prisma.contributor.findUnique
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce({ ...mockContributor, googleId: 'g-OTHER' });
+
+      await expect(
+        service.validateGoogleUser(
+          { ...verifiedGoogleProfile, email: mockContributor.email },
+          'corr-g-3',
+        ),
+      ).rejects.toThrow(DomainException);
+
+      expect(prisma.contributor.update).not.toHaveBeenCalled();
+      expect(prisma.contributor.create).not.toHaveBeenCalled();
+    });
+
+    it('does NOT link when emailVerified is false — creates a new contributor instead', async () => {
+      prisma.contributor.findUnique.mockResolvedValueOnce(null);
+      prisma.contributor.create.mockResolvedValueOnce(googleContributor);
+
+      const result = await service.validateGoogleUser(
+        { ...verifiedGoogleProfile, emailVerified: false },
+        'corr-g-4',
+      );
+
+      expect(result.isNewUser).toBe(true);
+      // Only one findUnique (by googleId) — email-match branch must be skipped.
+      expect(prisma.contributor.findUnique).toHaveBeenCalledTimes(1);
+      expect(prisma.contributor.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          googleId: 'g-117',
+          email: 'alice@example.com',
+          role: 'APPLICANT',
+        }),
+      });
+      expect(mockAuditService.log).toHaveBeenCalledWith(
+        expect.objectContaining({
+          action: 'CREATED',
+          details: expect.objectContaining({ source: 'google_oauth' }),
+        }),
+      );
+    });
+
+    it('creates a new contributor when no match anywhere', async () => {
+      prisma.contributor.findUnique
+        .mockResolvedValueOnce(null) // by googleId
+        .mockResolvedValueOnce(null); // by email
+      prisma.contributor.create.mockResolvedValueOnce(googleContributor);
+
+      const result = await service.validateGoogleUser(verifiedGoogleProfile, 'corr-g-5');
+
+      expect(result.isNewUser).toBe(true);
+      expect(prisma.contributor.create).toHaveBeenCalled();
+    });
+
+    it('handles missing email by creating a new contributor without lookup-by-email', async () => {
+      prisma.contributor.findUnique.mockResolvedValueOnce(null);
+      prisma.contributor.create.mockResolvedValueOnce({ ...googleContributor, email: null });
+
+      const result = await service.validateGoogleUser(
+        { ...verifiedGoogleProfile, email: null },
+        'corr-g-6',
+      );
+
+      expect(result.isNewUser).toBe(true);
+      expect(result.contributor.email).toBeNull();
+      expect(prisma.contributor.findUnique).toHaveBeenCalledTimes(1); // googleId only
+    });
+
+    it('translates Prisma P2002 unique-violation on create into ACCOUNT_LINK_CONFLICT', async () => {
+      prisma.contributor.findUnique.mockResolvedValueOnce(null);
+      const p2002 = Object.assign(new Error('Unique constraint failed'), { code: 'P2002' });
+      prisma.contributor.create.mockRejectedValueOnce(p2002);
+
+      await expect(
+        service.validateGoogleUser({ ...verifiedGoogleProfile, emailVerified: false }, 'corr-g-7'),
+      ).rejects.toThrow(DomainException);
     });
   });
 

@@ -2,15 +2,18 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { HttpStatus } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { ERROR_CODES } from '@edin/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AuthController } from './auth.controller.js';
 import { AuthService } from './auth.service.js';
 import { CaslAbilityFactory } from './casl/ability.factory.js';
+import { DomainException } from '../../common/exceptions/domain.exception.js';
 
 describe('AuthController', () => {
   let controller: AuthController;
   let authService: {
     validateGithubUser: ReturnType<typeof vi.fn>;
+    validateGoogleUser: ReturnType<typeof vi.fn>;
     generateTokens: ReturnType<typeof vi.fn>;
     refreshTokens: ReturnType<typeof vi.fn>;
     logout: ReturnType<typeof vi.fn>;
@@ -35,6 +38,10 @@ describe('AuthController', () => {
   beforeEach(async () => {
     authService = {
       validateGithubUser: vi.fn().mockResolvedValue({
+        contributor: mockContributor,
+        isNewUser: false,
+      }),
+      validateGoogleUser: vi.fn().mockResolvedValue({
         contributor: mockContributor,
         isNewUser: false,
       }),
@@ -106,6 +113,89 @@ describe('AuthController', () => {
       expect(mockRes.redirect).toHaveBeenCalledWith(
         expect.stringContaining('http://localhost:3000/api/auth/callback'),
       );
+    });
+  });
+
+  describe('googleLogin', () => {
+    it('is defined (Passport handles redirect)', () => {
+      expect(typeof controller.googleLogin).toBe('function');
+    });
+  });
+
+  describe('googleCallback', () => {
+    it('sets refresh token cookie and redirects to frontend on success', async () => {
+      const mockReq = {
+        correlationId: 'corr-g-1',
+        user: {
+          googleId: 'g-117',
+          displayName: 'Alice Doe',
+          email: 'alice@example.com',
+          emailVerified: true,
+          avatarUrl: null,
+        },
+      };
+      const mockRes = { cookie: vi.fn(), redirect: vi.fn() };
+
+      await controller.googleCallback(mockReq as any, mockRes as any);
+
+      expect(authService.validateGoogleUser).toHaveBeenCalledWith(mockReq.user, 'corr-g-1');
+      expect(authService.generateTokens).toHaveBeenCalledWith(mockContributor);
+      expect(mockRes.cookie).toHaveBeenCalledWith(
+        'edin_refresh_token',
+        mockTokens.refreshToken,
+        expect.objectContaining({ httpOnly: true, sameSite: 'strict', path: '/' }),
+      );
+      expect(mockRes.redirect).toHaveBeenCalledWith(
+        expect.stringContaining('http://localhost:3000/api/auth/callback'),
+      );
+    });
+
+    it('redirects to /sign-in?error=account_link_conflict on link conflict', async () => {
+      authService.validateGoogleUser.mockRejectedValueOnce(
+        new DomainException(
+          ERROR_CODES.ACCOUNT_LINK_CONFLICT,
+          'Email already linked to a different Google account',
+          HttpStatus.CONFLICT,
+        ),
+      );
+      const mockReq = { correlationId: 'corr-g-2', user: { googleId: 'g-1' } };
+      const mockRes = { cookie: vi.fn(), redirect: vi.fn() };
+
+      await controller.googleCallback(mockReq as any, mockRes as any);
+
+      expect(mockRes.cookie).not.toHaveBeenCalled();
+      expect(mockRes.redirect).toHaveBeenCalledWith(
+        expect.stringContaining('/sign-in?error=account_link_conflict'),
+      );
+    });
+
+    it('redirects to /sign-in?error=email_verification_required when verification message is set', async () => {
+      authService.validateGoogleUser.mockRejectedValueOnce(
+        new DomainException(
+          ERROR_CODES.ACCOUNT_LINK_CONFLICT,
+          'Verified email required to link to existing account',
+          HttpStatus.CONFLICT,
+        ),
+      );
+      const mockReq = { correlationId: 'corr-g-3', user: { googleId: 'g-1' } };
+      const mockRes = { cookie: vi.fn(), redirect: vi.fn() };
+
+      await controller.googleCallback(mockReq as any, mockRes as any);
+
+      expect(mockRes.redirect).toHaveBeenCalledWith(
+        expect.stringContaining('/sign-in?error=email_verification_required'),
+      );
+    });
+
+    it('rethrows non-link-conflict errors', async () => {
+      authService.validateGoogleUser.mockRejectedValueOnce(new Error('boom'));
+      const mockReq = { correlationId: 'corr-g-4', user: { googleId: 'g-1' } };
+      const mockRes = { cookie: vi.fn(), redirect: vi.fn() };
+
+      await expect(controller.googleCallback(mockReq as any, mockRes as any)).rejects.toThrow(
+        'boom',
+      );
+      expect(mockRes.redirect).not.toHaveBeenCalled();
     });
   });
 

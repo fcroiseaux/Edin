@@ -3,7 +3,8 @@ import type { Request } from 'express';
 
 export interface CurrentUserPayload {
   id: string;
-  githubId: number;
+  githubId: number | null;
+  googleId: string | null;
   name: string;
   email: string | null;
   avatarUrl: string | null;

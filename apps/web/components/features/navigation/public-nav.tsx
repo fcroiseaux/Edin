@@ -17,7 +17,7 @@ const NAV_LINKS = [
 
 export function PublicNav() {
   const pathname = usePathname();
-  const { user, isAuthenticated, isLoading, login, logout } = useAuth();
+  const { user, isAuthenticated, isLoading, logout } = useAuth();
 
   return (
     <nav className="border-b border-surface-subtle bg-surface-raised" aria-label="Main navigation">
@@ -83,12 +83,12 @@ export function PublicNav() {
                 </button>
               </div>
             ) : (
-              <button
-                onClick={login}
+              <Link
+                href="/sign-in"
                 className="rounded-md bg-accent-primary px-4 py-1.5 font-sans text-[14px] font-medium text-text-primary transition-colors hover:bg-accent-primary-hover"
               >
-                Login with GitHub
-              </button>
+                Sign in
+              </Link>
             )}
           </li>
         </ul>

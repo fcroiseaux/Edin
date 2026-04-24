@@ -46,9 +46,9 @@ export default function GettingStartedPage() {
         </h3>
         <ol className="mt-[var(--spacing-sm)] flex flex-col gap-[var(--spacing-sm)] pl-[var(--spacing-md)] list-decimal">
           <li className="font-sans text-[14px] leading-[1.6] text-text-secondary">
-            <strong className="text-text-primary">Sign in with GitHub</strong> — visit the{' '}
+            <strong className="text-text-primary">Sign in with GitHub or Google</strong> — visit the{' '}
             <span className="text-accent-primary">Apply</span> page and authenticate with your
-            GitHub account.
+            GitHub or Google account.
           </li>
           <li className="font-sans text-[14px] leading-[1.6] text-text-secondary">
             <strong className="text-text-primary">Select your domain</strong> — choose your primary

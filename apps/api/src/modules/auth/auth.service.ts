@@ -10,6 +10,17 @@ import { RedisService } from '../../common/redis/redis.service.js';
 import { DomainException } from '../../common/exceptions/domain.exception.js';
 import { AuditService } from '../compliance/audit/audit.service.js';
 import type { GithubProfile } from './strategies/github.strategy.js';
+import type { GoogleProfile } from './strategies/google.strategy.js';
+
+interface AuthContributor {
+  id: string;
+  role: string;
+  githubId: number | null;
+  googleId: string | null;
+  name: string;
+  email: string | null;
+  avatarUrl: string | null;
+}
 
 interface TokenPair {
   accessToken: string;
@@ -38,17 +49,7 @@ export class AuthService {
   async validateGithubUser(
     profile: GithubProfile,
     correlationId?: string,
-  ): Promise<{
-    contributor: {
-      id: string;
-      role: string;
-      githubId: number;
-      name: string;
-      email: string | null;
-      avatarUrl: string | null;
-    };
-    isNewUser: boolean;
-  }> {
+  ): Promise<{ contributor: AuthContributor; isNewUser: boolean }> {
     const existing = await this.prisma.contributor.findUnique({
       where: { githubId: profile.githubId },
     });
@@ -95,15 +96,149 @@ export class AuthService {
     }
 
     return {
-      contributor: {
-        id: contributor.id,
-        role: contributor.role,
-        githubId: contributor.githubId,
-        name: contributor.name,
-        email: contributor.email,
-        avatarUrl: contributor.avatarUrl,
-      },
+      contributor: this.toAuthContributor(contributor),
       isNewUser,
+    };
+  }
+
+  async validateGoogleUser(
+    profile: GoogleProfile,
+    correlationId?: string,
+  ): Promise<{ contributor: AuthContributor; isNewUser: boolean }> {
+    const byGoogleId = await this.prisma.contributor.findUnique({
+      where: { googleId: profile.googleId },
+    });
+
+    if (byGoogleId) {
+      const updated = await this.prisma.contributor.update({
+        where: { id: byGoogleId.id },
+        data: {
+          name: profile.displayName,
+          email: profile.email,
+          avatarUrl: profile.avatarUrl,
+        },
+      });
+      this.logger.log('Existing contributor logged in via Google OAuth', {
+        contributorId: updated.id,
+        isNewUser: false,
+        correlationId,
+      });
+      return { contributor: this.toAuthContributor(updated), isNewUser: false };
+    }
+
+    if (profile.email && profile.emailVerified) {
+      const byEmail = await this.prisma.contributor.findUnique({
+        where: { email: profile.email },
+      });
+
+      if (byEmail) {
+        if (byEmail.googleId && byEmail.googleId !== profile.googleId) {
+          this.logger.warn('Google account link conflict — email belongs to a different googleId', {
+            contributorId: byEmail.id,
+            correlationId,
+          });
+          throw new DomainException(
+            ERROR_CODES.ACCOUNT_LINK_CONFLICT,
+            'Email already linked to a different Google account',
+            HttpStatus.CONFLICT,
+          );
+        }
+
+        const linked = await this.prisma.contributor.update({
+          where: { id: byEmail.id },
+          data: {
+            googleId: profile.googleId,
+            name: profile.displayName,
+            avatarUrl: profile.avatarUrl,
+          },
+        });
+
+        await this.createAuditLog(
+          'UPDATED',
+          'contributor',
+          linked.id,
+          {
+            source: 'google_oauth_link',
+            previouslyHadGithubId: byEmail.githubId !== null,
+          },
+          correlationId,
+          linked.id,
+        );
+
+        this.logger.log('Linked Google account to existing contributor', {
+          contributorId: linked.id,
+          isNewUser: false,
+          correlationId,
+        });
+
+        return { contributor: this.toAuthContributor(linked), isNewUser: false };
+      }
+    }
+
+    try {
+      const created = await this.prisma.contributor.create({
+        data: {
+          googleId: profile.googleId,
+          email: profile.email,
+          name: profile.displayName,
+          avatarUrl: profile.avatarUrl,
+          role: 'APPLICANT',
+        },
+      });
+
+      await this.createAuditLog(
+        'CREATED',
+        'contributor',
+        created.id,
+        { source: 'google_oauth', googleId: profile.googleId },
+        correlationId,
+      );
+
+      this.logger.log('New contributor created via Google OAuth', {
+        contributorId: created.id,
+        isNewUser: true,
+        correlationId,
+      });
+
+      return { contributor: this.toAuthContributor(created), isNewUser: true };
+    } catch (err) {
+      // Unique-email collision on create — happens when a Google sign-in's email matches
+      // an existing contributor but `email_verified` was false (so we did not link above).
+      // Surface as ACCOUNT_LINK_CONFLICT so the controller redirects to /sign-in?error=email_verification_required.
+      if (err instanceof Error && 'code' in err && (err as { code?: string }).code === 'P2002') {
+        this.logger.warn(
+          'Google sign-in blocked: unverified email collides with existing contributor',
+          {
+            correlationId,
+          },
+        );
+        throw new DomainException(
+          ERROR_CODES.ACCOUNT_LINK_CONFLICT,
+          'Verified email required to link to existing account',
+          HttpStatus.CONFLICT,
+        );
+      }
+      throw err;
+    }
+  }
+
+  private toAuthContributor(contributor: {
+    id: string;
+    role: string;
+    githubId: number | null;
+    googleId: string | null;
+    name: string;
+    email: string | null;
+    avatarUrl: string | null;
+  }): AuthContributor {
+    return {
+      id: contributor.id,
+      role: contributor.role,
+      githubId: contributor.githubId,
+      googleId: contributor.googleId,
+      name: contributor.name,
+      email: contributor.email,
+      avatarUrl: contributor.avatarUrl,
     };
   }
 

@@ -52,7 +52,7 @@ export class CollaborationController {
     @Req() req: Request,
   ) {
     const contributor = await this.prisma.contributor.findUnique({
-      where: { githubId: user.githubId },
+      where: { id: user.id },
       select: { id: true },
     });
 
@@ -183,7 +183,7 @@ export class CollaborationController {
     }
 
     const contributor = await this.prisma.contributor.findUnique({
-      where: { githubId: user.githubId },
+      where: { id: user.id },
       select: { id: true },
     });
 

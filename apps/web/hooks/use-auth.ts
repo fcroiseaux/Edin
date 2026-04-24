@@ -8,7 +8,8 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 interface User {
   id: string;
-  githubId: number;
+  githubId: number | null;
+  googleId: string | null;
   name: string;
   email: string | null;
   avatarUrl: string | null;
@@ -19,7 +20,8 @@ interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: () => void;
+  loginWithGithub: () => void;
+  loginWithGoogle: () => void;
   logout: () => Promise<void>;
 }
 
@@ -63,8 +65,12 @@ export function useAuth(): AuthState {
     retry: false,
   });
 
-  const login = () => {
+  const loginWithGithub = () => {
     window.location.href = `${API_BASE_URL}/api/v1/auth/github`;
+  };
+
+  const loginWithGoogle = () => {
+    window.location.href = `${API_BASE_URL}/api/v1/auth/google`;
   };
 
   const logout = async () => {
@@ -84,7 +90,8 @@ export function useAuth(): AuthState {
     user: user ?? null,
     isAuthenticated: !!user,
     isLoading,
-    login,
+    loginWithGithub,
+    loginWithGoogle,
     logout,
   };
 }

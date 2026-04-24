@@ -140,7 +140,7 @@ export class AdminContributionController {
     }
 
     const admin = await this.prisma.contributor.findUnique({
-      where: { githubId: user.githubId },
+      where: { id: user.id },
       select: { id: true },
     });
 

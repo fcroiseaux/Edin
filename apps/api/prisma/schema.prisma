@@ -278,69 +278,70 @@ enum EvaluationReviewStatus {
 // ─── Core Schema ────────────────────────────────────────────────────────────
 
 model Contributor {
-  id         String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  githubId   Int               @unique @map("github_id")
-  githubUsername String?       @unique @map("github_username")
-  email      String?           @unique
-  name       String
-  bio        String?           @db.VarChar(500)
-  avatarUrl  String?           @map("avatar_url")
-  domain     ContributorDomain?
-  skillAreas String[]          @default([]) @map("skill_areas")
-  role       ContributorRole   @default(PUBLIC)
-  isActive   Boolean           @default(true) @map("is_active")
-  createdAt  DateTime          @default(now()) @map("created_at")
-  updatedAt  DateTime          @updatedAt @map("updated_at")
+  id             String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  githubId       Int?               @unique @map("github_id")
+  githubUsername String?            @unique @map("github_username")
+  googleId       String?            @unique @map("google_id")
+  email          String?            @unique
+  name           String
+  bio            String?            @db.VarChar(500)
+  avatarUrl      String?            @map("avatar_url")
+  domain         ContributorDomain?
+  skillAreas     String[]           @default([]) @map("skill_areas")
+  role           ContributorRole    @default(PUBLIC)
+  isActive       Boolean            @default(true) @map("is_active")
+  createdAt      DateTime           @default(now()) @map("created_at")
+  updatedAt      DateTime           @updatedAt @map("updated_at")
 
-  buddyOptIn             Boolean           @default(false) @map("buddy_opt_in")
-  showEvaluationScores   Boolean           @default(false) @map("show_evaluation_scores")
+  buddyOptIn           Boolean @default(false) @map("buddy_opt_in")
+  showEvaluationScores Boolean @default(false) @map("show_evaluation_scores")
 
-  auditLogs              AuditLog[]
-  applications           Application[]    @relation("ApplicationContributor")
-  reviewedApplications   Application[]    @relation("ApplicationReviewer")
-  applicationReviews     ApplicationReview[] @relation("ReviewAuthor")
-  buddyAssignments       BuddyAssignment[] @relation("BuddyMentee")
-  buddyMentees           BuddyAssignment[] @relation("BuddyMentor")
-  onboardingMilestones   OnboardingMilestone[]
-  monitoredRepositories  MonitoredRepository[]
-  contributions              Contribution[]
-  collaborations             ContributionCollaboration[]
-  collaborationOverrides     ContributionCollaboration[] @relation("CollaborationOverriddenBy")
-  workingGroupMemberships    WorkingGroupMember[]
-  claimedTasks               Task[]              @relation("TaskClaimer")
-  createdTasks               Task[]              @relation("TaskCreator")
-  ledWorkingGroups           WorkingGroup[]      @relation("WorkingGroupLead")
-  announcements              Announcement[]
-  activityEvents             ActivityEvent[]
-  notifications              Notification[]
-  peerFeedbacksGiven         PeerFeedback[]      @relation("ReviewerFeedbacks")
-  platformSettings           PlatformSetting[]
-  evaluations                Evaluation[]
-  evaluationReviewsAsContributor EvaluationReview[] @relation("EvaluationReviewContributor")
-  evaluationReviewsAsReviewer    EvaluationReview[] @relation("EvaluationReviewReviewer")
-  articles               Article[]            @relation("ArticleAuthor")
-  editedArticles         Article[]            @relation("ArticleEditor")
-  articleVersions        ArticleVersion[]     @relation("ArticleVersionCreator")
-  editorialFeedback      EditorialFeedback[]  @relation("EditorialFeedbackEditor")
-  editorialInlineComments InlineComment[]     @relation("InlineCommentEditor")
-  editorApplications     EditorApplication[]  @relation("EditorApplicationContributor")
-  reviewedEditorApps     EditorApplication[]  @relation("EditorApplicationReviewedBy")
-  revokedEditorApps      EditorApplication[]  @relation("EditorApplicationRevokedBy")
-  updatedEditorCriteria  EditorEligibilityCriteria[] @relation("EditorCriteriaUpdatedBy")
-  authorRewardAllocations  ArticleRewardAllocation[] @relation("AuthorRewardAllocations")
-  editorRewardAllocations  ArticleRewardAllocation[] @relation("EditorRewardAllocations")
-  moderationActions        ModerationReport[]        @relation("ModerationAdmin")
-  dataExportRequests       DataExportRequest[]       @relation("DataExportRequests")
-  dataDeletionRequests     DataDeletionRequest[]     @relation("DataDeletionRequests")
-  reviewedComplianceDocs   ComplianceDocument[]      @relation("ComplianceDocumentReviewer")
-  prizeAwards              PrizeAward[]
-  nominationsAsNominator   CommunityNomination[] @relation("NominationsAsNominator")
-  nominationsAsNominee     CommunityNomination[] @relation("NominationsAsNominee")
-  nominationVotes          NominationVote[]      @relation("NominationVotes")
-  trackRecordEvaluations   TrackRecordEvaluation[]
-  trackRecordMilestones    TrackRecordMilestone[]
-  trackRecordOutcomes      TrackRecordOutcome[]
-  newspaperItemVotes       NewspaperItemVote[]   @relation("NewspaperItemVotes")
+  auditLogs                      AuditLog[]
+  applications                   Application[]               @relation("ApplicationContributor")
+  reviewedApplications           Application[]               @relation("ApplicationReviewer")
+  applicationReviews             ApplicationReview[]         @relation("ReviewAuthor")
+  buddyAssignments               BuddyAssignment[]           @relation("BuddyMentee")
+  buddyMentees                   BuddyAssignment[]           @relation("BuddyMentor")
+  onboardingMilestones           OnboardingMilestone[]
+  monitoredRepositories          MonitoredRepository[]
+  contributions                  Contribution[]
+  collaborations                 ContributionCollaboration[]
+  collaborationOverrides         ContributionCollaboration[] @relation("CollaborationOverriddenBy")
+  workingGroupMemberships        WorkingGroupMember[]
+  claimedTasks                   Task[]                      @relation("TaskClaimer")
+  createdTasks                   Task[]                      @relation("TaskCreator")
+  ledWorkingGroups               WorkingGroup[]              @relation("WorkingGroupLead")
+  announcements                  Announcement[]
+  activityEvents                 ActivityEvent[]
+  notifications                  Notification[]
+  peerFeedbacksGiven             PeerFeedback[]              @relation("ReviewerFeedbacks")
+  platformSettings               PlatformSetting[]
+  evaluations                    Evaluation[]
+  evaluationReviewsAsContributor EvaluationReview[]          @relation("EvaluationReviewContributor")
+  evaluationReviewsAsReviewer    EvaluationReview[]          @relation("EvaluationReviewReviewer")
+  articles                       Article[]                   @relation("ArticleAuthor")
+  editedArticles                 Article[]                   @relation("ArticleEditor")
+  articleVersions                ArticleVersion[]            @relation("ArticleVersionCreator")
+  editorialFeedback              EditorialFeedback[]         @relation("EditorialFeedbackEditor")
+  editorialInlineComments        InlineComment[]             @relation("InlineCommentEditor")
+  editorApplications             EditorApplication[]         @relation("EditorApplicationContributor")
+  reviewedEditorApps             EditorApplication[]         @relation("EditorApplicationReviewedBy")
+  revokedEditorApps              EditorApplication[]         @relation("EditorApplicationRevokedBy")
+  updatedEditorCriteria          EditorEligibilityCriteria[] @relation("EditorCriteriaUpdatedBy")
+  authorRewardAllocations        ArticleRewardAllocation[]   @relation("AuthorRewardAllocations")
+  editorRewardAllocations        ArticleRewardAllocation[]   @relation("EditorRewardAllocations")
+  moderationActions              ModerationReport[]          @relation("ModerationAdmin")
+  dataExportRequests             DataExportRequest[]         @relation("DataExportRequests")
+  dataDeletionRequests           DataDeletionRequest[]       @relation("DataDeletionRequests")
+  reviewedComplianceDocs         ComplianceDocument[]        @relation("ComplianceDocumentReviewer")
+  prizeAwards                    PrizeAward[]
+  nominationsAsNominator         CommunityNomination[]       @relation("NominationsAsNominator")
+  nominationsAsNominee           CommunityNomination[]       @relation("NominationsAsNominee")
+  nominationVotes                NominationVote[]            @relation("NominationVotes")
+  trackRecordEvaluations         TrackRecordEvaluation[]
+  trackRecordMilestones          TrackRecordMilestone[]
+  trackRecordOutcomes            TrackRecordOutcome[]
+  newspaperItemVotes             NewspaperItemVote[]         @relation("NewspaperItemVotes")
 
   @@map("contributors")
   @@schema("core")
@@ -366,26 +367,26 @@ model Application {
   createdAt              DateTime          @default(now()) @map("created_at")
   updatedAt              DateTime          @updatedAt @map("updated_at")
 
-  contributor            Contributor?      @relation("ApplicationContributor", fields: [contributorId], references: [id])
-  reviewedBy             Contributor?      @relation("ApplicationReviewer", fields: [reviewedById], references: [id])
-  reviews                ApplicationReview[]
+  contributor Contributor?        @relation("ApplicationContributor", fields: [contributorId], references: [id])
+  reviewedBy  Contributor?        @relation("ApplicationReviewer", fields: [reviewedById], references: [id])
+  reviews     ApplicationReview[]
 
-  @@map("applications")
   @@unique([applicantEmail], map: "applications_applicant_email_key")
+  @@map("applications")
   @@schema("core")
 }
 
 model ApplicationReview {
-  id               String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  applicationId    String               @map("application_id") @db.Uuid
-  reviewerId       String               @map("reviewer_id") @db.Uuid
-  recommendation   ReviewRecommendation?
-  feedback         String?
-  submittedAt      DateTime?            @map("submitted_at")
-  createdAt        DateTime             @default(now()) @map("created_at")
+  id             String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  applicationId  String                @map("application_id") @db.Uuid
+  reviewerId     String                @map("reviewer_id") @db.Uuid
+  recommendation ReviewRecommendation?
+  feedback       String?
+  submittedAt    DateTime?             @map("submitted_at")
+  createdAt      DateTime              @default(now()) @map("created_at")
 
-  application      Application          @relation(fields: [applicationId], references: [id])
-  reviewer         Contributor          @relation("ReviewAuthor", fields: [reviewerId], references: [id])
+  application Application @relation(fields: [applicationId], references: [id])
+  reviewer    Contributor @relation("ReviewAuthor", fields: [reviewerId], references: [id])
 
   @@map("application_reviews")
   @@schema("core")
@@ -409,29 +410,29 @@ model MicroTask {
 }
 
 model BuddyAssignment {
-  id             String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  contributorId  String            @map("contributor_id") @db.Uuid
-  buddyId        String            @map("buddy_id") @db.Uuid
-  assignedAt     DateTime          @default(now()) @map("assigned_at")
-  expiresAt      DateTime          @map("expires_at")
-  isActive       Boolean           @default(true) @map("is_active")
-  notes          String?
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  contributorId String   @map("contributor_id") @db.Uuid
+  buddyId       String   @map("buddy_id") @db.Uuid
+  assignedAt    DateTime @default(now()) @map("assigned_at")
+  expiresAt     DateTime @map("expires_at")
+  isActive      Boolean  @default(true) @map("is_active")
+  notes         String?
 
-  contributor    Contributor       @relation("BuddyMentee", fields: [contributorId], references: [id])
-  buddy          Contributor       @relation("BuddyMentor", fields: [buddyId], references: [id])
+  contributor Contributor @relation("BuddyMentee", fields: [contributorId], references: [id])
+  buddy       Contributor @relation("BuddyMentor", fields: [buddyId], references: [id])
 
   @@map("buddy_assignments")
   @@schema("core")
 }
 
 model OnboardingMilestone {
-  id             String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  contributorId  String                   @map("contributor_id") @db.Uuid
-  milestoneType  OnboardingMilestoneType  @map("milestone_type")
-  completedAt    DateTime                 @default(now()) @map("completed_at")
-  metadata       Json?
+  id            String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  contributorId String                  @map("contributor_id") @db.Uuid
+  milestoneType OnboardingMilestoneType @map("milestone_type")
+  completedAt   DateTime                @default(now()) @map("completed_at")
+  metadata      Json?
 
-  contributor    Contributor              @relation(fields: [contributorId], references: [id])
+  contributor Contributor @relation(fields: [contributorId], references: [id])
 
   @@unique([contributorId, milestoneType], map: "onboarding_milestones_contributor_type_key")
   @@map("onboarding_milestones")
@@ -439,22 +440,22 @@ model OnboardingMilestone {
 }
 
 model MonitoredRepository {
-  id             String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  owner          String
-  repo           String
-  fullName       String               @unique @map("full_name")
-  webhookId      Int?                 @map("webhook_id")
-  webhookSecret  String               @map("webhook_secret")
-  status         RepositoryStatus     @default(PENDING)
-  statusMessage  String?              @map("status_message")
-  visibility     RepositoryVisibility @default(UNKNOWN)
-  addedById      String               @map("added_by_id") @db.Uuid
-  createdAt      DateTime             @default(now()) @map("created_at")
-  updatedAt      DateTime             @updatedAt @map("updated_at")
+  id            String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  owner         String
+  repo          String
+  fullName      String               @unique @map("full_name")
+  webhookId     Int?                 @map("webhook_id")
+  webhookSecret String               @map("webhook_secret")
+  status        RepositoryStatus     @default(PENDING)
+  statusMessage String?              @map("status_message")
+  visibility    RepositoryVisibility @default(UNKNOWN)
+  addedById     String               @map("added_by_id") @db.Uuid
+  createdAt     DateTime             @default(now()) @map("created_at")
+  updatedAt     DateTime             @updatedAt @map("updated_at")
 
-  addedBy            Contributor         @relation(fields: [addedById], references: [id])
-  contributions      Contribution[]
-  webhookDeliveries  WebhookDelivery[]
+  addedBy           Contributor       @relation(fields: [addedById], references: [id])
+  contributions     Contribution[]
+  webhookDeliveries WebhookDelivery[]
 
   @@unique([owner, repo], map: "monitored_repositories_owner_repo_key")
   @@map("monitored_repositories")
@@ -477,13 +478,13 @@ model Contribution {
   createdAt        DateTime           @default(now()) @map("created_at")
   updatedAt        DateTime           @updatedAt @map("updated_at")
 
-  contributor      Contributor?        @relation(fields: [contributorId], references: [id])
-  task             Task?               @relation(fields: [taskId], references: [id])
-  repository       MonitoredRepository @relation(fields: [repositoryId], references: [id])
-  collaborations   ContributionCollaboration[]
-  peerFeedbacks    PeerFeedback[]      @relation("ContributionFeedbacks")
-  evaluations      Evaluation[]
-  prizeAwards      PrizeAward[]
+  contributor    Contributor?                @relation(fields: [contributorId], references: [id])
+  task           Task?                       @relation(fields: [taskId], references: [id])
+  repository     MonitoredRepository         @relation(fields: [repositoryId], references: [id])
+  collaborations ContributionCollaboration[]
+  peerFeedbacks  PeerFeedback[]              @relation("ContributionFeedbacks")
+  evaluations    Evaluation[]
+  prizeAwards    PrizeAward[]
 
   @@unique([source, repositoryId, sourceRef], map: "contributions_source_repo_ref_key")
   @@index([contributorId, createdAt(sort: Desc)], map: "contributions_contributor_created_idx")
@@ -494,24 +495,24 @@ model Contribution {
 }
 
 model ContributionCollaboration {
-  id                String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  contributionId    String              @map("contribution_id") @db.Uuid
-  contributorId     String              @map("contributor_id") @db.Uuid
-  isCurrent         Boolean             @default(true) @map("is_current")
-  role              CollaborationRole
-  splitPercentage   Float               @default(100.0) @map("split_percentage")
-  status            CollaborationStatus @default(DETECTED)
-  detectionSource   String              @map("detection_source")
-  confirmedAt       DateTime?           @map("confirmed_at")
-  disputeComment    String?             @map("dispute_comment")
-  overriddenById    String?             @map("overridden_by_id") @db.Uuid
-  overrideReason    String?             @map("override_reason")
-  createdAt         DateTime            @default(now()) @map("created_at")
-  updatedAt         DateTime            @updatedAt @map("updated_at")
+  id              String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  contributionId  String              @map("contribution_id") @db.Uuid
+  contributorId   String              @map("contributor_id") @db.Uuid
+  isCurrent       Boolean             @default(true) @map("is_current")
+  role            CollaborationRole
+  splitPercentage Float               @default(100.0) @map("split_percentage")
+  status          CollaborationStatus @default(DETECTED)
+  detectionSource String              @map("detection_source")
+  confirmedAt     DateTime?           @map("confirmed_at")
+  disputeComment  String?             @map("dispute_comment")
+  overriddenById  String?             @map("overridden_by_id") @db.Uuid
+  overrideReason  String?             @map("override_reason")
+  createdAt       DateTime            @default(now()) @map("created_at")
+  updatedAt       DateTime            @updatedAt @map("updated_at")
 
-  contribution      Contribution        @relation(fields: [contributionId], references: [id])
-  contributor       Contributor         @relation(fields: [contributorId], references: [id])
-  overriddenBy      Contributor?        @relation("CollaborationOverriddenBy", fields: [overriddenById], references: [id])
+  contribution Contribution @relation(fields: [contributionId], references: [id])
+  contributor  Contributor  @relation(fields: [contributorId], references: [id])
+  overriddenBy Contributor? @relation("CollaborationOverriddenBy", fields: [overriddenById], references: [id])
 
   @@unique([contributionId, contributorId, isCurrent], map: "contribution_collaborations_current_key")
   @@index([contributionId], map: "idx_contribution_collaborations_contribution")
@@ -523,16 +524,16 @@ model ContributionCollaboration {
 }
 
 model WebhookDelivery {
-  id            String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  deliveryId    String                @unique @map("delivery_id")
-  repositoryId  String                @map("repository_id") @db.Uuid
-  eventType     String                @map("event_type")
-  status        WebhookDeliveryStatus @default(RECEIVED)
-  payload       Json?
-  processedAt   DateTime?             @map("processed_at")
-  createdAt     DateTime              @default(now()) @map("created_at")
+  id           String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  deliveryId   String                @unique @map("delivery_id")
+  repositoryId String                @map("repository_id") @db.Uuid
+  eventType    String                @map("event_type")
+  status       WebhookDeliveryStatus @default(RECEIVED)
+  payload      Json?
+  processedAt  DateTime?             @map("processed_at")
+  createdAt    DateTime              @default(now()) @map("created_at")
 
-  repository    MonitoredRepository   @relation(fields: [repositoryId], references: [id])
+  repository MonitoredRepository @relation(fields: [repositoryId], references: [id])
 
   @@index([repositoryId], map: "webhook_deliveries_repo_idx")
   @@map("webhook_deliveries")
@@ -540,32 +541,32 @@ model WebhookDelivery {
 }
 
 model WorkingGroup {
-  id                 String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name               String            @unique
-  description        String
-  domain             ContributorDomain @unique
-  accentColor        String            @map("accent_color")
-  memberCount        Int               @default(0) @map("member_count")
-  leadContributorId  String?           @map("lead_contributor_id") @db.Uuid
-  createdAt          DateTime          @default(now()) @map("created_at")
-  updatedAt          DateTime          @updatedAt @map("updated_at")
+  id                String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name              String            @unique
+  description       String
+  domain            ContributorDomain @unique
+  accentColor       String            @map("accent_color")
+  memberCount       Int               @default(0) @map("member_count")
+  leadContributorId String?           @map("lead_contributor_id") @db.Uuid
+  createdAt         DateTime          @default(now()) @map("created_at")
+  updatedAt         DateTime          @updatedAt @map("updated_at")
 
-  members            WorkingGroupMember[]
-  leadContributor    Contributor?      @relation("WorkingGroupLead", fields: [leadContributorId], references: [id])
-  announcements      Announcement[]
+  members         WorkingGroupMember[]
+  leadContributor Contributor?         @relation("WorkingGroupLead", fields: [leadContributorId], references: [id])
+  announcements   Announcement[]
 
   @@map("working_groups")
   @@schema("core")
 }
 
 model WorkingGroupMember {
-  id              String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  workingGroupId  String       @map("working_group_id") @db.Uuid
-  contributorId   String       @map("contributor_id") @db.Uuid
-  joinedAt        DateTime     @default(now()) @map("joined_at")
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  workingGroupId String   @map("working_group_id") @db.Uuid
+  contributorId  String   @map("contributor_id") @db.Uuid
+  joinedAt       DateTime @default(now()) @map("joined_at")
 
-  workingGroup    WorkingGroup @relation(fields: [workingGroupId], references: [id])
-  contributor     Contributor  @relation(fields: [contributorId], references: [id])
+  workingGroup WorkingGroup @relation(fields: [workingGroupId], references: [id])
+  contributor  Contributor  @relation(fields: [contributorId], references: [id])
 
   @@unique([workingGroupId, contributorId], map: "working_group_members_group_contributor_key")
   @@index([contributorId], map: "idx_working_group_members_contributor_id")
@@ -575,14 +576,14 @@ model WorkingGroupMember {
 }
 
 model Announcement {
-  id              String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  workingGroupId  String       @map("working_group_id") @db.Uuid
-  authorId        String       @map("author_id") @db.Uuid
-  content         String       @db.VarChar(500)
-  createdAt       DateTime     @default(now()) @map("created_at")
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  workingGroupId String   @map("working_group_id") @db.Uuid
+  authorId       String   @map("author_id") @db.Uuid
+  content        String   @db.VarChar(500)
+  createdAt      DateTime @default(now()) @map("created_at")
 
-  workingGroup    WorkingGroup @relation(fields: [workingGroupId], references: [id])
-  author          Contributor  @relation(fields: [authorId], references: [id])
+  workingGroup WorkingGroup @relation(fields: [workingGroupId], references: [id])
+  author       Contributor  @relation(fields: [authorId], references: [id])
 
   @@index([workingGroupId, createdAt(sort: Desc)], map: "idx_announcements_working_group_id_created_at")
   @@map("announcements")
@@ -606,9 +607,9 @@ model Task {
   updatedAt       DateTime          @updatedAt @map("updated_at")
   zenhubIssueId   String?           @unique @map("zenhub_issue_id")
 
-  claimedBy       Contributor?      @relation("TaskClaimer", fields: [claimedById], references: [id])
-  createdBy       Contributor       @relation("TaskCreator", fields: [createdById], references: [id])
-  contributions   Contribution[]
+  claimedBy     Contributor?   @relation("TaskClaimer", fields: [claimedById], references: [id])
+  createdBy     Contributor    @relation("TaskCreator", fields: [createdById], references: [id])
+  contributions Contribution[]
 
   @@index([domain, status], map: "idx_tasks_domain_status")
   @@index([domain, sortOrder], map: "idx_tasks_domain_sort_order")
@@ -631,8 +632,8 @@ model ActivityEvent {
   metadata         Json?
   createdAt        DateTime          @default(now()) @map("created_at")
 
-  contributor      Contributor       @relation(fields: [contributorId], references: [id])
-  newspaperItems   NewspaperItem[]
+  contributor    Contributor     @relation(fields: [contributorId], references: [id])
+  newspaperItems NewspaperItem[]
 
   @@index([createdAt(sort: Desc)], map: "idx_activity_events_created_at")
   @@index([domain, createdAt(sort: Desc)], map: "idx_activity_events_domain_created_at")
@@ -653,7 +654,7 @@ model Notification {
   createdAt     DateTime         @default(now()) @map("created_at")
   readAt        DateTime?        @map("read_at")
 
-  contributor   Contributor      @relation(fields: [contributorId], references: [id])
+  contributor Contributor @relation(fields: [contributorId], references: [id])
 
   @@index([contributorId, read, createdAt(sort: Desc)], map: "idx_notifications_contributor_unread")
   @@index([contributorId, createdAt(sort: Desc)], map: "idx_notifications_contributor_created")
@@ -663,22 +664,22 @@ model Notification {
 }
 
 model PeerFeedback {
-  id              String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  contributionId  String         @map("contribution_id") @db.Uuid
-  reviewerId      String         @map("reviewer_id") @db.Uuid
-  status          FeedbackStatus @default(ASSIGNED)
-  ratings         Json?
-  comments        String?        @db.Text
-  assignedBy      String?        @map("assigned_by") @db.Uuid
-  assignedAt      DateTime       @default(now()) @map("assigned_at")
-  submittedAt     DateTime?      @map("submitted_at")
-  reassignedAt    DateTime?      @map("reassigned_at")
-  reassignReason  String?        @map("reassign_reason")
-  createdAt       DateTime       @default(now()) @map("created_at")
-  updatedAt       DateTime       @updatedAt @map("updated_at")
+  id             String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  contributionId String         @map("contribution_id") @db.Uuid
+  reviewerId     String         @map("reviewer_id") @db.Uuid
+  status         FeedbackStatus @default(ASSIGNED)
+  ratings        Json?
+  comments       String?        @db.Text
+  assignedBy     String?        @map("assigned_by") @db.Uuid
+  assignedAt     DateTime       @default(now()) @map("assigned_at")
+  submittedAt    DateTime?      @map("submitted_at")
+  reassignedAt   DateTime?      @map("reassigned_at")
+  reassignReason String?        @map("reassign_reason")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
 
-  contribution    Contribution   @relation("ContributionFeedbacks", fields: [contributionId], references: [id])
-  reviewer        Contributor    @relation("ReviewerFeedbacks", fields: [reviewerId], references: [id])
+  contribution Contribution @relation("ContributionFeedbacks", fields: [contributionId], references: [id])
+  reviewer     Contributor  @relation("ReviewerFeedbacks", fields: [reviewerId], references: [id])
 
   @@unique([contributionId, reviewerId], map: "peer_feedbacks_contribution_reviewer_key")
   @@index([reviewerId, status], map: "idx_peer_feedback_reviewer_status")
@@ -695,7 +696,7 @@ model PlatformSetting {
   updatedAt DateTime @updatedAt @map("updated_at")
   createdAt DateTime @default(now()) @map("created_at")
 
-  updater   Contributor? @relation(fields: [updatedBy], references: [id])
+  updater Contributor? @relation(fields: [updatedBy], references: [id])
 
   @@map("platform_settings")
   @@schema("core")
@@ -714,8 +715,8 @@ model Channel {
   createdAt       DateTime    @default(now()) @map("created_at")
   updatedAt       DateTime    @updatedAt @map("updated_at")
 
-  parentChannel   Channel?    @relation("ChannelHierarchy", fields: [parentChannelId], references: [id])
-  childChannels   Channel[]   @relation("ChannelHierarchy")
+  parentChannel        Channel?              @relation("ChannelHierarchy", fields: [parentChannelId], references: [id])
+  childChannels        Channel[]             @relation("ChannelHierarchy")
   prizeCategories      PrizeCategory[]
   prizeAwards          PrizeAward[]
   communityNominations CommunityNomination[]
@@ -750,21 +751,21 @@ model PrizeCategory {
 }
 
 model PrizeAward {
-  id                     String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  prizeCategoryId        String        @map("prize_category_id") @db.Uuid
-  recipientContributorId String        @map("recipient_contributor_id") @db.Uuid
-  contributionId         String?       @map("contribution_id") @db.Uuid
-  significanceLevel      Int           @map("significance_level")
-  channelId              String        @map("channel_id") @db.Uuid
-  chathamHouseLabel      String        @map("chatham_house_label")
-  narrative              String        @db.Text
-  awardedAt              DateTime      @default(now()) @map("awarded_at")
+  id                     String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  prizeCategoryId        String   @map("prize_category_id") @db.Uuid
+  recipientContributorId String   @map("recipient_contributor_id") @db.Uuid
+  contributionId         String?  @map("contribution_id") @db.Uuid
+  significanceLevel      Int      @map("significance_level")
+  channelId              String   @map("channel_id") @db.Uuid
+  chathamHouseLabel      String   @map("chatham_house_label")
+  narrative              String   @db.Text
+  awardedAt              DateTime @default(now()) @map("awarded_at")
   metadata               Json?
 
-  prizeCategory          PrizeCategory @relation(fields: [prizeCategoryId], references: [id])
-  recipient              Contributor   @relation(fields: [recipientContributorId], references: [id])
-  contribution           Contribution? @relation(fields: [contributionId], references: [id])
-  channel                Channel       @relation(fields: [channelId], references: [id])
+  prizeCategory PrizeCategory @relation(fields: [prizeCategoryId], references: [id])
+  recipient     Contributor   @relation(fields: [recipientContributorId], references: [id])
+  contribution  Contribution? @relation(fields: [contributionId], references: [id])
+  channel       Channel       @relation(fields: [channelId], references: [id])
 
   @@index([prizeCategoryId, awardedAt(sort: Desc)], map: "idx_prize_awards_category_awarded")
   @@index([recipientContributorId, awardedAt(sort: Desc)], map: "idx_prize_awards_recipient_awarded")
@@ -786,11 +787,11 @@ model CommunityNomination {
   expiresAt       DateTime         @map("expires_at")
   updatedAt       DateTime         @updatedAt @map("updated_at")
 
-  nominator       Contributor      @relation("NominationsAsNominator", fields: [nominatorId], references: [id])
-  nominee         Contributor      @relation("NominationsAsNominee", fields: [nomineeId], references: [id])
-  prizeCategory   PrizeCategory    @relation(fields: [prizeCategoryId], references: [id])
-  channel         Channel          @relation(fields: [channelId], references: [id])
-  votes           NominationVote[]
+  nominator     Contributor      @relation("NominationsAsNominator", fields: [nominatorId], references: [id])
+  nominee       Contributor      @relation("NominationsAsNominee", fields: [nomineeId], references: [id])
+  prizeCategory PrizeCategory    @relation(fields: [prizeCategoryId], references: [id])
+  channel       Channel          @relation(fields: [channelId], references: [id])
+  votes         NominationVote[]
 
   @@index([nomineeId, status], map: "idx_community_nominations_nominee_status")
   @@index([nominatorId, nomineeId, prizeCategoryId], map: "idx_community_nominations_cooldown")
@@ -800,13 +801,13 @@ model CommunityNomination {
 }
 
 model NominationVote {
-  id           String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  nominationId String              @map("nomination_id") @db.Uuid
-  voterId      String              @map("voter_id") @db.Uuid
-  createdAt    DateTime            @default(now()) @map("created_at")
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nominationId String   @map("nomination_id") @db.Uuid
+  voterId      String   @map("voter_id") @db.Uuid
+  createdAt    DateTime @default(now()) @map("created_at")
 
-  nomination   CommunityNomination @relation(fields: [nominationId], references: [id], onDelete: Cascade)
-  voter        Contributor         @relation("NominationVotes", fields: [voterId], references: [id])
+  nomination CommunityNomination @relation(fields: [nominationId], references: [id], onDelete: Cascade)
+  voter      Contributor         @relation("NominationVotes", fields: [voterId], references: [id])
 
   @@unique([nominationId, voterId], map: "uq_nomination_votes_nomination_voter")
   @@index([nominationId], map: "idx_nomination_votes_nomination")
@@ -818,20 +819,20 @@ model NominationVote {
 // ─── Newspaper Schema ───────────────────────────────────────────────────────
 
 model NewspaperEdition {
-  id                        String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  editionNumber             Int                      @unique @map("edition_number")
-  status                    NewspaperEditionStatus   @default(DRAFT)
-  temporalSpanStart         DateTime                 @map("temporal_span_start")
-  temporalSpanEnd           DateTime                 @map("temporal_span_end")
-  eventCount                Int                      @default(0) @map("event_count")
-  eventDensity              Decimal                  @default(0) @map("event_density") @db.Decimal(8, 4)
-  significanceDistribution  Json                     @map("significance_distribution")
-  referenceScaleMetadata    Json                     @map("reference_scale_metadata")
-  publishedAt               DateTime?                @map("published_at")
-  createdAt                 DateTime                 @default(now()) @map("created_at")
-  updatedAt                 DateTime                 @updatedAt @map("updated_at")
+  id                       String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  editionNumber            Int                    @unique @map("edition_number")
+  status                   NewspaperEditionStatus @default(DRAFT)
+  temporalSpanStart        DateTime               @map("temporal_span_start")
+  temporalSpanEnd          DateTime               @map("temporal_span_end")
+  eventCount               Int                    @default(0) @map("event_count")
+  eventDensity             Decimal                @default(0) @map("event_density") @db.Decimal(8, 4)
+  significanceDistribution Json                   @map("significance_distribution")
+  referenceScaleMetadata   Json                   @map("reference_scale_metadata")
+  publishedAt              DateTime?              @map("published_at")
+  createdAt                DateTime               @default(now()) @map("created_at")
+  updatedAt                DateTime               @updatedAt @map("updated_at")
 
-  items                     NewspaperItem[]
+  items NewspaperItem[]
 
   @@index([status], map: "idx_newspaper_editions_status")
   @@index([editionNumber(sort: Desc)], map: "idx_newspaper_editions_number_desc")
@@ -841,44 +842,43 @@ model NewspaperEdition {
 }
 
 model NewspaperItem {
-  id                    String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  editionId             String                   @map("edition_id") @db.Uuid
-  sourceEventType       NewspaperItemSourceType   @map("source_event_type")
-  sourceEventId         String                   @map("source_event_id") @db.Uuid
-  channelId             String                   @map("channel_id") @db.Uuid
-  headline              String                   @db.Text
-  body                  String                   @db.Text
-  chathamHouseLabel     String                   @map("chatham_house_label")
-  significanceScore     Int                      @map("significance_score")
-  algorithmicRank       Int                      @map("algorithmic_rank")
-  editorialRankOverride Int?                     @map("editorial_rank_override")
-  communityVoteCount    Int                      @default(0) @map("community_vote_count")
-  createdAt             DateTime                 @default(now()) @map("created_at")
-  updatedAt             DateTime                 @updatedAt @map("updated_at")
+  id                    String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  editionId             String                  @map("edition_id") @db.Uuid
+  sourceEventType       NewspaperItemSourceType @map("source_event_type")
+  sourceEventId         String                  @map("source_event_id") @db.Uuid
+  channelId             String                  @map("channel_id") @db.Uuid
+  headline              String                  @db.Text
+  body                  String                  @db.Text
+  chathamHouseLabel     String                  @map("chatham_house_label")
+  significanceScore     Int                     @map("significance_score")
+  algorithmicRank       Int                     @map("algorithmic_rank")
+  editorialRankOverride Int?                    @map("editorial_rank_override")
+  communityVoteCount    Int                     @default(0) @map("community_vote_count")
+  createdAt             DateTime                @default(now()) @map("created_at")
+  updatedAt             DateTime                @updatedAt @map("updated_at")
 
-  edition               NewspaperEdition         @relation(fields: [editionId], references: [id])
-  sourceEvent           ActivityEvent            @relation(fields: [sourceEventId], references: [id])
-  channel               Channel                  @relation(fields: [channelId], references: [id])
+  edition     NewspaperEdition    @relation(fields: [editionId], references: [id])
+  sourceEvent ActivityEvent       @relation(fields: [sourceEventId], references: [id])
+  channel     Channel             @relation(fields: [channelId], references: [id])
+  votes       NewspaperItemVote[]
 
   @@index([editionId, algorithmicRank], map: "idx_newspaper_items_edition_rank")
   @@index([channelId], map: "idx_newspaper_items_channel")
   @@index([editionId, channelId], map: "idx_newspaper_items_edition_channel")
   @@index([sourceEventId], map: "idx_newspaper_items_source_event")
-  votes                 NewspaperItemVote[]
-
   @@index([significanceScore(sort: Desc)], map: "idx_newspaper_items_significance")
   @@map("newspaper_items")
   @@schema("core")
 }
 
 model NewspaperItemVote {
-  id              String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  newspaperItemId String        @map("newspaper_item_id") @db.Uuid
-  voterId         String        @map("voter_id") @db.Uuid
-  createdAt       DateTime      @default(now()) @map("created_at")
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  newspaperItemId String   @map("newspaper_item_id") @db.Uuid
+  voterId         String   @map("voter_id") @db.Uuid
+  createdAt       DateTime @default(now()) @map("created_at")
 
-  newspaperItem   NewspaperItem @relation(fields: [newspaperItemId], references: [id], onDelete: Cascade)
-  voter           Contributor   @relation("NewspaperItemVotes", fields: [voterId], references: [id])
+  newspaperItem NewspaperItem @relation(fields: [newspaperItemId], references: [id], onDelete: Cascade)
+  voter         Contributor   @relation("NewspaperItemVotes", fields: [voterId], references: [id])
 
   @@unique([newspaperItemId, voterId], map: "uq_newspaper_item_votes_item_voter")
   @@index([newspaperItemId], map: "idx_newspaper_item_votes_item_id")
@@ -903,7 +903,7 @@ model AuditLog {
   correlationId String?  @map("correlation_id")
   createdAt     DateTime @default(now()) @map("created_at")
 
-  actor         Contributor? @relation(fields: [actorId], references: [id])
+  actor Contributor? @relation(fields: [actorId], references: [id])
 
   @@index([createdAt])
   @@index([action])
@@ -941,7 +941,7 @@ model DataExportRequest {
   correlationId String?   @map("correlation_id")
   errorMessage  String?   @map("error_message")
 
-  contributor   Contributor @relation("DataExportRequests", fields: [contributorId], references: [id])
+  contributor Contributor @relation("DataExportRequests", fields: [contributorId], references: [id])
 
   @@index([contributorId, requestedAt(sort: Desc)], map: "idx_data_export_contributor_requested")
   @@index([status], map: "idx_data_export_status")
@@ -962,7 +962,7 @@ model DataDeletionRequest {
   cancelledAt      DateTime? @map("cancelled_at")
   cancelReason     String?   @map("cancel_reason")
 
-  contributor      Contributor @relation("DataDeletionRequests", fields: [contributorId], references: [id])
+  contributor Contributor @relation("DataDeletionRequests", fields: [contributorId], references: [id])
 
   @@index([contributorId, requestedAt(sort: Desc)], map: "idx_data_deletion_contributor_requested")
   @@index([status, coolingOffEndsAt], map: "idx_data_deletion_status_cooling")
@@ -984,7 +984,7 @@ model ComplianceDocument {
   relatedModelId  String?   @map("related_model_id")
   correlationId   String?   @map("correlation_id")
 
-  reviewer        Contributor? @relation("ComplianceDocumentReviewer", fields: [legalReviewedBy], references: [id])
+  reviewer Contributor? @relation("ComplianceDocumentReviewer", fields: [legalReviewedBy], references: [id])
 
   @@index([documentType, version(sort: Desc)], map: "idx_compliance_doc_type_version")
   @@index([generatedAt(sort: Desc)], map: "idx_compliance_doc_generated")
@@ -1039,14 +1039,14 @@ model Article {
   submittedAt DateTime?         @map("submitted_at")
   publishedAt DateTime?         @map("published_at")
 
-  author             Contributor              @relation("ArticleAuthor", fields: [authorId], references: [id])
-  editor             Contributor?             @relation("ArticleEditor", fields: [editorId], references: [id])
-  versions           ArticleVersion[]
-  feedback           EditorialFeedback[]
-  inlineComments     InlineComment[]
-  views              ArticleView[]
-  rewardAllocation   ArticleRewardAllocation?
-  moderationReports  ModerationReport[]
+  author            Contributor              @relation("ArticleAuthor", fields: [authorId], references: [id])
+  editor            Contributor?             @relation("ArticleEditor", fields: [editorId], references: [id])
+  versions          ArticleVersion[]
+  feedback          EditorialFeedback[]
+  inlineComments    InlineComment[]
+  views             ArticleView[]
+  rewardAllocation  ArticleRewardAllocation?
+  moderationReports ModerationReport[]
 
   @@index([authorId, status], map: "idx_articles_author_id_status")
   @@index([editorId, status], map: "idx_articles_editor_id_status")
@@ -1057,12 +1057,12 @@ model Article {
 }
 
 model ArticleVersion {
-  id            String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  articleId     String      @map("article_id") @db.Uuid
-  versionNumber Int         @map("version_number")
-  body          String      @db.Text
-  createdAt     DateTime    @default(now()) @map("created_at")
-  createdById   String      @map("created_by_id") @db.Uuid
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  articleId     String   @map("article_id") @db.Uuid
+  versionNumber Int      @map("version_number")
+  body          String   @db.Text
+  createdAt     DateTime @default(now()) @map("created_at")
+  createdById   String   @map("created_by_id") @db.Uuid
 
   article   Article     @relation(fields: [articleId], references: [id])
   createdBy Contributor @relation("ArticleVersionCreator", fields: [createdById], references: [id])
@@ -1195,20 +1195,20 @@ model ArticleRewardAllocation {
 }
 
 model ModerationReport {
-  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  articleId       String   @map("article_id") @db.Uuid
-  plagiarismScore Decimal  @default(0) @map("plagiarism_score") @db.Decimal(5, 2)
-  aiContentScore  Decimal  @default(0) @map("ai_content_score") @db.Decimal(5, 2)
-  flagType        String?  @map("flag_type") @db.VarChar(50)
-  isFlagged       Boolean  @default(false) @map("is_flagged")
-  flaggedPassages Json?    @map("flagged_passages")
-  status          String   @default("PENDING") @db.VarChar(30)
-  adminId         String?  @map("admin_id") @db.Uuid
-  adminAction     String?  @map("admin_action") @db.VarChar(50)
-  adminReason     String?  @map("admin_reason") @db.Text
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  articleId       String    @map("article_id") @db.Uuid
+  plagiarismScore Decimal   @default(0) @map("plagiarism_score") @db.Decimal(5, 2)
+  aiContentScore  Decimal   @default(0) @map("ai_content_score") @db.Decimal(5, 2)
+  flagType        String?   @map("flag_type") @db.VarChar(50)
+  isFlagged       Boolean   @default(false) @map("is_flagged")
+  flaggedPassages Json?     @map("flagged_passages")
+  status          String    @default("PENDING") @db.VarChar(30)
+  adminId         String?   @map("admin_id") @db.Uuid
+  adminAction     String?   @map("admin_action") @db.VarChar(50)
+  adminReason     String?   @map("admin_reason") @db.Text
   resolvedAt      DateTime? @map("resolved_at")
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
 
   article Article      @relation(fields: [articleId], references: [id], onDelete: Cascade)
   admin   Contributor? @relation("ModerationAdmin", fields: [adminId], references: [id])
@@ -1273,7 +1273,7 @@ model EvaluationRubric {
   isActive       Boolean  @default(true) @map("is_active")
   createdAt      DateTime @default(now()) @map("created_at")
 
-  evaluations    Evaluation[]
+  evaluations Evaluation[]
 
   @@index([evaluationType, isActive], map: "idx_rubrics_type_active")
   @@map("evaluation_rubrics")
@@ -1281,28 +1281,28 @@ model EvaluationRubric {
 }
 
 model Evaluation {
-  id              String            @id @db.Uuid
-  contributionId  String            @map("contribution_id") @db.Uuid
-  contributorId   String            @map("contributor_id") @db.Uuid
-  modelId         String?           @map("model_id") @db.Uuid
-  rubricId        String?           @map("rubric_id") @db.Uuid
-  status          EvaluationStatus  @default(PENDING)
-  compositeScore  Decimal?          @map("composite_score") @db.Decimal(5, 2)
-  dimensionScores Json?             @map("dimension_scores")
-  narrative       String?           @db.Text
-  formulaVersion  String?           @map("formula_version")
-  rawInputs       Json?             @map("raw_inputs")
+  id              String           @id @db.Uuid
+  contributionId  String           @map("contribution_id") @db.Uuid
+  contributorId   String           @map("contributor_id") @db.Uuid
+  modelId         String?          @map("model_id") @db.Uuid
+  rubricId        String?          @map("rubric_id") @db.Uuid
+  status          EvaluationStatus @default(PENDING)
+  compositeScore  Decimal?         @map("composite_score") @db.Decimal(5, 2)
+  dimensionScores Json?            @map("dimension_scores")
+  narrative       String?          @db.Text
+  formulaVersion  String?          @map("formula_version")
+  rawInputs       Json?            @map("raw_inputs")
   metadata        Json?
-  startedAt       DateTime?         @map("started_at")
-  completedAt     DateTime?         @map("completed_at")
-  createdAt       DateTime          @default(now()) @map("created_at")
-  updatedAt       DateTime          @updatedAt @map("updated_at")
+  startedAt       DateTime?        @map("started_at")
+  completedAt     DateTime?        @map("completed_at")
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
 
-  contribution    Contribution      @relation(fields: [contributionId], references: [id])
-  contributor     Contributor       @relation(fields: [contributorId], references: [id])
-  model           EvaluationModel?  @relation(fields: [modelId], references: [id])
-  rubric          EvaluationRubric? @relation(fields: [rubricId], references: [id])
-  review          EvaluationReview?
+  contribution Contribution      @relation(fields: [contributionId], references: [id])
+  contributor  Contributor       @relation(fields: [contributorId], references: [id])
+  model        EvaluationModel?  @relation(fields: [modelId], references: [id])
+  rubric       EvaluationRubric? @relation(fields: [rubricId], references: [id])
+  review       EvaluationReview?
 
   @@unique([contributionId])
   @@index([contributorId, createdAt], map: "idx_evaluations_contributor_created")
@@ -1312,24 +1312,24 @@ model Evaluation {
 }
 
 model EvaluationReview {
-  id                String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  evaluationId      String                  @unique @map("evaluation_id") @db.Uuid
-  contributorId     String                  @map("contributor_id") @db.Uuid
-  reviewerId        String?                 @map("reviewer_id") @db.Uuid
-  status            EvaluationReviewStatus  @default(PENDING)
-  flagReason        String                  @map("flag_reason") @db.Text
-  reviewReason      String?                 @map("review_reason") @db.Text
-  originalScores    Json                    @map("original_scores")
-  overrideScores    Json?                   @map("override_scores")
-  overrideNarrative String?                 @map("override_narrative") @db.Text
-  flaggedAt         DateTime                @default(now()) @map("flagged_at")
-  resolvedAt        DateTime?               @map("resolved_at")
-  createdAt         DateTime                @default(now()) @map("created_at")
-  updatedAt         DateTime                @updatedAt @map("updated_at")
+  id                String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  evaluationId      String                 @unique @map("evaluation_id") @db.Uuid
+  contributorId     String                 @map("contributor_id") @db.Uuid
+  reviewerId        String?                @map("reviewer_id") @db.Uuid
+  status            EvaluationReviewStatus @default(PENDING)
+  flagReason        String                 @map("flag_reason") @db.Text
+  reviewReason      String?                @map("review_reason") @db.Text
+  originalScores    Json                   @map("original_scores")
+  overrideScores    Json?                  @map("override_scores")
+  overrideNarrative String?                @map("override_narrative") @db.Text
+  flaggedAt         DateTime               @default(now()) @map("flagged_at")
+  resolvedAt        DateTime?              @map("resolved_at")
+  createdAt         DateTime               @default(now()) @map("created_at")
+  updatedAt         DateTime               @updatedAt @map("updated_at")
 
-  evaluation        Evaluation              @relation(fields: [evaluationId], references: [id])
-  contributor       Contributor             @relation("EvaluationReviewContributor", fields: [contributorId], references: [id])
-  reviewer          Contributor?            @relation("EvaluationReviewReviewer", fields: [reviewerId], references: [id])
+  evaluation  Evaluation   @relation(fields: [evaluationId], references: [id])
+  contributor Contributor  @relation("EvaluationReviewContributor", fields: [contributorId], references: [id])
+  reviewer    Contributor? @relation("EvaluationReviewReviewer", fields: [reviewerId], references: [id])
 
   @@index([status, flaggedAt], map: "idx_evaluation_reviews_status_flagged")
   @@map("evaluation_reviews")
@@ -1407,19 +1407,19 @@ enum TrackRecordMilestoneType {
 }
 
 model TrackRecordEvaluation {
-  id                       String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  contributorId            String      @map("contributor_id") @db.Uuid
-  evaluationPeriodStart    DateTime    @map("evaluation_period_start")
-  evaluationPeriodEnd      DateTime    @map("evaluation_period_end")
-  consistencyScore         Decimal     @map("consistency_score") @db.Decimal(5, 2)
-  engagementDurationMonths Int         @map("engagement_duration_months")
-  contributionCount        Int         @map("contribution_count")
-  domainBreadth            Int         @map("domain_breadth")
-  activeWeeksRatio         Decimal     @map("active_weeks_ratio") @db.Decimal(3, 2)
-  computedAt               DateTime    @default(now()) @map("computed_at")
+  id                       String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  contributorId            String   @map("contributor_id") @db.Uuid
+  evaluationPeriodStart    DateTime @map("evaluation_period_start")
+  evaluationPeriodEnd      DateTime @map("evaluation_period_end")
+  consistencyScore         Decimal  @map("consistency_score") @db.Decimal(5, 2)
+  engagementDurationMonths Int      @map("engagement_duration_months")
+  contributionCount        Int      @map("contribution_count")
+  domainBreadth            Int      @map("domain_breadth")
+  activeWeeksRatio         Decimal  @map("active_weeks_ratio") @db.Decimal(3, 2)
+  computedAt               DateTime @default(now()) @map("computed_at")
   metadata                 Json?
 
-  contributor              Contributor @relation(fields: [contributorId], references: [id])
+  contributor Contributor @relation(fields: [contributorId], references: [id])
 
   @@index([contributorId, computedAt(sort: Desc)], map: "idx_track_record_evals_contributor_computed")
   @@index([computedAt(sort: Desc)], map: "idx_track_record_evals_computed")
@@ -1436,8 +1436,8 @@ model TrackRecordMilestone {
   crossedAt               DateTime                 @default(now()) @map("crossed_at")
   metadata                Json?
 
-  contributor             Contributor              @relation(fields: [contributorId], references: [id])
-  outcomes                TrackRecordOutcome[]
+  contributor Contributor          @relation(fields: [contributorId], references: [id])
+  outcomes    TrackRecordOutcome[]
 
   @@unique([contributorId, milestoneType, thresholdName], map: "uq_track_record_milestones_contributor_type_name")
   @@index([contributorId, crossedAt(sort: Desc)], map: "idx_track_record_milestones_contributor_crossed")
@@ -1480,18 +1480,18 @@ enum TrackRecordOutcomeStatus {
 }
 
 model TrackRecordOutcome {
-  id              String                    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  milestoneId     String                    @map("milestone_id") @db.Uuid
-  contributorId   String                    @map("contributor_id") @db.Uuid
-  outcomeType     TrackRecordOutcomeType    @map("outcome_type")
-  outcomeDetails  Json                      @map("outcome_details")
-  grantedAt       DateTime                  @default(now()) @map("granted_at")
-  expiresAt       DateTime?                 @map("expires_at")
-  status          TrackRecordOutcomeStatus  @default(ACTIVE) @map("status")
-  metadata        Json?
+  id             String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  milestoneId    String                   @map("milestone_id") @db.Uuid
+  contributorId  String                   @map("contributor_id") @db.Uuid
+  outcomeType    TrackRecordOutcomeType   @map("outcome_type")
+  outcomeDetails Json                     @map("outcome_details")
+  grantedAt      DateTime                 @default(now()) @map("granted_at")
+  expiresAt      DateTime?                @map("expires_at")
+  status         TrackRecordOutcomeStatus @default(ACTIVE) @map("status")
+  metadata       Json?
 
-  milestone       TrackRecordMilestone      @relation(fields: [milestoneId], references: [id])
-  contributor     Contributor               @relation(fields: [contributorId], references: [id])
+  milestone   TrackRecordMilestone @relation(fields: [milestoneId], references: [id])
+  contributor Contributor          @relation(fields: [contributorId], references: [id])
 
   @@unique([milestoneId, outcomeType], map: "uq_track_record_outcomes_milestone_type")
   @@index([contributorId, status], map: "idx_track_record_outcomes_contributor_status")
@@ -1576,9 +1576,9 @@ model SprintMetric {
   createdAt          DateTime @default(now()) @map("created_at")
   updatedAt          DateTime @updatedAt @map("updated_at")
 
-  pipelineTransitions        PipelineTransition[]
-  scopeChangeRecords         ScopeChange[]
-  contributorEstimations     ContributorSprintEstimation[]
+  pipelineTransitions    PipelineTransition[]
+  scopeChangeRecords     ScopeChange[]
+  contributorEstimations ContributorSprintEstimation[]
 
   @@unique([sprintId, domain], map: "sprint_metrics_sprint_domain_uq")
   @@index([sprintEnd, domain], map: "sprint_metrics_sprint_end_domain_idx")
